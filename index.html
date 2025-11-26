@@ -1,0 +1,424 @@
+Przejdź do treści
+Historia czatu
+Powiedziałeś(-aś):
+mozesz mi napisac kod strony internetowej w html?
+ChatGPT powiedział:
+
+Jasne, mogę 🙂
+Poniżej masz kompletny, prosty szablon strony (jeden plik index.html). Możesz go wkleić do pliku i od razu otworzyć w przeglądarce.
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <title>Moja Strona Internetowa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* RESET PODSTAWOWY */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            background: #f4f4f4;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: #fff;
+            padding: 20px 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            margin-top: 10px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* SEKCJA HERO */
+        .hero {
+            background: #ffffff;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        /* SEKCJE GŁÓWNE */
+        section {
+            padding: 50px 0;
+            background: #f4f4f4;
+        }
+
+        section:nth-of-type(even) {
+            background: #ffffff;
+        }
+
+        section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        section p {
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            text-align: center;
+            color: #555;
+        }
+
+        /* PROSTA SIATKA */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+        }
+
+        /* STOPKA */
+        footer {
+            background: #222;
+            color: #ccc;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #ccc;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* FORMULARZ KONTAKTOWY */
+        .contact-form {
+            max-width: 500px;
+            margin: 30px auto 0 auto;
+            text-align: left;
+        }
+
+        .contact-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font: inherit;
+        }
+
+        .contact-form textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+    </style>
+</head>
+<body>
+    <!-- GÓRNY PASEK Z LOGO I MENU -->
+    <header>
+        <div class="container">
+            <div class="logo">Moja Strona</div>
+            <nav>
+                <ul>
+                    <li><a href="#o-mnie">O mnie</a></li>
+                    <li><a href="#oferta">Oferta</a></li>
+                    <li><a href="#kontakt">Kontakt</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- SEKCJA POWITALNA (HERO) -->
+    <section class="hero">
+        <div class="container">
+            <h1>Witaj na mojej stronie internetowej</h1>
+            <p>
+                Tutaj możesz wstawić krótki opis siebie, swojej firmy lub projektu.
+                Ten szablon jest prosty i łatwy do edycji.
+            </p>
+            <a href="#kontakt" class="btn btn-primary">Skontaktuj się ze mną</a>
+        </div>
+    </section>
+
+    <!-- SEKCJA O MNIE -->
+    <section id="o-mnie">
+        <div class="container">
+            <h2>O mnie</h2>
+            <p>
+                Napisz tutaj kilka zdań o sobie lub o działalności. Kim jesteś, czym się zajmujesz,
+                jakie masz doświadczenie i co możesz zaoferować odwiedzającym.
+            </p>
+        </div>
+    </section>
+
+    <!-- SEKCJA OFERTA / USŁUGI -->
+    <section id="oferta">
+        <div class="container">
+            <h2>Oferta</h2>
+            <p>
+                Poniżej możesz przedstawić swoje główne usługi, produkty lub obszary działalności.
+            </p>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>Usługa 1</h3>
+                    <p>Krótki opis pierwszej usługi. Co dokładnie robisz i dla kogo.</p>
+                </div>
+                <div class="card">
+                    <h3>Usługa 2</h3>
+                    <p>Krótki opis drugiej usługi. Możesz dodać informacje o korzyściach.</p>
+                </div>
+                <div class="card">
+                    <h3>Usługa 3</h3>
+                    <p>Krótki opis trzeciej usługi. Np. szkolenia, konsultacje, produkty itp.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEKCJA KONTAKT -->
+    <section id="kontakt">
+        <div class="container">
+            <h2>Kontakt</h2>
+            <p>
+                Tu możesz podać dane kontaktowe: e-mail, telefon, adres lub formularz.
+            </p>
+
+            <div class="contact-form">
+                <form action="#" method="post">
+                    <label for="name">Imię i nazwisko</label>
+                    <input type="text" id="name" name="name" placeholder="Wpisz swoje imię i nazwisko" required />
+
+                    <label for="email">Adres e-mail</label>
+                    <input type="email" id="email" name="email" placeholder="Wpisz swój e-mail" required />
+
+                    <label for="message">Wiadomość</label>
+                    <textarea id="message" name="message" placeholder="Napisz, w czym mogę pomóc" required></textarea>
+
+                    <button type="submit" class="btn btn-primary">Wyślij</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- STOPKA -->
+    <footer>
+        <div class="container">
+            &copy; <!-- Rok aktualny możesz zmienić ręcznie -->
+            2025 Moja Strona &middot; Projekt własny
+        </div>
+    </footer>
+</body>
+</html>
+
+Jeśli powiesz mi, do czego konkretnie ma być ta strona (np. strzelnica, wizytówka firmy, portfolio, kurs „Lokalna Tarcza”), mogę przerobić ten szablon dokładnie pod Twój temat: sekcje, teksty, ikony itd.
+Powiedziałeś(-aś):
+napisz co mam terz z tym kodem zrobić - gdzie go wkleic
+ChatGPT powiedział:
+
+Jasne — krok po kroku, najprościej jak się da:
+✅ Co zrobić z tym kodem HTML? Gdzie go wkleić?
+1. Utwórz plik na komputerze
+
+    Otwórz Notatnik (Windows) lub TextEdit (Mac — ustaw w nim „Format → Ustaw format na zwykły tekst”).
+
+    Skopiuj cały kod HTML, który Ci dałem.
+
+    Wklej go do pustego pliku.
+
+2. Zapisz plik jako stronę internetową
+
+    W Notatniku wybierz: Plik → Zapisz jako…
+
+    Wpisz nazwę np.:
+    index.html
+
+    Typ pliku ustaw na Wszystkie pliki (jeśli jest taka opcja).
+
+    Zapisz.
+
+Na Macu:
+
+    TextEdit → Plik → Zapisz
+
+    Nazwa: index.html
+
+    Format: Zwykły tekst
+
+3. Otwórz stronę w przeglądarce
+
+    Wejdź do folderu, gdzie zapisałeś index.html.
+
+    Kliknij dwukrotnie — otworzy się w Chrome / Firefox / Safari.
+
+👉 Gotowe! To już Twoja działająca strona.
+Jeśli chcesz mieć prawdziwą stronę w internecie:
+
+Masz 3 opcje — wybierz, która jest Ci najwygodniejsza:
+Opcja A — Najprościej: GitHub Pages (0 zł, szybko)
+
+    Zakładasz konto na GitHub.com
+
+    Tworzysz repozytorium
+
+    Wracasz do mnie, a ja poprowadzę Cię krok po kroku dokładnie co kliknąć.
+
+Opcja B — Hosting (home.pl, OVH, dhosting, cyberfolks)
+
+    Kupujesz domenę / hosting
+
+    Wrzucasz plik index.html przez panel WWW lub FTP
+
+    Jeśli chcesz — mogę Ci to przygotować krok po kroku, zależnie od hostingu.
+
+Opcja C — Lokalnie na Twoim Macu jako projekt
+
+    Nic nie kupujesz, po prostu pracujesz nad plikiem index.html
+
+    Możesz potem rozwinąć stronę o kolejne pliki.
+
+Jeśli chcesz — mogę teraz:
+
+✅ przygotować gotowy folder z grafikami
+✅ dodać styl, zdjęcia, logo Twojej strzelnicy
+✅ dopisać treści pod Strzelnicę Powszechną / Sagittarius Gogolin
+✅ przygotować wersję mobilną i profesjonalny wygląd
+✅ zrobić całą stronę (HTML + CSS + JS)
+
+Powiedz tylko: chcesz stronę dla strzelnicy czy innego projektu?
+Powiedziałeś(-aś):
+ok jestem na GitHubes
+ChatGPT powiedział:
+
+Super! To teraz zrobimy Twoją stronę online w 2–3 minuty.
+Prowadzę Cię krok po kroku, nic trudnego — tylko klikasz to, co napiszę.
+✅ KROK 1 — Utwórz nowe repozytorium
+
+    Wejdź na: https://github.com
+
+    Kliknij w prawym górnym rogu + (plus).
+
+    Wybierz New repository.
+
+W formularzu wpisz:
+
+    Repository name:
+    👉 moja-strona
+    (albo dowolna inna nazwa)
+
+    Zaznacz Public.
+
+    Zaznacz opcję Add a README (nie jest konieczne, ale ułatwi pracę).
+
+Kliknij Create repository.
+
+Daj znać „gotowe” — przejdziemy do kroku 2.
+Powiedziałeś(-aś):
+JEDZIMY DALEJ
+ChatGPT powiedział:
+
+Jedziemy! 🚀
+Masz repozytorium? To teraz wrzucamy Twoją stronę.
+✅ KROK 2 — Dodaj plik index.html do repozytorium
+
+    Będąc w swoim nowym repozytorium, kliknij Add file.
+
+    Wybierz Create new file.
+
+    W polu nazwy wpisz dokładnie:
+
+👉 index.html
+
+    Do dużego pola edycji wklej cały kod HTML, który Ci wcześniej dałem.
+
+    Przewiń na dół.
+
+    Kliknij Commit changes (zielony przycisk).
+
+✔️ Gotowe — plik jest już w repozytorium.
+
+Napisz „dalej”, to przechodzimy do publikacji strony na GitHub Pages.
+To będzie działać online za 30 sekund. 🚀
+
+
+ChatGPT może popełniać błędy. Sprawdź ważne informacje. Zobacz Preferencje dotyczące plików cookie.
