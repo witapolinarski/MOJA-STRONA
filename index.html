@@ -1,294 +1,555 @@
-Przejdź do treści
-Historia czatu
-Powiedziałeś(-aś):
-mozesz mi napisac kod strony internetowej w html?
-ChatGPT powiedział:
-
-Jasne, mogę 🙂
-Poniżej masz kompletny, prosty szablon strony (jeden plik index.html). Możesz go wkleić do pliku i od razu otworzyć w przeglądarce.
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
-<head>
-    <meta charset="UTF-8" />
-    <title>Moja Strona Internetowa</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-        /* RESET PODSTAWOWY */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Towarzystwo Miłośników Strzelectwa Sagittarius — klub strzelecki w Gogolinie i Krapkowicach. Członkostwo, szkolenia, zawody PZSS.">
+    <title>Sagittarius — Klub Strzelecki | strzelamy.org.pl</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="top-line" aria-label="Szybki kontakt">
+      <span>Klub zrzeszony w PZSS i OZSS</span>
+      <a href="mailto:kontakt@strzelamy.org.pl">kontakt@strzelamy.org.pl</a>
+      <a href="#czlonkostwo">Złóż wniosek</a>
+    </div>
 
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            line-height: 1.6;
-            background: #f4f4f4;
-            color: #222;
-        }
+    <header class="site-header">
+      <a class="brand" href="#start" aria-label="Sagittarius">
+        <span class="brand-mark">S</span>
+        <span>
+          <strong>Sagittarius</strong>
+          <small>Gogolin / Krapkowice</small>
+        </span>
+      </a>
 
-        header {
-            background: #222;
-            color: #fff;
-            padding: 20px 0;
-        }
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span class="sr-only">Menu</span>
+      </button>
 
-        .container {
-            width: 90%;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        nav {
-            margin-top: 10px;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        nav a:hover {
-            text-decoration: underline;
-        }
-
-        /* SEKCJA HERO */
-        .hero {
-            background: #ffffff;
-            padding: 60px 0;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-        }
-
-        .hero p {
-            font-size: 1.1rem;
-            margin-bottom: 25px;
-            color: #555;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
-        }
-
-        /* SEKCJE GŁÓWNE */
-        section {
-            padding: 50px 0;
-            background: #f4f4f4;
-        }
-
-        section:nth-of-type(even) {
-            background: #ffffff;
-        }
-
-        section h2 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        section p {
-            max-width: 800px;
-            margin: 0 auto 20px auto;
-            text-align: center;
-            color: #555;
-        }
-
-        /* PROSTA SIATKA */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
-        }
-
-        .card h3 {
-            margin-bottom: 10px;
-        }
-
-        /* STOPKA */
-        footer {
-            background: #222;
-            color: #ccc;
-            text-align: center;
-            padding: 15px 0;
-            font-size: 0.9rem;
-        }
-
-        footer a {
-            color: #ccc;
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* FORMULARZ KONTAKTOWY */
-        .contact-form {
-            max-width: 500px;
-            margin: 30px auto 0 auto;
-            text-align: left;
-        }
-
-        .contact-form label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .contact-form input,
-        .contact-form textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font: inherit;
-        }
-
-        .contact-form textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-    </style>
-</head>
-<body>
-    <!-- GÓRNY PASEK Z LOGO I MENU -->
-    <header>
-        <div class="container">
-            <div class="logo">Moja Strona</div>
-            <nav>
-                <ul>
-                    <li><a href="#o-mnie">O mnie</a></li>
-                    <li><a href="#oferta">Oferta</a></li>
-                    <li><a href="#kontakt">Kontakt</a></li>
-                </ul>
-            </nav>
-        </div>
+      <nav class="main-nav" id="main-nav" aria-label="Główna nawigacja">
+        <a href="#o-nas">O nas</a>
+        <a href="#sekcje">Sekcje</a>
+        <a href="#oferta">Oferta</a>
+        <a href="#strzelnice">Strzelnice</a>
+        <a class="nav-join" href="#czlonkostwo">Dołącz</a>
+        <a href="#faq">FAQ</a>
+        <a class="nav-cta" href="#kontakt">Kontakt</a>
+      </nav>
     </header>
 
-    <!-- SEKCJA POWITALNA (HERO) -->
-    <section class="hero">
-        <div class="container">
-            <h1>Witaj na mojej stronie internetowej</h1>
-            <p>
-                Tutaj możesz wstawić krótki opis siebie, swojej firmy lub projektu.
-                Ten szablon jest prosty i łatwy do edycji.
-            </p>
-            <a href="#kontakt" class="btn btn-primary">Skontaktuj się ze mną</a>
-        </div>
-    </section>
-
-    <!-- SEKCJA O MNIE -->
-    <section id="o-mnie">
-        <div class="container">
-            <h2>O mnie</h2>
-            <p>
-                Napisz tutaj kilka zdań o sobie lub o działalności. Kim jesteś, czym się zajmujesz,
-                jakie masz doświadczenie i co możesz zaoferować odwiedzającym.
-            </p>
-        </div>
-    </section>
-
-    <!-- SEKCJA OFERTA / USŁUGI -->
-    <section id="oferta">
-        <div class="container">
-            <h2>Oferta</h2>
-            <p>
-                Poniżej możesz przedstawić swoje główne usługi, produkty lub obszary działalności.
-            </p>
-
-            <div class="grid">
-                <div class="card">
-                    <h3>Usługa 1</h3>
-                    <p>Krótki opis pierwszej usługi. Co dokładnie robisz i dla kogo.</p>
-                </div>
-                <div class="card">
-                    <h3>Usługa 2</h3>
-                    <p>Krótki opis drugiej usługi. Możesz dodać informacje o korzyściach.</p>
-                </div>
-                <div class="card">
-                    <h3>Usługa 3</h3>
-                    <p>Krótki opis trzeciej usługi. Np. szkolenia, konsultacje, produkty itp.</p>
-                </div>
+    <main id="start">
+      <section class="hero" aria-label="Towarzystwo Miłośników Strzelectwa Sagittarius">
+        <img
+          src="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/strzelnica_kamien_slaski_15.jpg"
+          alt="Strzelnica klubu Sagittarius w Kamieniu Śląskim"
+          class="hero-image"
+        >
+        <div class="hero-shade"></div>
+        <div class="hero-content">
+          <p class="eyebrow">Strzelectwo sportowe | PZSS | OZSS</p>
+          <h1>Towarzystwo Miłośników Strzelectwa Sagittarius</h1>
+          <p class="hero-lead">
+            Rozwijamy strzelectwo sportowe, prowadzimy szkolenia specjalistyczne
+            i wspieramy członków na każdym etapie — od patentu strzeleckiego
+            po licencję zawodniczą PZSS.
+          </p>
+          <div class="hero-actions">
+            <a class="button join" href="#czlonkostwo">
+              <span>Zostań członkiem</span>
+              <small>formularz online</small>
+            </a>
+            <a class="button primary" href="#oferta">Poznaj ofertę klubu</a>
+            <a class="button secondary" href="#sekcje">Sekcje klubowe</a>
+          </div>
+          <dl class="quick-facts" aria-label="Najważniejsze informacje">
+            <div>
+              <dt>Zrzeszenie</dt>
+              <dd>PZSS / OZSS</dd>
             </div>
-        </div>
-    </section>
-
-    <!-- SEKCJA KONTAKT -->
-    <section id="kontakt">
-        <div class="container">
-            <h2>Kontakt</h2>
-            <p>
-                Tu możesz podać dane kontaktowe: e-mail, telefon, adres lub formularz.
-            </p>
-
-            <div class="contact-form">
-                <form action="#" method="post">
-                    <label for="name">Imię i nazwisko</label>
-                    <input type="text" id="name" name="name" placeholder="Wpisz swoje imię i nazwisko" required />
-
-                    <label for="email">Adres e-mail</label>
-                    <input type="email" id="email" name="email" placeholder="Wpisz swój e-mail" required />
-
-                    <label for="message">Wiadomość</label>
-                    <textarea id="message" name="message" placeholder="Napisz, w czym mogę pomóc" required></textarea>
-
-                    <button type="submit" class="btn btn-primary">Wyślij</button>
-                </form>
+            <div>
+              <dt>Sekcje</dt>
+              <dd>3 aktywne</dd>
             </div>
+            <div>
+              <dt>Strzelnice</dt>
+              <dd>2 lokalizacje</dd>
+            </div>
+          </dl>
+          <div class="hero-note">
+            <strong>Pierwszy krok?</strong>
+            <span>Wypełnij wniosek online — przygotujemy deklarację członkostwa i prześlemy dalsze instrukcje.</span>
+          </div>
         </div>
+      </section>
+
+      <section class="section intro" id="o-nas">
+        <div class="section-heading">
+          <p class="eyebrow">O nas</p>
+          <h2>Klub strzelecki z doświadczeniem służb mundurowych i praktyków PZSS.</h2>
+        </div>
+        <div class="intro-copy">
+          <p>
+            Towarzystwo Miłośników Strzelectwa „Sagittarius” zajmuje się wszechstronnym
+            rozwojem i upowszechnianiem dyscyplin strzelectwa sportowego. Zrzeszamy osoby
+            zajmujące się strzelectwem, prowadzimy szkolenia specjalistyczne i propagujemy
+            strzelectwo jako formę integracji i rekreacji.
+          </p>
+          <p>
+            Nasza kadra to pasjonaci strzelectwa — praktycy, instruktorzy i sędziowie
+            wywodzący się z Policji, Wojska, Straży Granicznej, Służby Więziennej oraz
+            innych formacji mundurowych. To także eksperci prawa broni i uprawnieni rusznikarze.
+          </p>
+          <p>
+            Pomagamy w uzyskaniu patentu strzeleckiego, licencji zawodniczej PZSS oraz
+            przygotowaniach do pozwolenia na broń sportową i kolekcjonerską.
+          </p>
+        </div>
+      </section>
+
+      <section class="section photo-proof" aria-label="Zdjęcia z obiektów klubowych">
+        <div class="section-heading">
+          <p class="eyebrow">Nasze strzelnice</p>
+          <h2>Miejsca treningów i zawodów klubowych.</h2>
+        </div>
+        <div class="photo-grid">
+          <figure class="wide">
+            <img
+              src="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/strzelnica_kamien_slaski_6.jpg"
+              alt="Stanowiska strzeleckie w Kamieniu Śląskim"
+              loading="lazy"
+            >
+          </figure>
+          <figure>
+            <img
+              src="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/strzelnica_kamien_slaski_9.jpg"
+              alt="Infrastruktura strzelnicy"
+              loading="lazy"
+            >
+          </figure>
+          <figure>
+            <img
+              src="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/strzelnica_kamien_slaski_12.jpg"
+              alt="Zajęcia strzeleckie pod okiem instruktora"
+              loading="lazy"
+            >
+          </figure>
+        </div>
+      </section>
+
+      <section class="section audience" id="sekcje">
+        <div class="section-heading">
+          <p class="eyebrow">Sekcje</p>
+          <h2>Wybierz ścieżkę rozwoju dopasowaną do Twoich celów.</h2>
+        </div>
+        <div class="audience-grid">
+          <article>
+            <span>Sekcja sportowa</span>
+            <h3>Zawody i licencja PZSS</h3>
+            <p>
+              Treningi, starty w zawodach klubowych i okręgowych, rozwój umiejętności
+              strzeleckich pod okiem sędziów i instruktorów PZSS.
+            </p>
+          </article>
+          <article>
+            <span>Sekcja kolekcjonerska</span>
+            <h3>Kultura oręża i kolekcje</h3>
+            <p>
+              Wsparcie w procedurach związanych z pozwoleniem kolekcjonerskim,
+              wymianą wiedzy o broni historycznej i bezpiecznym jej użytkowaniu.
+            </p>
+          </article>
+          <article>
+            <span>Sekcja szkoleniowa</span>
+            <h3>Szkolenia i patent</h3>
+            <p>
+              Kursy dla początkujących i zaawansowanych: bezpieczeństwo, pierwsza pomoc,
+              taktyka, samoobrona oraz przygotowanie do patentu strzeleckiego.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="feature-band" id="oferta">
+        <div class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Oferta klubowa</p>
+            <h2>Co zyskujesz jako członek Sagittarius?</h2>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <span class="card-icon">01</span>
+              <h3>Szkolenia specjalistyczne</h3>
+              <p>
+                Cykliczne kursy i warsztaty prowadzone przez instruktorów z wieloletnim
+                doświadczeniem w służbach mundurowych i sporcie strzeleckim.
+              </p>
+            </article>
+            <article class="feature-card">
+              <span class="card-icon">02</span>
+              <h3>Zawody klubowe</h3>
+              <p>
+                Organizujemy zawody dla osób czynnie uprawiających strzelectwo sportowe
+                dzięki członkostwu w Polskim Związku Strzelectwa Sportowego.
+              </p>
+            </article>
+            <article class="feature-card">
+              <span class="card-icon">03</span>
+              <h3>Patent i licencja</h3>
+              <p>
+                Pomoc w uzyskaniu patentu strzeleckiego, licencji zawodniczej PZSS
+                oraz monitorowanie etapów pozwolenia na broń.
+              </p>
+            </article>
+            <article class="feature-card">
+              <span class="card-icon">04</span>
+              <h3>Współpraca oświatowa</h3>
+              <p>
+                Realizujemy projekty edukacyjne we współpracy z instytucjami oświatowymi
+                i wychowawczymi w regionie opolskim.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section steps" aria-label="Jak dołączyć do klubu">
+        <div class="section-heading">
+          <p class="eyebrow">Jak dołączyć</p>
+          <h2>Prosty proces — od wniosku do uchwały zarządu.</h2>
+        </div>
+        <div class="steps-row">
+          <article>
+            <span>Krok 1</span>
+            <h3>Wypełnij wniosek</h3>
+            <p>
+              Uzupełnij formularz online. System przygotuje deklarację członkostwa
+              i wyśle potwierdzenie na Twój e-mail.
+            </p>
+          </article>
+          <article>
+            <span>Krok 2</span>
+            <h3>Dołącz dokumenty</h3>
+            <p>
+              Załącz zaświadczenie o niekaralności (jeśli wymagane), rekomendację członka
+              oraz uiść wpisowe zgodnie z cennikiem klubu.
+            </p>
+          </article>
+          <article>
+            <span>Krok 3</span>
+            <h3>Decyzja zarządu</h3>
+            <p>
+              Zarząd rozpatruje wniosek uchwałą. Po przyjęciu otrzymujesz potwierdzenie
+              członkostwa i dostęp do aktywności klubowych.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-section" id="zarzad">
+        <div class="section-heading">
+          <p class="eyebrow">Zarząd</p>
+          <h2>Kadencja zarządu na 5 lat.</h2>
+        </div>
+        <div class="board-grid">
+          <article>
+            <h3>Prezes zarządu</h3>
+            <p class="board-name">Witold Apolinarski</p>
+          </article>
+          <article>
+            <h3>Wiceprezesi</h3>
+            <p class="board-name">Krzysztof Ptak</p>
+            <p class="board-name">Andrzej Malinowski</p>
+          </article>
+          <article>
+            <h3>Członkowie zarządu</h3>
+            <p class="board-name">Rafał Zelent</p>
+            <p class="board-name">Przemysław Majcher</p>
+          </article>
+          <article>
+            <h3>Komisja rewizyjna</h3>
+            <p class="board-name">Leszek Zinko</p>
+            <p class="board-name">Artur Zmysłowski</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-section" id="strzelnice">
+        <div class="section-heading">
+          <p class="eyebrow">Lokalizacje</p>
+          <h2>Strzelnice klubowe.</h2>
+        </div>
+        <div class="location-grid">
+          <article class="location-card">
+            <h3>Kamień Śląski</h3>
+            <p>Strzelnica klubowa przy lotnisku. Stanowiska treningowe i zawodowe dla członków sekcji sportowej i szkoleniowej.</p>
+          </article>
+          <article class="location-card">
+            <h3>Krapkowice</h3>
+            <p>Druga lokalizacja klubu — zajęcia sekcji, szkolenia i spotkania organizacyjne dla członków z regionu krapkowickiego.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-section" id="skladki">
+        <div class="section-heading">
+          <p class="eyebrow">Składki</p>
+          <h2>Przejrzysty cennik członkostwa.</h2>
+          <p>Aktualne stawki zatwierdzone uchwałą zarządu TMS „Sagittarius”.</p>
+        </div>
+        <div class="price-layout">
+          <article class="price-panel featured">
+            <span class="badge">Wpisowe</span>
+            <h3>Jednorazowa opłata przy przyjęciu</h3>
+            <ul class="price-list">
+              <li>
+                <span>Wpisowe</span>
+                <strong>350 zł</strong>
+              </li>
+            </ul>
+          </article>
+          <article class="price-panel">
+            <span class="badge">Składka miesięczna</span>
+            <h3>Członkowie staży</h3>
+            <ul class="price-list">
+              <li>
+                <span>Co miesiąc (do 15.)</span>
+                <strong>30 zł</strong>
+              </li>
+              <li>
+                <span>Jednorazowo do końca roku</span>
+                <strong>300 zł</strong>
+              </li>
+            </ul>
+          </article>
+          <article class="price-panel">
+            <span class="badge">Nowi członkowie</span>
+            <h3>Składka proporcjonalna</h3>
+            <ul class="price-list">
+              <li>
+                <span>30 zł × miesiące do końca roku</span>
+                <strong>np. 270 zł</strong>
+              </li>
+              <li>
+                <span>Przykład: zapis w kwietniu</span>
+                <strong>9 × 30 zł</strong>
+              </li>
+            </ul>
+          </article>
+        </div>
+        <p class="arsenal-note">
+          W przypadku zaległości składkowych zarząd podejmuje uchwałę o wykluczeniu członka
+          ze stowarzyszenia, zgodnie ze statutem TMS „Sagittarius”.
+        </p>
+      </section>
+
+      <section class="form-band" id="czlonkostwo">
+        <div>
+          <p class="eyebrow">Członkostwo</p>
+          <h2>Złóż wniosek o przyjęcie do klubu.</h2>
+          <p>
+            Wypełnij formularz — przygotujemy deklarację i prześlemy ją do weryfikacji zarządowi.
+            Po zatwierdzeniu otrzymasz potwierdzenie członkostwa.
+          </p>
+        </div>
+
+        <div class="form-purchase">
+          <form class="membership-form" id="membership-form" novalidate>
+            <h3>Dane wnioskodawcy</h3>
+
+            <label>
+              Imię i nazwisko
+              <input type="text" id="member-name" name="name" required autocomplete="name" placeholder="Jan Kowalski">
+            </label>
+
+            <label>
+              Adres e-mail
+              <input type="email" id="member-email" name="email" required autocomplete="email" placeholder="jan@example.com">
+            </label>
+
+            <label>
+              Telefon
+              <input type="tel" id="member-phone" name="phone" required autocomplete="tel" placeholder="+48 600 000 000">
+            </label>
+
+            <label>
+              Adres zamieszkania
+              <input type="text" id="member-address" name="address" required placeholder="ul. Przykładowa 1, 47-320 Gogolin">
+            </label>
+
+            <label>
+              Rodzaj członkostwa
+              <select id="member-type" name="type" required>
+                <option value="zwyczajne">Członkostwo zwyczajne</option>
+                <option value="mlodsze">Członkostwo młodsze</option>
+                <option value="wspierajace">Członkostwo wspierające</option>
+              </select>
+            </label>
+
+            <label>
+              Sekcja klubowa
+              <select id="member-section" name="section" required>
+                <option value="sportowa">Sekcja sportowa</option>
+                <option value="kolekcjonerska">Sekcja kolekcjonerska</option>
+                <option value="szkoleniowa">Sekcja szkoleniowa</option>
+              </select>
+            </label>
+
+            <label>
+              Rekomendujący członek klubu
+              <input type="text" id="member-recommender" name="recommender" required placeholder="Imię i nazwisko członka">
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="member-exempt" name="exempt">
+              Jestem funkcjonariuszem służb mundurowych lub posiadam pozwolenie na broń (zwolnienie z zaświadczenia o niekaralności)
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="member-statute" name="statute" required>
+              Akceptuję <a href="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/STATUT-SAGITTARIUS.pdf" target="_blank" rel="noopener">statut TMS „Sagittarius”</a>
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="member-rodo" name="rodo" required>
+              Wyrażam zgodę na przetwarzanie danych osobowych (RODO)
+            </label>
+
+            <button type="submit" class="button primary submit-button" id="membership-submit">
+              Wyślij wniosek
+            </button>
+            <p class="form-note" id="form-note">
+              Po wysłaniu otrzymasz e-mail z potwierdzeniem i wygenerowaną deklaracją członkostwa.
+              Wdrożenie wymaga podpięcia backendu (Netlify Forms, Formspree lub własny serwer).
+            </p>
+          </form>
+
+          <aside class="form-preview" aria-live="polite">
+            <h3>Podgląd wniosku</h3>
+            <div class="preview-card">
+              <p class="preview-label">TMS „Sagittarius”</p>
+              <p class="preview-title">Deklaracja członkostwa</p>
+              <dl class="preview-list">
+                <div>
+                  <dt>Wnioskodawca</dt>
+                  <dd id="preview-name">—</dd>
+                </div>
+                <div>
+                  <dt>E-mail</dt>
+                  <dd id="preview-email">—</dd>
+                </div>
+                <div>
+                  <dt>Typ członkostwa</dt>
+                  <dd id="preview-type">Członkostwo zwyczajne</dd>
+                </div>
+                <div>
+                  <dt>Sekcja</dt>
+                  <dd id="preview-section">Sekcja sportowa</dd>
+                </div>
+                <div>
+                  <dt>Rekomendacja</dt>
+                  <dd id="preview-recommender">—</dd>
+                </div>
+                <div>
+                  <dt>Nr wniosku</dt>
+                  <dd id="preview-code">SG-—</dd>
+                </div>
+              </dl>
+            </div>
+            <div class="preview-checklist">
+              <p><strong>Wymagane po wysłaniu wniosku:</strong></p>
+              <ul id="preview-checklist">
+                <li>Zaświadczenie o niekaralności (max 30 dni)</li>
+                <li>Rekomendacja członka klubu</li>
+                <li>Wpłata wpisowego 350 zł</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" id="faq">
+        <div class="section-heading">
+          <p class="eyebrow">FAQ</p>
+          <h2>Najczęściej zadawane pytania o członkostwo.</h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>Kto może zostać członkiem zwyczajnym?</summary>
+            <p class="faq-answer">
+              Pełnoletni obywatel RP z pełną zdolnością do czynności prawnych, korzystający
+              z pełni praw publicznych, zainteresowany strzelectwem i gotowy wspierać cele
+              stowarzyszenia — zgodnie ze statutem TMS „Sagittarius”.
+            </p>
+          </details>
+          <details>
+            <summary>Jakie dokumenty są potrzebne?</summary>
+            <p class="faq-answer">
+              Deklaracja członkostwa, rekomendacja członka klubu, zaświadczenie o niekaralności
+              za przestępstwo umyślne (nie starsze niż 30 dni) oraz potwierdzenie wpłaty wpisowego.
+              Funkcjonariusze służb mundurowych i osoby z pozwoleniem na broń są zwolnieni
+              z zaświadczenia o niekaralności.
+            </p>
+          </details>
+          <details>
+            <summary>Czy klub pomaga w uzyskaniu patentu strzeleckiego?</summary>
+            <p class="faq-answer">
+              Tak. Prowadzimy szkolenia i wspieramy członków w procesie uzyskania patentu
+              strzeleckiego oraz licencji zawodniczej PZSS, a także monitorujemy etapy
+              pozwolenia na broń sportową i kolekcjonerską.
+            </p>
+          </details>
+          <details>
+            <summary>Jak długo trwa rozpatrzenie wniosku?</summary>
+            <p class="faq-answer">
+              Zarząd rozpatruje wniosek w drodze uchwały. Czas zależy od kompletności dokumentów
+              — po wysłaniu formularza otrzymasz informację o brakujących elementach.
+            </p>
+          </details>
+          <details>
+            <summary>Gdzie mogę pobrać statut i deklarację?</summary>
+            <p class="faq-answer">
+              Statut i deklaracja RODO są dostępne do pobrania:
+              <a href="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/STATUT-SAGITTARIUS.pdf" target="_blank" rel="noopener">Statut TMS „Sagittarius”</a>,
+              <a href="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/deklaracja-rodo.pdf" target="_blank" rel="noopener">Deklaracja RODO</a>.
+              Formularz online generuje deklarację automatycznie na podstawie podanych danych.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <section class="contact-strip" id="kontakt" aria-label="Kontakt">
+      <div>
+        <p class="eyebrow">Kontakt</p>
+        <h2>Masz pytania o członkostwo lub szkolenia?</h2>
+        <p>
+          Napisz do nas — odpowiemy w sprawie wniosków, dokumentów i terminów zajęć klubowych.
+        </p>
+      </div>
+      <div class="contact-actions">
+        <a class="button primary" href="mailto:kontakt@strzelamy.org.pl">kontakt@strzelamy.org.pl</a>
+        <a class="button secondary" href="#czlonkostwo">Złóż wniosek</a>
+      </div>
     </section>
 
-    <!-- STOPKA -->
-    <footer>
-        <div class="container">
-            &copy; <!-- Rok aktualny możesz zmienić ręcznie -->
-            2025 Moja Strona &middot; Projekt własny
-        </div>
+    <footer class="site-footer">
+      <p>© 2025 Towarzystwo Miłośników Strzelectwa „Sagittarius” · ul. Młyńska 4, 47-320 Gogolin</p>
+      <p>KRS 0000591210 · PZSS · OZSS</p>
     </footer>
-</body>
+
+    <div class="mobile-quick-contact" aria-label="Szybkie działania">
+      <a href="mailto:kontakt@strzelamy.org.pl">E-mail</a>
+      <a class="join" href="#czlonkostwo">Dołącz</a>
+      <a href="#faq">FAQ</a>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
-
-
