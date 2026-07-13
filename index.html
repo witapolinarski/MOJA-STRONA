@@ -360,7 +360,22 @@
         </div>
 
         <div class="form-purchase">
-          <form class="membership-form" id="membership-form" novalidate>
+          <form
+            class="membership-form"
+            id="membership-form"
+            name="membership"
+            method="POST"
+            action="/success.html"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+            novalidate
+          >
+            <input type="hidden" name="form-name" value="membership">
+            <input type="hidden" name="application-code" id="application-code" value="">
+            <p class="hidden" aria-hidden="true">
+              <label>Nie wypełniaj tego pola: <input name="bot-field"></label>
+            </p>
+
             <h3>Dane wnioskodawcy</h3>
 
             <label>
@@ -407,17 +422,17 @@
             </label>
 
             <label class="checkbox-label">
-              <input type="checkbox" id="member-exempt" name="exempt">
+              <input type="checkbox" id="member-exempt" name="exempt" value="tak">
               Jestem funkcjonariuszem służb mundurowych lub posiadam pozwolenie na broń (zwolnienie z zaświadczenia o niekaralności)
             </label>
 
             <label class="checkbox-label">
-              <input type="checkbox" id="member-statute" name="statute" required>
+              <input type="checkbox" id="member-statute" name="statute" value="tak" required>
               Akceptuję <a href="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/STATUT-SAGITTARIUS.pdf" target="_blank" rel="noopener">statut TMS „Sagittarius”</a>
             </label>
 
             <label class="checkbox-label">
-              <input type="checkbox" id="member-rodo" name="rodo" required>
+              <input type="checkbox" id="member-rodo" name="rodo" value="tak" required>
               Wyrażam zgodę na przetwarzanie danych osobowych (RODO)
             </label>
 
@@ -425,8 +440,7 @@
               Wyślij wniosek
             </button>
             <p class="form-note" id="form-note">
-              Po wysłaniu otrzymasz e-mail z potwierdzeniem i wygenerowaną deklaracją członkostwa.
-              Wdrożenie wymaga podpięcia backendu (Netlify Forms, Formspree lub własny serwer).
+              Po wysłaniu wniosek trafi do zarządu klubu przez Netlify Forms. Otrzymasz potwierdzenie na podany adres e-mail.
             </p>
           </form>
 

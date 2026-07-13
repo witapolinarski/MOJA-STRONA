@@ -880,6 +880,100 @@ summary {
   display: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.success-page {
+  min-height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(6, 12, 9, 0.9), rgba(21, 53, 38, 0.78)),
+    url("https://www.strzelamy.org.pl/wp-content/uploads/2024/04/strzelnica_kamien_slaski_15.jpg") center / cover;
+}
+
+.success-shell {
+  display: grid;
+  align-content: center;
+  gap: 28px;
+  width: min(760px, calc(100% - 36px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.success-brand {
+  color: var(--white);
+}
+
+.success-panel {
+  padding: clamp(28px, 5vw, 48px);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+}
+
+.success-panel h1 {
+  color: var(--ink);
+  font-size: clamp(2.35rem, 5vw, 4.2rem);
+}
+
+.success-lead {
+  max-width: 600px;
+  color: #3c4540;
+  font-size: 1.08rem;
+}
+
+.success-summary {
+  margin-top: 26px;
+  padding: 18px;
+  background: rgba(47, 95, 74, 0.08);
+  border-left: 5px solid var(--green);
+}
+
+.success-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.success-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.success-list div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.success-list dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.success-list dd {
+  margin: 0;
+  font-weight: 900;
+  text-align: right;
+}
+
+.success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.button.dark {
+  color: var(--green-dark);
+  border-color: rgba(21, 53, 38, 0.2);
+  background: var(--white);
+}
+
 @media (max-width: 900px) {
   .top-line {
     display: none;
