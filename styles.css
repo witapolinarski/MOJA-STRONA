@@ -145,28 +145,11 @@ img {
 }
 
 .nav-cta {
-  display: inline-grid;
-  gap: 1px;
-  align-content: center;
-  justify-items: center;
-  min-width: 112px;
-  padding: 8px 14px 10px !important;
+  padding: 10px 14px;
   color: #ffffff !important;
   background: var(--accent);
-  text-align: center;
-  border-bottom: 0 !important;
-}
-
-.nav-cta span {
   font-weight: 900;
-  line-height: 1.1;
-}
-
-.nav-cta small {
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 0.72rem;
-  font-weight: 800;
-  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .menu-toggle {
