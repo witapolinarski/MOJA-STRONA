@@ -12,44 +12,46 @@ Otwórz: http://localhost:8080
 
 > Formularz działa lokalnie tylko w trybie podglądu. Wysyłka do zarządu wymaga wdrożenia na Netlify.
 
-## Wdrożenie na Netlify
+## Wdrożenie na Netlify (konto opłacone)
 
-### 1. Połącz repozytorium
+### Krok 1 — Połącz GitHub z Netlify
 
-1. Zaloguj się na [app.netlify.com](https://app.netlify.com)
-2. **Add new site** → **Import an existing project**
-3. Wybierz GitHub → repozytorium `MOJA-STRONA`
-4. Branch: `cursor/sagittarius-club-site-2b7f` (lub `main` po merge)
-5. Ustawienia buildu (wczytają się z `netlify.toml`):
+1. [app.netlify.com](https://app.netlify.com) → **Add new site** → **Import an existing project**
+2. **GitHub** → repozytorium **MOJA-STRONA**
+3. Branch: **`main`**
+4. Ustawienia buildu:
    - **Build command:** *(puste)*
    - **Publish directory:** `.`
-6. Kliknij **Deploy site**
+5. **Deploy site**
 
-### 2. Włącz powiadomienia e-mail (Forms)
+### Krok 2 — Sprawdź adres strony
 
-Po pierwszym deployu:
+Po ~1 minucie Netlify poda link, np. `https://nazwa-123.netlify.app` — otwórz go w przeglądarce.
 
-1. W panelu Netlify: **Forms** → formularz `membership`
-2. **Form notifications** → **Add notification** → **Email notification**
-3. Podaj adres zarządu (np. `kontakt@strzelamy.org.pl`)
+### Krok 3 — Włącz formularz (Forms)
 
-Każdy wniosek trafi do panelu Netlify i na skrzynkę e-mail.
+1. **Site configuration** → **Forms** — upewnij się, że Forms są włączone
+2. Po deployu powinien pojawić się formularz **`membership`**
 
-### 3. Podłącz domenę strzelamy.org.pl
+### Krok 4 — Powiadomienia e-mail
 
-1. **Domain management** → **Add domain** → `strzelamy.org.pl`
-2. Ustaw DNS u rejestratora domeny:
-   - `A` → `75.2.60.5` (Netlify load balancer)
-   - lub `CNAME` `www` → `<twoja-strona>.netlify.app`
-3. Włącz **HTTPS** (Let's Encrypt — automatycznie)
+1. **Notifications** → **Form submission notifications** → **Add notification**
+2. Typ: **Email notification**
+3. Form: **membership**
+4. Adres: np. `kontakt@strzelamy.org.pl` lub Twój e-mail
 
-### 4. Deploy z CLI (opcjonalnie)
+### Krok 5 — Domena strzelamy.org.pl (opcjonalnie)
 
-```bash
-npx netlify login
-npx netlify init
-npx netlify deploy --prod
-```
+1. **Domain management** → **Add a domain** → `strzelamy.org.pl`
+2. Ustaw DNS według instrukcji Netlify (zazwyczaj A record lub CNAME)
+3. Poczekaj na certyfikat HTTPS (automatycznie)
+
+### Test formularza
+
+1. Wejdź na stronę → sekcja **Zostań członkiem**
+2. Wypełnij i wyślij wniosek
+3. Sprawdź **Forms → membership → Submissions** w panelu Netlify
+4. Sprawdź skrzynkę e-mail
 
 ## Zawartość strony
 
