@@ -1,94 +1,63 @@
-# Sagittarius — prototyp strony klubowej
+# Sagittarius — strona klubowa + panel administratora
 
-Prototyp statycznej strony **Towarzystwa Miłośników Strzelectwa „Sagittarius”** w stylu [strzelam.com](https://strzelam.com/).
+Strona **Towarzystwa Miłośników Strzelectwa „Sagittarius”** z formularzem członkostwa i panelem weryfikacji dokumentów.
 
-## Uruchomienie lokalne
+## Panel administratora
 
-```bash
-python3 -m http.server 8080
-```
+Adres: **`/admin.html`**
 
-Otwórz: http://localhost:8080
+Administrator loguje się hasłem i może:
+- przeglądać wnioski (oczekujące / zatwierdzone / odrzucone),
+- pobierać **deklarację członkowską** i **dowód wpłaty**,
+- **zatwierdzać** lub **odrzucać** wniosek z uwagami.
 
-> Formularz działa lokalnie tylko w trybie podglądu. Wysyłka do zarządu wymaga wdrożenia na Netlify.
+## Wymagana konfiguracja Netlify
 
-## Wdrożenie na Netlify (konto opłacone)
+W **Site configuration → Environment variables** dodaj:
 
-### Krok 1 — Połącz GitHub z Netlify
+| Zmienna | Opis |
+|---|---|
+| `ADMIN_PASSWORD` | Hasło do panelu `/admin.html` |
 
-1. [app.netlify.com](https://app.netlify.com) → **Add new site** → **Import an existing project**
-2. **GitHub** → repozytorium **MOJA-STRONA**
-3. Branch: **`main`**
-4. Ustawienia buildu:
-   - **Build command:** *(puste)*
-   - **Publish directory:** `.`
+Opcjonalnie:
+
+| Zmienna | Opis |
+|---|---|
+| `ADMIN_TOKEN_SECRET` | Osobny sekret do tokenów (jeśli puste, używane jest `ADMIN_PASSWORD`) |
+
+Po ustawieniu zmiennych wykonaj **Trigger deploy**.
+
+## Wdrożenie
+
+1. Połącz repozytorium **MOJA-STRONA** z Netlify (branch `main`)
+2. **Build command:** `npm install` *(opcjonalnie — Netlify instaluje zależności funkcji automatycznie)*
+3. **Publish directory:** `.`
+4. Ustaw `ADMIN_PASSWORD`
 5. **Deploy site**
 
-### Krok 2 — Sprawdź adres strony
+## Formularz członkostwa
 
-Po ~1 minucie Netlify poda link, np. `https://nazwa-123.netlify.app` — otwórz go w przeglądarce.
+Kandydat musi załączyć:
+- podpisaną **deklarację członkowską** (PDF/JPG/PNG),
+- **dowód wpłaty** wpisowego (PDF/JPG/PNG),
+- **zaświadczenie o niekaralności** (jeśli nie dotyczy zwolnienia).
 
-### Krok 3 — Włącz formularz (Forms)
-
-1. **Site configuration** → **Forms** — upewnij się, że Forms są włączone
-2. Po deployu powinien pojawić się formularz **`membership`**
-
-### Krok 4 — Powiadomienia e-mail
-
-1. **Notifications** → **Form submission notifications** → **Add notification**
-2. Typ: **Email notification**
-3. Form: **membership**
-4. Adres: np. `kontakt@strzelamy.org.pl` lub Twój e-mail
-
-### Krok 5 — Domena strzelamy.org.pl (opcjonalnie)
-
-1. **Domain management** → **Add a domain** → `strzelamy.org.pl`
-2. Ustaw DNS według instrukcji Netlify (zazwyczaj A record lub CNAME)
-3. Poczekaj na certyfikat HTTPS (automatycznie)
-
-### Test formularza
-
-1. Wejdź na stronę → sekcja **Zostań członkiem**
-2. Wypełnij i wyślij wniosek
-3. Sprawdź **Forms → membership → Submissions** w panelu Netlify
-4. Sprawdź skrzynkę e-mail
-
-## Zawartość strony
-
-- Sekcje: O nas, Sekcje klubowe, Oferta, Zarząd, Strzelnice, Składki
-- **Formularz wniosku** (`membership`) — Netlify Forms
-- Strona potwierdzenia: `/success.html`
-- FAQ, kontakt, responsywny układ mobilny
+Wniosek trafia do **Netlify Blobs** przez funkcję `submit-application`.
 
 ## Pliki
 
-| Plik | Opis |
+| Plik / folder | Opis |
 |---|---|
-| `index.html` | Strona główna + formularz Netlify |
-| `success.html` | Potwierdzenie wysłania wniosku |
-| `styles.css` | Style |
-| `script.js` | Menu + wysyłka formularza |
-| `success.js` | Podsumowanie na stronie sukcesu |
-| `netlify.toml` | Konfiguracja Netlify |
+| `index.html` | Strona główna + formularz |
+| `admin.html` | Panel administratora |
+| `netlify/functions/` | API: zgłoszenia, logowanie, pliki |
+| `assets/` | Zdjęcia klubu |
 
-## Pola formularza `membership`
+## Lokalnie
 
-| Pole | Opis |
-|---|---|
-| `application-code` | Nr wniosku (np. SG-AB12-XY34) |
-| `name` | Imię i nazwisko |
-| `email` | E-mail |
-| `phone` | Telefon |
-| `address` | Adres |
-| `type` | Rodzaj członkostwa |
-| `section` | Sekcja klubowa |
-| `recommender` | Rekomendujący członek |
-| `exempt` | Zwolnienie z zaświadczenia (tak/nie) |
-| `statute` | Akceptacja statutu |
-| `rodo` | Zgoda RODO |
+```bash
+npm install
+npx netlify dev
+```
 
-## Kolejne kroki
-
-1. Auto-generowanie PDF deklaracji (Netlify Function)
-2. Auto-odpowiedź e-mail do kandydata
-3. Upload zaświadczenia o niekaralności (Netlify Forms — pole pliku)
+Bez `netlify dev` formularz i panel działają tylko częściowo (tryb podglądu).

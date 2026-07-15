@@ -1,12 +1,20 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
+  command = "npm install"
 
-# Formularz membership jest w index.html i forms.html (parser Netlify przy deployu)
+[functions]
+  node_bundler = "esbuild"
 
 [[redirects]]
   from = "/deklaracja"
   to = "/#czlonkostwo"
   status = 302
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
   for = "/*"

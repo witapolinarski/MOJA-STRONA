@@ -259,7 +259,8 @@
             <span>Krok 2</span>
             <h3>Dołącz dokumenty</h3>
             <p>
-              Załącz zaświadczenie o niekaralności (jeśli wymagane) oraz rekomendację członka klubu.
+              Dołącz podpisaną deklarację członkowską, dowód wpłaty wpisowego
+              oraz — jeśli wymagane — zaświadczenie o niekaralności.
             </p>
           </article>
           <article>
@@ -334,13 +335,9 @@
             id="membership-form"
             name="membership"
             method="POST"
-            action="/success.html"
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
+            enctype="multipart/form-data"
             novalidate
           >
-            <input type="hidden" name="form-name" value="membership">
-            <input type="hidden" name="subject" value="[Sagittarius] Nowy wniosek członkostwa">
             <input type="hidden" name="application-code" id="application-code" value="">
             <p class="hidden" aria-hidden="true">
               <label>Nie wypełniaj tego pola: <input name="bot-field"></label>
@@ -406,11 +403,28 @@
               Wyrażam zgodę na przetwarzanie danych osobowych (RODO)
             </label>
 
+            <h3>Dokumenty do weryfikacji</h3>
+
+            <label>
+              Podpisana deklaracja członkowska (PDF, JPG lub PNG)
+              <input type="file" id="member-declaration" name="declaration" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf" required>
+            </label>
+
+            <label>
+              Dowód wpłaty wpisowego (PDF, JPG lub PNG)
+              <input type="file" id="member-payment" name="payment-proof" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf" required>
+            </label>
+
+            <label id="criminal-record-wrap">
+              Zaświadczenie o niekaralności (max 30 dni, PDF/JPG/PNG)
+              <input type="file" id="member-criminal-record" name="criminal-record" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf">
+            </label>
+
             <button type="submit" class="button primary submit-button" id="membership-submit">
               Wyślij wniosek
             </button>
             <p class="form-note" id="form-note">
-              Po wysłaniu wniosek trafi do zarządu klubu przez Netlify Forms. Otrzymasz potwierdzenie na podany adres e-mail.
+              Po wysłaniu wniosek trafi do panelu administratora. Zatwierdzenie nastąpi po weryfikacji deklaracji i dowodu wpłaty.
             </p>
           </form>
 
@@ -447,10 +461,11 @@
               </dl>
             </div>
             <div class="preview-checklist">
-              <p><strong>Wymagane po wysłaniu wniosku:</strong></p>
+              <p><strong>Wymagane dokumenty:</strong></p>
               <ul id="preview-checklist">
-                <li>Zaświadczenie o niekaralności (max 30 dni)</li>
-                <li>Rekomendacja członka klubu</li>
+                <li>Podpisana deklaracja członkowska</li>
+                <li>Dowód wpłaty wpisowego</li>
+                <li id="checklist-criminal">Zaświadczenie o niekaralności (max 30 dni)</li>
               </ul>
             </div>
           </aside>

@@ -827,6 +827,15 @@ h3 {
   font-size: 0.88rem;
 }
 
+.membership-form input[type="file"] {
+  padding: 8px;
+  background: #fff;
+}
+
+.membership-form .is-muted {
+  opacity: 0.55;
+}
+
 .preview-checklist li.done {
   color: var(--brand-dark);
   text-decoration: line-through;

@@ -19,6 +19,9 @@ const membershipForm = document.querySelector("#membership-form");
 const formNote = document.querySelector("#form-note");
 const submitButton = document.querySelector("#membership-submit");
 const applicationCodeField = document.querySelector("#application-code");
+const criminalRecordWrap = document.querySelector("#criminal-record-wrap");
+const criminalRecordInput = document.querySelector("#member-criminal-record");
+const checklistCriminal = document.querySelector("#checklist-criminal");
 
 const fields = {
   name: document.querySelector("#member-name"),
@@ -31,6 +34,8 @@ const fields = {
   exempt: document.querySelector("#member-exempt"),
   statute: document.querySelector("#member-statute"),
   rodo: document.querySelector("#member-rodo"),
+  declaration: document.querySelector("#member-declaration"),
+  paymentProof: document.querySelector("#member-payment"),
 };
 
 const preview = {
@@ -41,8 +46,6 @@ const preview = {
   recommender: document.querySelector("#preview-recommender"),
   code: document.querySelector("#preview-code"),
 };
-
-const checklist = document.querySelector("#preview-checklist");
 
 const typeLabels = {
   zwyczajne: "Członkostwo zwyczajne",
@@ -74,15 +77,21 @@ const getApplicationCode = () => {
   return code;
 };
 
-const updateChecklist = () => {
-  if (!checklist) return;
-
+const updateCriminalRequirement = () => {
   const isExempt = fields.exempt?.checked;
-  const items = checklist.querySelectorAll("li");
 
-  if (items[0]) {
-    items[0].classList.toggle("done", isExempt);
-    items[0].textContent = isExempt
+  if (criminalRecordInput) {
+    criminalRecordInput.required = !isExempt;
+    if (isExempt) criminalRecordInput.value = "";
+  }
+
+  if (criminalRecordWrap) {
+    criminalRecordWrap.classList.toggle("is-muted", isExempt);
+  }
+
+  if (checklistCriminal) {
+    checklistCriminal.classList.toggle("done", isExempt);
+    checklistCriminal.textContent = isExempt
       ? "Zaświadczenie o niekaralności — zwolnienie"
       : "Zaświadczenie o niekaralności (max 30 dni)";
   }
@@ -104,7 +113,7 @@ const updatePreview = () => {
   if (preview.code) preview.code.textContent = code;
   if (applicationCodeField) applicationCodeField.value = code;
 
-  updateChecklist();
+  updateCriminalRequirement();
 };
 
 const getFormData = () => ({
@@ -116,7 +125,7 @@ const getFormData = () => ({
   type: typeLabels[fields.type?.value || "zwyczajne"] || fields.type?.value || "",
   section: sectionLabels[fields.section?.value || "sportowa"] || fields.section?.value || "",
   recommender: fields.recommender?.value.trim() || "",
-  exempt: fields.exempt?.checked ? "tak" : "nie",
+  exempt: fields.exempt?.checked,
   submittedAt: new Date().toISOString(),
 });
 
@@ -134,19 +143,31 @@ const validateForm = () => {
     return false;
   }
 
+  if (!fields.declaration?.files?.length) {
+    setFormMessage("Dołącz podpisaną deklarację członkowską.");
+    return false;
+  }
+
+  if (!fields.paymentProof?.files?.length) {
+    setFormMessage("Dołącz dowód wpłaty wpisowego.");
+    return false;
+  }
+
+  if (!fields.exempt?.checked && !criminalRecordInput?.files?.length) {
+    setFormMessage("Dołącz zaświadczenie o niekaralności lub zaznacz zwolnienie.");
+    return false;
+  }
+
   return true;
 };
 
-const buildNetlifyBody = (data) => {
+const buildSubmissionFormData = (data) => {
   const formData = new FormData(membershipForm);
-  formData.set("form-name", "membership");
   formData.set("application-code", data.code);
-  formData.set("exempt", data.exempt);
+  formData.set("exempt", data.exempt ? "tak" : "nie");
   formData.set("statute", fields.statute?.checked ? "tak" : "nie");
   formData.set("rodo", fields.rodo?.checked ? "tak" : "nie");
-  formData.set("submitted-at", data.submittedAt);
-
-  return new URLSearchParams(formData).toString();
+  return formData;
 };
 
 const setFormMessage = (message, isSuccess = false) => {
@@ -166,33 +187,31 @@ const handleSubmit = async (event) => {
   if (isLocalPreview) {
     localStorage.setItem("pendingMembership", JSON.stringify(data));
     setFormMessage(
-      `Tryb lokalny: wniosek ${data.code} zapisany tylko w przeglądarce. Wdróż stronę na Netlify, aby wysyłać wnioski do zarządu.`,
+      `Tryb lokalny: wniosek ${data.code} nie został wysłany. Wdróż stronę na Netlify, aby zapisać dokumenty w panelu administratora.`,
       true,
     );
     return;
   }
 
   if (submitButton) submitButton.disabled = true;
-  setFormMessage("Wysyłanie wniosku…");
+  setFormMessage("Wysyłanie wniosku i dokumentów…");
 
   try {
-    const response = await fetch("/", {
+    const response = await fetch("/.netlify/functions/submit-application", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: buildNetlifyBody(data),
+      body: buildSubmissionFormData(data),
     });
 
+    const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      throw new Error(result.error || `HTTP ${response.status}`);
     }
 
     localStorage.setItem("pendingMembership", JSON.stringify(data));
     window.location.href = `/success.html?code=${encodeURIComponent(data.code)}`;
   } catch (error) {
     console.error(error);
-    setFormMessage(
-      "Nie udało się wysłać wniosku. Spróbuj ponownie lub napisz na kontakt@strzelamy.org.pl.",
-    );
+    setFormMessage(error.message || "Nie udało się wysłać wniosku. Spróbuj ponownie.");
     if (submitButton) submitButton.disabled = false;
   }
 };
