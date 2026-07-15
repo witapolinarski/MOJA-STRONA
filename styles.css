@@ -145,11 +145,14 @@ img {
 }
 
 .nav-cta {
+  display: inline-flex;
+  align-items: center;
   padding: 10px 14px;
-  color: #ffffff !important;
+  color: #ffffff;
   background: var(--accent);
   font-weight: 900;
   white-space: nowrap;
+  cursor: default;
 }
 
 .menu-toggle {
