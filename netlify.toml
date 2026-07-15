@@ -1,6 +1,13 @@
 [build]
   publish = "."
 
+# Formularz membership jest w index.html i forms.html (parser Netlify przy deployu)
+
+[[redirects]]
+  from = "/deklaracja"
+  to = "/#czlonkostwo"
+  status = 302
+
 [[headers]]
   for = "/*"
   [headers.values]
