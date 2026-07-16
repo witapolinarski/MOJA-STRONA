@@ -68,6 +68,9 @@
             Akceptacja wniosków
             <span class="strefa-tabs__badge hidden" id="approvals-badge">0</span>
           </button>
+          <button type="button" class="strefa-tabs__btn" data-tab="roster" id="tab-roster">
+            Baza PZSS i rekomendacje
+          </button>
         </nav>
 
         <div id="tab-panel-certificate" class="strefa-tab-panel">
@@ -122,9 +125,49 @@
           </div>
           <div id="approvals-list" class="approvals-list"></div>
         </div>
+
+        <div id="tab-panel-roster" class="strefa-tab-panel hidden">
+          <div class="strefa-roster-intro">
+            <p>
+              Prywatna baza członków klubu z PZSS (SOZ). System rekomendacji przyznaje
+              <strong>1 punkt</strong> osobie rekomendującej po zatwierdzeniu nowego członka —
+              nazwisko musi zgadzać się z bazą.
+            </p>
+            <p id="roster-summary" class="roster-summary" role="status"></p>
+          </div>
+
+          <section class="roster-panel">
+            <h3>Ranking rekomendacji</h3>
+            <div id="referral-leaderboard" class="referral-leaderboard"></div>
+          </section>
+
+          <section class="roster-panel">
+            <h3>Import z PZSS</h3>
+            <p class="roster-hint">
+              W SOZ przejdź do <strong>Zawodnicy → Lista</strong>, zaznacz 100 wpisów na stronę,
+              skopiuj tabelę (Ctrl+A na liście) i wklej poniżej. Możesz powtórzyć dla kolejnych stron —
+              import nadpisuje bazę według PESEL.
+            </p>
+            <textarea id="roster-import-text" class="roster-import-text" rows="8" placeholder="Wklej skopiowaną listę członków z PZSS…"></textarea>
+            <div class="roster-actions">
+              <button type="button" class="button primary" id="roster-import-button">Zaimportuj do bazy</button>
+              <button type="button" class="button secondary" id="roster-refresh-button">Odśwież</button>
+            </div>
+            <p id="roster-import-note" class="form-note" role="status"></p>
+          </section>
+
+          <section class="roster-panel">
+            <h3>Baza członków PZSS</h3>
+            <label class="roster-search-label">
+              Szukaj (nazwisko, imię, e-mail)
+              <input type="search" id="roster-search" placeholder="np. Malinowski">
+            </label>
+            <div id="roster-table-wrap" class="roster-table-wrap"></div>
+          </section>
+        </div>
       </section>
     </div>
 
-    <script src="strefa.js?v=2" type="module"></script>
+    <script src="strefa.js?v=3" type="module"></script>
   </body>
 </html>

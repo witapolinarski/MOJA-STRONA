@@ -1,0 +1,126 @@
+{
+  "members": [
+    {
+      "id": "pzss-74031512355",
+      "lastName": "ZELENT",
+      "firstName": "Rafał",
+      "fullName": "Rafał ZELENT",
+      "displayName": "ZELENT Rafał",
+      "pesel": "74031512355",
+      "email": "zelent1@op.pl",
+      "memberSince": "2015-10-22",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-76101705971",
+      "lastName": "PTAK",
+      "firstName": "Krzysztof Marek",
+      "fullName": "Krzysztof Marek PTAK",
+      "displayName": "PTAK Krzysztof Marek",
+      "pesel": "76101705971",
+      "email": "krzysiek.ptak997@gmail.com",
+      "memberSince": "2015-10-22",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-71030809411",
+      "lastName": "PELC",
+      "firstName": "Adam",
+      "fullName": "Adam PELC",
+      "displayName": "PELC Adam",
+      "pesel": "71030809411",
+      "email": "adampelc@wp.pl",
+      "memberSince": "2015-10-22",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-77042014575",
+      "lastName": "GRĘBOWIEC",
+      "firstName": "Jarosław",
+      "fullName": "Jarosław GRĘBOWIEC",
+      "displayName": "GRĘBOWIEC Jarosław",
+      "pesel": "77042014575",
+      "email": "j.grembowiec@wp.pl",
+      "memberSince": "2015-10-24",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-72072001812",
+      "lastName": "SZTORC",
+      "firstName": "Marek",
+      "fullName": "Marek SZTORC",
+      "displayName": "SZTORC Marek",
+      "pesel": "72072001812",
+      "email": "jolmar@o2.pl",
+      "memberSince": "2016-01-07",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-51092704217",
+      "lastName": "BUJKO",
+      "firstName": "Mirosław Marek",
+      "fullName": "Mirosław Marek BUJKO",
+      "displayName": "BUJKO Mirosław Marek",
+      "pesel": "51092704217",
+      "email": "mmbujko@wp.pl",
+      "memberSince": "2016-06-03",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-69020710315",
+      "lastName": "ZINKO",
+      "firstName": "Leszek",
+      "fullName": "Leszek ZINKO",
+      "displayName": "ZINKO Leszek",
+      "pesel": "69020710315",
+      "email": "zinko@wp.pl",
+      "memberSince": "2016-12-04",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-74030712718",
+      "lastName": "KOSTUŚ",
+      "firstName": "Tomasz",
+      "fullName": "Tomasz KOSTUŚ",
+      "displayName": "KOSTUŚ Tomasz",
+      "pesel": "74030712718",
+      "email": "tomaszkostus07@gmail.com",
+      "memberSince": "2016-12-31",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-75021801112",
+      "lastName": "WRZESIŃSKI",
+      "firstName": "Adrian Bogusław",
+      "fullName": "Adrian Bogusław WRZESIŃSKI",
+      "displayName": "WRZESIŃSKI Adrian Bogusław",
+      "pesel": "75021801112",
+      "email": "donfilippo@interia.pl",
+      "memberSince": "2017-02-06",
+      "memberUntil": "",
+      "active": true
+    },
+    {
+      "id": "pzss-80082016946",
+      "lastName": "KORZENIOWSKA",
+      "firstName": "Gabriela Emilia",
+      "fullName": "Gabriela Emilia KORZENIOWSKA",
+      "displayName": "KORZENIOWSKA Gabriela Emilia",
+      "pesel": "80082016946",
+      "email": "gkorzeniowska@interia.pl",
+      "memberSince": "2017-11-19",
+      "memberUntil": "",
+      "active": true
+    }
+  ],
+  "source": "pzss-sample",
+  "exportedAt": "2026-07-16T19:05:02.513Z"
+}

@@ -368,6 +368,7 @@
   .strefa-approvals-intro,
   .strefa-actions,
   #tab-panel-approvals,
+  #tab-panel-roster,
   #logout-button {
     display: none !important;
   }
@@ -400,4 +401,94 @@
   .certificate-meta {
     flex-direction: column;
   }
+
+  .roster-table-wrap {
+    max-height: 360px;
+  }
+}
+
+.strefa-roster-intro,
+.roster-panel {
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 24px 28px;
+}
+
+.roster-summary {
+  margin-top: 12px;
+  font-weight: 700;
+}
+
+.roster-hint {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.roster-import-text,
+.roster-search-label input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  font: inherit;
+}
+
+.roster-import-text {
+  min-height: 160px;
+  resize: vertical;
+  margin-top: 12px;
+}
+
+.roster-search-label {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+.roster-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.roster-table-wrap {
+  overflow: auto;
+  max-height: 480px;
+  border: 1px solid var(--line);
+}
+
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.roster-table th,
+.roster-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.roster-table th {
+  position: sticky;
+  top: 0;
+  background: #f7f7f8;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.roster-empty {
+  color: var(--muted);
+  margin: 0;
+}
+
+.approval-match,
+.admin-match {
+  color: #1a6b34;
+  font-weight: 600;
 }

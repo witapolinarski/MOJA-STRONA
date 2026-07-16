@@ -22,6 +22,7 @@ const applicationCodeField = document.querySelector("#application-code");
 const checklistCriminal = document.querySelector("#checklist-criminal");
 const checklistPayment = document.querySelector("#checklist-payment");
 const paymentStatusEl = document.querySelector("#payment-status");
+const recommenderNote = document.querySelector("#recommender-note");
 
 const fields = {
   name: document.querySelector("#member-name"),
@@ -70,6 +71,9 @@ const isLocalPreview =
   window.location.protocol === "file:" ||
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
+
+let recommenderValid = false;
+let recommenderValidateTimer = null;
 
 const getApplicationCode = () => {
   let code = sessionStorage.getItem("sagittariusAppCode");
@@ -167,15 +171,6 @@ const updateFeeCalculator = () => {
   }
 };
 
-const updateCriminalRequirement = () => {
-  if (checklistCriminal) {
-    checklistCriminal.classList.toggle("done", Boolean(fields.criminalDeclaration?.checked));
-    checklistCriminal.textContent = "Oświadczenie o niekaralności";
-  }
-
-  updatePaymentChecklist();
-};
-
 const updatePaymentChecklist = () => {
   const hasProof = Boolean(fields.paymentProof?.files?.length);
 
@@ -195,6 +190,72 @@ const updatePaymentChecklist = () => {
       paymentStatusEl.className = "payment-status is-pending";
     }
   }
+};
+
+const updateCriminalRequirement = () => {
+  if (checklistCriminal) {
+    checklistCriminal.classList.toggle("done", Boolean(fields.criminalDeclaration?.checked));
+    checklistCriminal.textContent = "Oświadczenie o niekaralności";
+  }
+
+  updatePaymentChecklist();
+};
+
+const validateRecommender = async () => {
+  const value = fields.recommender?.value.trim() || "";
+
+  if (!value) {
+    recommenderValid = false;
+    if (recommenderNote) recommenderNote.textContent = "";
+    return;
+  }
+
+  if (isLocalPreview) {
+    recommenderValid = true;
+    if (recommenderNote) {
+      recommenderNote.textContent = "Tryb lokalny: walidacja rekomendacji na Netlify.";
+      recommenderNote.classList.remove("is-error");
+    }
+    return;
+  }
+
+  if (recommenderNote) recommenderNote.textContent = "Sprawdzanie członka w bazie klubu…";
+
+  try {
+    const response = await fetch("/.netlify/functions/validate-recommender", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recommender: value }),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.valid) {
+      recommenderValid = false;
+      if (recommenderNote) {
+        recommenderNote.textContent = data.error || "Nie znaleziono członka o tym nazwisku w bazie PZSS.";
+        recommenderNote.classList.add("is-error");
+      }
+      return;
+    }
+
+    recommenderValid = true;
+    if (recommenderNote) {
+      recommenderNote.textContent = `Zweryfikowano: ${data.matchedName}`;
+      recommenderNote.classList.remove("is-error");
+    }
+  } catch {
+    recommenderValid = false;
+    if (recommenderNote) {
+      recommenderNote.textContent = "Nie udało się zweryfikować rekomendacji. Spróbuj ponownie.";
+      recommenderNote.classList.add("is-error");
+    }
+  }
+};
+
+const scheduleRecommenderValidation = () => {
+  recommenderValid = false;
+  clearTimeout(recommenderValidateTimer);
+  recommenderValidateTimer = setTimeout(validateRecommender, 450);
 };
 
 const updatePreview = () => {
@@ -255,6 +316,11 @@ const validateForm = () => {
     return false;
   }
 
+  if (!recommenderValid) {
+    setFormMessage("Podaj prawidłowe imię i nazwisko członka rekomendującego (nazwisko jak w bazie PZSS).");
+    return false;
+  }
+
   return true;
 };
 
@@ -276,6 +342,7 @@ const setFormMessage = (message, isSuccess = false) => {
 const handleSubmit = async (event) => {
   event.preventDefault();
   updatePreview();
+  await validateRecommender();
 
   if (!validateForm()) return;
 
@@ -338,5 +405,7 @@ if (feeAcceptanceDate) {
 }
 
 fields.paymentProof?.addEventListener("change", updatePaymentChecklist);
+fields.recommender?.addEventListener("input", scheduleRecommenderValidation);
+fields.recommender?.addEventListener("blur", validateRecommender);
 updatePaymentChecklist();
 updateFeeCalculator();

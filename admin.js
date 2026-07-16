@@ -160,7 +160,7 @@ const renderApplication = (application) => {
         <div><dt>PESEL</dt><dd>${application.pesel || "—"}</dd></div>
         <div><dt>Forma</dt><dd>${honorificLabels[application.honorific] || application.honorific || "—"}</dd></div>
         <div><dt>Typ członkostwa</dt><dd>${typeLabels[application.type] || application.type}</dd></div>
-        <div><dt>Rekomendacja</dt><dd>${application.recommender}</dd></div>
+        <div><dt>Rekomendacja</dt><dd>${application.recommender}${application.recommenderMatchedName ? ` <span class="admin-match">(${application.recommenderMatchedName})</span>` : ""}${application.referralAwarded ? " · +1 pkt" : ""}</dd></div>
         <div><dt>Oświadczenie o niekaralności</dt><dd>${application.criminalDeclaration ? "Zaakceptowane" : "Brak"}</dd></div>
         <div><dt>Data wniosku</dt><dd>${formatDate(application.submittedAt)}</dd></div>
         <div><dt>Kwota wg kalkulatora</dt><dd>${formatMoney(fees.total || application.payment?.amount)}</dd></div>

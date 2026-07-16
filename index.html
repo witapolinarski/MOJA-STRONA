@@ -367,8 +367,9 @@
 
             <label>
               Rekomendujący członek klubu
-              <input type="text" id="member-recommender" name="recommender" required placeholder="Imię i nazwisko członka">
+              <input type="text" id="member-recommender" name="recommender" required placeholder="Imię i nazwisko (nazwisko jak w bazie PZSS)" autocomplete="off">
             </label>
+            <p class="form-note" id="recommender-note" role="status"></p>
 
             <div class="declaration-box" id="criminal-declaration-wrap">
               <label class="checkbox-label declaration-label">

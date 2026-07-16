@@ -1,6 +1,8 @@
 import { jsonResponse } from "./lib/auth.mjs";
 import { calculateMembershipFees } from "./lib/fees.mjs";
 import { isValidPesel, normalizePesel } from "./lib/pesel.mjs";
+import { attachReferralToApplication } from "./lib/referrals.mjs";
+import { ensureRosterSeeded } from "./lib/roster.mjs";
 import { saveApplication, saveFile } from "./lib/store.mjs";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
@@ -81,6 +83,9 @@ export default async (request) => {
     }
 
     const fees = calculateMembershipFees(String(formData.get("fee-acceptance-date") || "").trim() || undefined);
+    const recommender = String(formData.get("recommender")).trim();
+
+    await ensureRosterSeeded();
 
     const application = {
       code,
@@ -93,7 +98,7 @@ export default async (request) => {
       honorific,
       type: String(formData.get("type")).trim(),
       section: "",
-      recommender: String(formData.get("recommender")).trim(),
+      recommender,
       criminalDeclaration,
       criminalDeclarationAt: criminalDeclaration ? new Date().toISOString() : null,
       fees,
@@ -108,6 +113,11 @@ export default async (request) => {
       reviewNote: "",
       files: {},
     };
+
+    const referral = await attachReferralToApplication(application);
+    if (!referral.ok) {
+      return jsonResponse({ error: referral.error }, 400);
+    }
 
     application.files.paymentProof = await saveFile(code, "payment-proof", paymentProof);
 

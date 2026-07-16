@@ -1,5 +1,6 @@
 import { jsonResponse } from "./lib/auth.mjs";
 import { requireApprover } from "./lib/approvers.mjs";
+import { awardReferralPoint } from "./lib/referrals.mjs";
 import { getApplication, getNextLedgerNumber, listApplications, saveApplication } from "./lib/store.mjs";
 
 export default async (request) => {
@@ -37,6 +38,10 @@ export default async (request) => {
 
       if (status === "approved" && !application.ledgerRef) {
         application.ledgerRef = await getNextLedgerNumber();
+      }
+
+      if (status === "approved") {
+        await awardReferralPoint(application);
       }
 
       await saveApplication(application);

@@ -14,8 +14,17 @@ const memberTabs = document.querySelector("#member-tabs");
 const approvalsBadge = document.querySelector("#approvals-badge");
 const tabPanelCertificate = document.querySelector("#tab-panel-certificate");
 const tabPanelApprovals = document.querySelector("#tab-panel-approvals");
+const tabPanelRoster = document.querySelector("#tab-panel-roster");
 const approvalsList = document.querySelector("#approvals-list");
 const approvalsSummary = document.querySelector("#approvals-summary");
+const rosterSummary = document.querySelector("#roster-summary");
+const referralLeaderboard = document.querySelector("#referral-leaderboard");
+const rosterTableWrap = document.querySelector("#roster-table-wrap");
+const rosterSearch = document.querySelector("#roster-search");
+const rosterImportText = document.querySelector("#roster-import-text");
+const rosterImportButton = document.querySelector("#roster-import-button");
+const rosterRefreshButton = document.querySelector("#roster-refresh-button");
+const rosterImportNote = document.querySelector("#roster-import-note");
 
 const certLedger = document.querySelector("#cert-ledger");
 const certPlace = document.querySelector("#cert-place");
@@ -41,6 +50,7 @@ const honorificLabels = {
 
 let currentMember = null;
 let applicationsCache = [];
+let rosterCache = null;
 
 const isLocalPreview =
   window.location.protocol === "file:" ||
@@ -113,13 +123,22 @@ const fileUrl = (code, field) =>
 
 const canApprove = (application) => Boolean(application.files?.paymentProof);
 
+const escapeHtml = (value) =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
 const switchTab = (tab) => {
   document.querySelectorAll(".strefa-tabs__btn").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.tab === tab);
   });
   tabPanelCertificate?.classList.toggle("hidden", tab !== "certificate");
   tabPanelApprovals?.classList.toggle("hidden", tab !== "approvals");
+  tabPanelRoster?.classList.toggle("hidden", tab !== "roster");
   if (tab === "approvals") loadApplications();
+  if (tab === "roster") loadRoster();
 };
 
 const renderCertificate = (payload) => {
@@ -139,7 +158,7 @@ const setupApproverUI = (member) => {
     }
     if (memberPanelLead) {
       memberPanelLead.textContent =
-        "Masz dostęp do zaświadczenia oraz panelu akceptacji wniosków nowych członków.";
+        "Masz dostęp do zaświadczenia, akceptacji wniosków oraz bazy członków PZSS i punktów rekomendacji.";
     }
     loadApplications();
   } else {
@@ -207,6 +226,7 @@ const renderApplicationCard = (application) => {
         <div><dt>Data wniosku</dt><dd>${formatDate(application.submittedAt)}</dd></div>
         <div><dt>Kwota wg kalkulatora</dt><dd>${formatMoney(fees.total || application.payment?.amount)}</dd></div>
         <div><dt>Oświadczenie o niekaralności</dt><dd>${application.criminalDeclaration ? "Zaakceptowane" : "Brak"}</dd></div>
+        <div><dt>Rekomendacja</dt><dd>${escapeHtml(application.recommender || "—")}${application.recommenderMatchedName ? ` <span class="approval-match">(${escapeHtml(application.recommenderMatchedName)})</span>` : ""}</dd></div>
       </dl>
     </section>
 
@@ -297,6 +317,122 @@ const loadApplications = async () => {
   }
 };
 
+const normalizeSearch = (value) => String(value || "").trim().toLowerCase();
+
+const renderLeaderboard = (leaderboard = []) => {
+  if (!referralLeaderboard) return;
+
+  if (!leaderboard.length) {
+    referralLeaderboard.innerHTML = `<p class="roster-empty">Brak przyznanych punktów rekomendacji.</p>`;
+    return;
+  }
+
+  referralLeaderboard.innerHTML = `
+    <table class="roster-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Członek</th>
+          <th>Punkty</th>
+          <th>Rekomendacje</th>
+          <th>Ostatnia</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${leaderboard
+          .map(
+            (entry, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHtml(entry.name)}</td>
+            <td><strong>${entry.points}</strong></td>
+            <td>${entry.referrals}</td>
+            <td>${entry.lastReferralAt ? formatDate(entry.lastReferralAt) : "—"}</td>
+          </tr>`,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+};
+
+const renderRosterTable = (members = []) => {
+  if (!rosterTableWrap) return;
+
+  const query = normalizeSearch(rosterSearch?.value || "");
+  const filtered = members.filter((member) => {
+    if (!query) return true;
+    const haystack = [member.displayName, member.fullName, member.lastName, member.firstName, member.email, member.pesel]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(query);
+  });
+
+  if (!filtered.length) {
+    rosterTableWrap.innerHTML = `<p class="roster-empty">Brak wyników w bazie.</p>`;
+    return;
+  }
+
+  rosterTableWrap.innerHTML = `
+    <table class="roster-table">
+      <thead>
+        <tr>
+          <th>Nazwisko i imię</th>
+          <th>PESEL</th>
+          <th>E-mail</th>
+          <th>Od</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered
+          .slice(0, 200)
+          .map(
+            (member) => `
+          <tr>
+            <td>${escapeHtml(member.displayName || member.fullName)}</td>
+            <td>${escapeHtml(member.pesel || "—")}</td>
+            <td>${escapeHtml(member.email || "—")}</td>
+            <td>${escapeHtml(member.memberSince || "—")}</td>
+            <td>${member.active === false ? "Wykreślony" : "Aktywny"}</td>
+          </tr>`,
+          )
+          .join("")}
+      </tbody>
+    </table>
+    ${filtered.length > 200 ? `<p class="roster-hint">Pokazano pierwsze 200 z ${filtered.length} wyników. Zawęź wyszukiwanie.</p>` : ""}
+  `;
+};
+
+const renderRoster = (data) => {
+  rosterCache = data;
+  const roster = data?.roster || {};
+  const referrals = data?.referrals || {};
+
+  if (rosterSummary) {
+    rosterSummary.textContent = `Baza: ${roster.memberCount || 0} członków (${roster.activeCount || 0} aktywnych) · ${referrals.totalPoints || 0} punktów rekomendacji · aktualizacja: ${roster.updatedAt ? formatDate(roster.updatedAt) : "—"}`;
+  }
+
+  renderLeaderboard(referrals.leaderboard || []);
+  renderRosterTable(roster.members || []);
+};
+
+const loadRoster = async () => {
+  if (!currentMember?.isApprover || isLocalPreview) return;
+
+  if (rosterSummary) rosterSummary.textContent = "Ładowanie bazy członków…";
+
+  try {
+    const data = await apiFetch("/.netlify/functions/member-roster");
+    renderRoster(data);
+    if (rosterImportNote) rosterImportNote.textContent = "";
+  } catch (error) {
+    if (rosterSummary) rosterSummary.textContent = error.message;
+    referralLeaderboard?.replaceChildren();
+    rosterTableWrap?.replaceChildren();
+  }
+};
+
 const loadProfile = async () => {
   if (isLocalPreview) {
     showPanel();
@@ -364,6 +500,39 @@ loginForm?.addEventListener("submit", async (event) => {
 
 document.querySelectorAll(".strefa-tabs__btn").forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+
+rosterSearch?.addEventListener("input", () => {
+  if (rosterCache) renderRosterTable(rosterCache.roster?.members || []);
+});
+
+rosterRefreshButton?.addEventListener("click", () => loadRoster());
+
+rosterImportButton?.addEventListener("click", async () => {
+  const text = rosterImportText?.value.trim() || "";
+  if (!text) {
+    if (rosterImportNote) rosterImportNote.textContent = "Wklej listę członków z PZSS przed importem.";
+    return;
+  }
+
+  rosterImportButton.disabled = true;
+  if (rosterImportNote) rosterImportNote.textContent = "Importowanie…";
+
+  try {
+    const result = await apiFetch("/.netlify/functions/member-roster", {
+      method: "POST",
+      body: JSON.stringify({ text, source: "pzss-paste" }),
+    });
+    if (rosterImportNote) {
+      rosterImportNote.textContent = `Zaimportowano ${result.memberCount} członków.`;
+    }
+    if (rosterImportText) rosterImportText.value = "";
+    await loadRoster();
+  } catch (error) {
+    if (rosterImportNote) rosterImportNote.textContent = error.message;
+  } finally {
+    rosterImportButton.disabled = false;
+  }
 });
 
 logoutButton?.addEventListener("click", () => {
