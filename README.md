@@ -10,7 +10,7 @@ Dostęp mają wyłącznie osoby ze **zatwierdzoną** deklaracją członkowską. 
 
 W strefie członek może wygenerować i wydrukować **zaświadczenie o członkostwie** (imię i nazwisko, PESEL, data wydruku, podpis prezesa). Własny skan podpisu wgraj jako `assets/podpis-prezesa.svg` lub `.png` i zaktualizuj ścieżkę w `strefa.html`.
 
-Osoby z uprawnieniami approvera (domyślnie Witold Apolinarski) po zalogowaniu widzą dodatkową zakładkę **Akceptacja wniosków** — ten sam mechanizm co w panelu `/admin.html`: podgląd formularza, deklaracji, statusu płatności Stripe/przelewu oraz przyciski zatwierdzenia lub odrzucenia.
+Osoby z uprawnieniami approvera (domyślnie Witold Apolinarski) po zalogowaniu widzą dodatkową zakładkę **Akceptacja wniosków** — ten sam mechanizm co w panelu `/admin.html`: podgląd formularza, deklaracji, dowodu przelewu oraz przyciski zatwierdzenia lub odrzucenia.
 
 ## Panel administratora (Witold Apolinarski)
 
@@ -19,9 +19,9 @@ Adres: **`/admin.html`**
 **Witold Apolinarski** loguje się hasłem i zatwierdza kandydatów. Panel pokazuje:
 - pełny **wynik formularza** kandydata,
 - **deklarację członkowską** do pobrania,
-- **potwierdzenie wpłaty** — automatycznie z Stripe po płatności online lub załączony dowód przelewu.
+- **dowód przelewu** załączony przez kandydata.
 
-Zatwierdzenie jest możliwe dopiero przy komplecie: deklaracja + potwierdzona wpłata.
+Zatwierdzenie jest możliwe dopiero przy komplecie: deklaracja + dowód wpłaty.
 
 ## Wymagana konfiguracja Netlify
 
@@ -38,20 +38,7 @@ Opcjonalnie:
 | `ADMIN_TOKEN_SECRET` | Osobny sekret do tokenów (jeśli puste, używane jest `ADMIN_PASSWORD`) |
 | `ADMIN_NAME` | Nazwa administratora (domyślnie: Witold Apolinarski) |
 | `ADMIN_EMAIL` | E-mail administratora (domyślnie: apolinarski@op.pl) |
-| `STRIPE_SECRET_KEY` | Klucz sekretny Stripe (`sk_live_...` lub `sk_test_...`) |
-| `STRIPE_WEBHOOK_SECRET` | Sekret webhooka Stripe (`whsec_...`) |
 | `APPROVER_EMAILS` | E-maile członków z prawem akceptacji wniosków w strefie (domyślnie: `apolinarski@yahoo.com,apolinarski@op.pl`) |
-
-### Stripe — płatności online
-
-1. W [Stripe Dashboard](https://dashboard.stripe.com) utwórz webhook na adres:
-   `https://TWOJA-DOMENA.netlify.app/.netlify/functions/stripe-webhook`
-2. Zaznacz zdarzenie: `checkout.session.completed`
-3. Skopiuj `STRIPE_WEBHOOK_SECRET` do zmiennych Netlify
-4. Ustaw `STRIPE_SECRET_KEY`
-5. **Trigger deploy**
-
-Kandydat klika **Zapłać online** w formularzu — po opłacie potwierdzenie trafia do panelu Witolda.
 
 ## Wdrożenie
 
@@ -67,8 +54,8 @@ Kandydat musi podać m.in. **PESEL** i formę zwracania się (Pan/Pani) — dane
 
 Kandydat musi załączyć:
 - podpisaną **deklarację członkowską** (PDF/JPG/PNG),
-- **wpłatę** — online przez Stripe **lub** dowód przelewu (PDF/JPG/PNG),
-- **oświadczenie o niekaralności** (akceptacja w formularzu; zwolnienie dla służb mundurowych / posiadaczy pozwolenia na broń).
+- **dowód przelewu** wpisowego i składki (PDF/JPG/PNG),
+- **oświadczenie o niekaralności** (akceptacja w formularzu).
 
 Wniosek trafia do **Netlify Blobs** przez funkcję `submit-application`.
 

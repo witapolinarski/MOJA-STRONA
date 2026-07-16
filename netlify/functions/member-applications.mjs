@@ -1,15 +1,6 @@
 import { jsonResponse } from "./lib/auth.mjs";
 import { requireApprover } from "./lib/approvers.mjs";
-import { getPaymentRecord } from "./lib/payments.mjs";
 import { getApplication, getNextLedgerNumber, listApplications, saveApplication } from "./lib/store.mjs";
-
-const enrichApplication = async (application) => {
-  if (!application?.payment) {
-    const payment = await getPaymentRecord(application.code);
-    if (payment) application.payment = payment;
-  }
-  return application;
-};
 
 export default async (request) => {
   const auth = await requireApprover(request);
@@ -24,8 +15,6 @@ export default async (request) => {
       if (status !== "all") {
         applications = applications.filter((item) => item.status === status);
       }
-
-      applications = await Promise.all(applications.map((item) => enrichApplication(item)));
 
       return jsonResponse({ applications, approver: auth.member.name });
     }

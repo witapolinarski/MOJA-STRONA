@@ -110,33 +110,15 @@ const fileUrl = (code, field) =>
   `/.netlify/functions/admin-file?code=${encodeURIComponent(code)}&field=${encodeURIComponent(field)}`;
 
 const renderPaymentSection = (application) => {
-  const payment = application.payment || {};
-  const hasManualProof = Boolean(application.files?.paymentProof);
-  const isStripePaid = payment.status === "paid" && payment.method === "stripe";
+  const hasProof = Boolean(application.files?.paymentProof);
 
-  if (isStripePaid) {
-    return `
-      <section class="admin-section admin-section-payment">
-        <h3>Potwierdzenie wpłaty (Stripe)</h3>
-        <div class="admin-meta">
-          <div>Status: <strong class="payment-paid">Opłacono online</strong></div>
-          <div>Kwota: <strong>${formatMoney(payment.amount)}</strong></div>
-          <div>Data wpłaty: <strong>${formatDate(payment.paidAt)}</strong></div>
-          <div>Metoda: <strong>Stripe (${payment.currency?.toUpperCase() || "PLN"})</strong></div>
-          ${payment.stripeSessionId ? `<div>ID sesji: <strong>${payment.stripeSessionId}</strong></div>` : ""}
-          ${payment.receiptUrl ? `<div><a href="${payment.receiptUrl}" target="_blank" rel="noopener">Paragon / potwierdzenie Stripe</a></div>` : ""}
-        </div>
-      </section>
-    `;
-  }
-
-  if (hasManualProof) {
+  if (hasProof) {
     return `
       <section class="admin-section admin-section-payment">
         <h3>Potwierdzenie wpłaty (przelew)</h3>
         <div class="admin-meta">
           <div>Status: <strong>Dowód przelewu załączony</strong></div>
-          <div>Kwota z kalkulatora: <strong>${formatMoney(application.fees?.total || payment.amount)}</strong></div>
+          <div>Kwota z kalkulatora: <strong>${formatMoney(application.fees?.total || application.payment?.amount)}</strong></div>
         </div>
         <div class="admin-files">
           <a href="${fileUrl(application.code, "payment-proof")}" target="_blank" rel="noopener">Pobierz dowód wpłaty</a>
@@ -148,7 +130,7 @@ const renderPaymentSection = (application) => {
   return `
     <section class="admin-section admin-section-payment admin-section-warning">
       <h3>Potwierdzenie wpłaty</h3>
-      <p class="admin-alert">Brak potwierdzenia wpłaty — kandydat nie opłacił online ani nie załączył dowodu przelewu.</p>
+      <p class="admin-alert">Brak dowodu przelewu — kandydat musi załączyć potwierdzenie wpłaty.</p>
     </section>
   `;
 };
@@ -158,8 +140,7 @@ const renderApplication = (application) => {
   card.className = "admin-card";
   const fees = application.fees || {};
   const readyToApprove =
-    Boolean(application.files?.declaration) &&
-    (application.payment?.status === "paid" || Boolean(application.files?.paymentProof));
+    Boolean(application.files?.declaration) && Boolean(application.files?.paymentProof);
 
   card.innerHTML = `
     <div class="admin-card-header">
@@ -181,7 +162,7 @@ const renderApplication = (application) => {
         <div><dt>Forma</dt><dd>${honorificLabels[application.honorific] || application.honorific || "—"}</dd></div>
         <div><dt>Typ członkostwa</dt><dd>${typeLabels[application.type] || application.type}</dd></div>
         <div><dt>Rekomendacja</dt><dd>${application.recommender}</dd></div>
-        <div><dt>Oświadczenie o niekaralności</dt><dd>${application.criminalDeclaration ? "Zaakceptowane" : application.exempt ? "Zwolnienie" : "Brak"}</dd></div>
+        <div><dt>Oświadczenie o niekaralności</dt><dd>${application.criminalDeclaration ? "Zaakceptowane" : "Brak"}</dd></div>
         <div><dt>Data wniosku</dt><dd>${formatDate(application.submittedAt)}</dd></div>
         <div><dt>Kwota wg kalkulatora</dt><dd>${formatMoney(fees.total || application.payment?.amount)}</dd></div>
       </dl>

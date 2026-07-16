@@ -329,14 +329,9 @@
                     </div>
                   </dl>
                   <p class="payment-hint">
-                    Możesz zapłacić online (Stripe) lub wykonać przelew tradycyjny i dołączyć potwierdzenie poniżej.
+                    Wykonaj przelew na podane konto i dołącz potwierdzenie wpłaty w formularzu poniżej.
                   </p>
                   <p class="payment-status" id="payment-status" role="status"></p>
-                  <div class="payment-future">
-                    <p class="eyebrow">Płatności online</p>
-                    <p>Opłać wpisowe i składkę kartą, BLIK lub Przelewy24 — potwierdzenie trafi automatycznie do panelu zarządu.</p>
-                    <button type="button" class="button primary" id="pay-online-button">Zapłać online</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -390,11 +385,6 @@
               <input type="text" id="member-recommender" name="recommender" required placeholder="Imię i nazwisko członka">
             </label>
 
-            <label class="checkbox-label">
-              <input type="checkbox" id="member-exempt" name="exempt" value="tak">
-              Jestem funkcjonariuszem służb mundurowych lub posiadam pozwolenie na broń (zwolnienie z oświadczenia o niekaralności)
-            </label>
-
             <div class="declaration-box" id="criminal-declaration-wrap">
               <label class="checkbox-label declaration-label">
                 <input type="checkbox" id="member-criminal-declaration" name="criminal-declaration" value="tak" required>
@@ -431,8 +421,8 @@
             </label>
 
             <label>
-              Dowód wpłaty (PDF, JPG lub PNG) — opcjonalnie po płatności online
-              <input type="file" id="member-payment" name="payment-proof" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf">
+              Dowód wpłaty (PDF, JPG lub PNG)
+              <input type="file" id="member-payment" name="payment-proof" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf" required>
             </label>
 
             <button type="submit" class="button primary submit-button" id="membership-submit">
@@ -475,7 +465,7 @@
               <p><strong>Wymagane dokumenty:</strong></p>
               <ul id="preview-checklist">
                 <li>Podpisana deklaracja członkowska</li>
-                <li id="checklist-payment">Wpłata — online lub dowód przelewu</li>
+                <li id="checklist-payment">Wpłata — dowód przelewu</li>
                 <li id="checklist-criminal">Oświadczenie o niekaralności</li>
               </ul>
             </div>
@@ -501,8 +491,7 @@
             <summary>Jakie dokumenty są potrzebne?</summary>
             <p class="faq-answer">
               Deklaracja członkostwa, rekomendacja członka klubu oraz oświadczenie o niekaralności
-              (wymagane przy wniosku o pozwolenie na broń). Funkcjonariusze służb mundurowych
-              i osoby z pozwoleniem na broń są zwolnione z oświadczenia.
+              (wymagane przy wniosku o pozwolenie na broń).
             </p>
           </details>
           <details>

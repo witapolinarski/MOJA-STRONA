@@ -1,6 +1,5 @@
 import { jsonResponse } from "./lib/auth.mjs";
 import { calculateMembershipFees } from "./lib/fees.mjs";
-import { getPaymentRecord } from "./lib/payments.mjs";
 import { isValidPesel, normalizePesel } from "./lib/pesel.mjs";
 import { saveApplication, saveFile } from "./lib/store.mjs";
 
@@ -65,27 +64,12 @@ export default async (request) => {
     const declarationError = validateFile(declaration, "Deklaracja członkowska");
     if (declarationError) return jsonResponse({ error: declarationError }, 400);
 
+    const paymentError = validateFile(paymentProof, "Dowód wpłaty");
+    if (paymentError) return jsonResponse({ error: paymentError }, 400);
+
     const code = String(formData.get("application-code")).trim();
-    const existingPayment = await getPaymentRecord(code);
-    const stripePaid = existingPayment?.status === "paid";
-    const hasManualProof =
-      paymentProof && typeof paymentProof !== "string" && paymentProof.size > 0;
-
-    if (!stripePaid && !hasManualProof) {
-      return jsonResponse(
-        { error: "Dołącz dowód wpłaty lub opłać wniosek online (Stripe)." },
-        400,
-      );
-    }
-
-    if (!stripePaid && hasManualProof) {
-      const paymentError = validateFile(paymentProof, "Dowód wpłaty");
-      if (paymentError) return jsonResponse({ error: paymentError }, 400);
-    }
-
     const pesel = normalizePesel(formData.get("pesel"));
     const honorific = String(formData.get("honorific") || "").trim().toLowerCase();
-    const exempt = formData.get("exempt") === "tak";
     const criminalDeclaration = formData.get("criminal-declaration") === "tak";
 
     if (!isValidPesel(pesel)) {
@@ -96,7 +80,7 @@ export default async (request) => {
       return jsonResponse({ error: "Wybierz formę zwracania się: Pan lub Pani." }, 400);
     }
 
-    if (!exempt && !criminalDeclaration) {
+    if (!criminalDeclaration) {
       return jsonResponse({ error: "Wymagana akceptacja oświadczenia o niekaralności." }, 400);
     }
 
@@ -114,13 +98,12 @@ export default async (request) => {
       type: String(formData.get("type")).trim(),
       section: "",
       recommender: String(formData.get("recommender")).trim(),
-      exempt,
       criminalDeclaration,
       criminalDeclarationAt: criminalDeclaration ? new Date().toISOString() : null,
       fees,
-      payment: existingPayment || {
-        status: hasManualProof ? "manual" : "unpaid",
-        method: hasManualProof ? "transfer" : null,
+      payment: {
+        status: "manual",
+        method: "transfer",
         amount: fees.total,
       },
       submittedAt: new Date().toISOString(),
@@ -131,10 +114,7 @@ export default async (request) => {
     };
 
     application.files.declaration = await saveFile(code, "declaration", declaration);
-
-    if (hasManualProof) {
-      application.files.paymentProof = await saveFile(code, "payment-proof", paymentProof);
-    }
+    application.files.paymentProof = await saveFile(code, "payment-proof", paymentProof);
 
     await saveApplication(application);
 

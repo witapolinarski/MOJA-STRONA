@@ -19,12 +19,9 @@ const membershipForm = document.querySelector("#membership-form");
 const formNote = document.querySelector("#form-note");
 const submitButton = document.querySelector("#membership-submit");
 const applicationCodeField = document.querySelector("#application-code");
-const criminalDeclarationWrap = document.querySelector("#criminal-declaration-wrap");
-const criminalDeclarationInput = document.querySelector("#member-criminal-declaration");
 const checklistCriminal = document.querySelector("#checklist-criminal");
 const checklistPayment = document.querySelector("#checklist-payment");
 const paymentStatusEl = document.querySelector("#payment-status");
-const payOnlineButton = document.querySelector("#pay-online-button");
 
 const fields = {
   name: document.querySelector("#member-name"),
@@ -35,7 +32,6 @@ const fields = {
   honorific: document.querySelector("#member-honorific"),
   type: document.querySelector("#member-type"),
   recommender: document.querySelector("#member-recommender"),
-  exempt: document.querySelector("#member-exempt"),
   criminalDeclaration: document.querySelector("#member-criminal-declaration"),
   statute: document.querySelector("#member-statute"),
   rodo: document.querySelector("#member-rodo"),
@@ -75,8 +71,6 @@ const isLocalPreview =
   window.location.protocol === "file:" ||
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
-
-let onlinePaymentPaid = false;
 
 const getApplicationCode = () => {
   let code = sessionStorage.getItem("sagittariusAppCode");
@@ -175,69 +169,33 @@ const updateFeeCalculator = () => {
 };
 
 const updateCriminalRequirement = () => {
-  const isExempt = fields.exempt?.checked;
-
-  if (criminalDeclarationInput) {
-    criminalDeclarationInput.required = !isExempt;
-    if (isExempt) criminalDeclarationInput.checked = false;
-  }
-
-  if (criminalDeclarationWrap) {
-    criminalDeclarationWrap.classList.toggle("is-muted", isExempt);
-  }
-
   if (checklistCriminal) {
-    checklistCriminal.classList.toggle("done", isExempt || fields.criminalDeclaration?.checked);
-    checklistCriminal.textContent = isExempt
-      ? "Oświadczenie o niekaralności — zwolnienie"
-      : "Oświadczenie o niekaralności";
+    checklistCriminal.classList.toggle("done", Boolean(fields.criminalDeclaration?.checked));
+    checklistCriminal.textContent = "Oświadczenie o niekaralności";
   }
 
   updatePaymentChecklist();
 };
 
 const updatePaymentChecklist = () => {
-  const hasManualProof = Boolean(fields.paymentProof?.files?.length);
-  const isPaid = onlinePaymentPaid || hasManualProof;
+  const hasProof = Boolean(fields.paymentProof?.files?.length);
 
   if (checklistPayment) {
-    checklistPayment.classList.toggle("done", isPaid);
-    checklistPayment.textContent = onlinePaymentPaid
-      ? "Wpłata — potwierdzona online (Stripe)"
-      : hasManualProof
-        ? "Wpłata — dowód przelewu załączony"
-        : "Wpłata — online lub dowód przelewu";
+    checklistPayment.classList.toggle("done", hasProof);
+    checklistPayment.textContent = hasProof
+      ? "Wpłata — dowód przelewu załączony"
+      : "Wpłata — dołącz dowód przelewu";
   }
 
   if (paymentStatusEl) {
-    if (onlinePaymentPaid) {
-      paymentStatusEl.textContent = "Płatność online została potwierdzona. Możesz wysłać wniosek bez załączania dowodu przelewu.";
-      paymentStatusEl.className = "payment-status is-paid";
-    } else if (hasManualProof) {
+    if (hasProof) {
       paymentStatusEl.textContent = "Załączono dowód przelewu. Wniosek można wysłać.";
       paymentStatusEl.className = "payment-status is-paid";
     } else {
-      paymentStatusEl.textContent = "Nie wykryto płatności online. Zapłać przez Stripe lub dołącz dowód przelewu przed wysłaniem.";
+      paymentStatusEl.textContent = "Wykonaj przelew i dołącz potwierdzenie wpłaty przed wysłaniem wniosku.";
       paymentStatusEl.className = "payment-status is-pending";
     }
   }
-};
-
-const refreshPaymentStatus = async () => {
-  if (isLocalPreview) return;
-
-  const code = getApplicationCode();
-  try {
-    const response = await fetch(
-      `/.netlify/functions/payment-status?code=${encodeURIComponent(code)}`,
-    );
-    const data = await response.json().catch(() => ({}));
-    onlinePaymentPaid = data.payment?.status === "paid";
-  } catch {
-    onlinePaymentPaid = false;
-  }
-
-  updatePaymentChecklist();
 };
 
 const updatePreview = () => {
@@ -266,7 +224,6 @@ const getFormData = () => ({
   address: fields.address?.value.trim() || "",
   type: typeLabels[fields.type?.value || "zwyczajne"] || fields.type?.value || "",
   recommender: fields.recommender?.value.trim() || "",
-  exempt: fields.exempt?.checked,
   submittedAt: new Date().toISOString(),
 });
 
@@ -289,13 +246,13 @@ const validateForm = () => {
     return false;
   }
 
-  if (!onlinePaymentPaid && !fields.paymentProof?.files?.length) {
-    setFormMessage("Zapłać online (Stripe) lub dołącz dowód wpłaty przed wysłaniem wniosku.");
+  if (!fields.paymentProof?.files?.length) {
+    setFormMessage("Dołącz dowód wpłaty przed wysłaniem wniosku.");
     return false;
   }
 
-  if (!fields.exempt?.checked && !fields.criminalDeclaration?.checked) {
-    setFormMessage("Zaakceptuj oświadczenie o niekaralności lub zaznacz zwolnienie.");
+  if (!fields.criminalDeclaration?.checked) {
+    setFormMessage("Zaakceptuj oświadczenie o niekaralności.");
     return false;
   }
 
@@ -310,7 +267,6 @@ const validateForm = () => {
 const buildSubmissionFormData = (data) => {
   const formData = new FormData(membershipForm);
   formData.set("application-code", data.code);
-  formData.set("exempt", data.exempt ? "tak" : "nie");
   formData.set("criminal-declaration", fields.criminalDeclaration?.checked ? "tak" : "nie");
   formData.set("statute", fields.statute?.checked ? "tak" : "nie");
   formData.set("rodo", fields.rodo?.checked ? "tak" : "nie");
@@ -326,7 +282,6 @@ const setFormMessage = (message, isSuccess = false) => {
 const handleSubmit = async (event) => {
   event.preventDefault();
   updatePreview();
-  await refreshPaymentStatus();
 
   if (!validateForm()) return;
 
@@ -388,46 +343,6 @@ if (feeAcceptanceDate) {
   feeAcceptanceDate.addEventListener("change", updateFeeCalculator);
 }
 
-payOnlineButton?.addEventListener("click", async () => {
-  const name = fields.name?.value.trim() || "";
-  const email = fields.email?.value.trim() || "";
-
-  if (!name || !email) {
-    setFormMessage("Uzupełnij imię i nazwisko oraz e-mail przed płatnością online.");
-    return;
-  }
-
-  if (isLocalPreview) {
-    setFormMessage("Płatności online działają po wdrożeniu na Netlify ze skonfigurowanym Stripe.");
-    return;
-  }
-
-  updateFeeCalculator();
-  const code = getApplicationCode();
-  const acceptanceDate = feeAcceptanceDate?.value || new Date().toISOString().slice(0, 10);
-
-  if (payOnlineButton) payOnlineButton.disabled = true;
-  setFormMessage("Przekierowanie do bezpiecznej płatności Stripe…");
-
-  try {
-    const response = await fetch("/.netlify/functions/create-payment-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, name, email, acceptanceDate }),
-    });
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok || !data.url) {
-      throw new Error(data.error || "Nie udało się rozpocząć płatności.");
-    }
-
-    window.location.href = data.url;
-  } catch (error) {
-    setFormMessage(error.message || "Nie udało się rozpocząć płatności online.");
-    if (payOnlineButton) payOnlineButton.disabled = false;
-  }
-});
-
 fields.paymentProof?.addEventListener("change", updatePaymentChecklist);
-refreshPaymentStatus();
+updatePaymentChecklist();
 updateFeeCalculator();

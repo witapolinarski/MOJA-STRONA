@@ -112,8 +112,7 @@ const fileUrl = (code, field) =>
   `/.netlify/functions/member-file?code=${encodeURIComponent(code)}&field=${encodeURIComponent(field)}`;
 
 const canApprove = (application) =>
-  Boolean(application.files?.declaration) &&
-  (application.payment?.status === "paid" || Boolean(application.files?.paymentProof));
+  Boolean(application.files?.declaration) && Boolean(application.files?.paymentProof);
 
 const switchTab = (tab) => {
   document.querySelectorAll(".strefa-tabs__btn").forEach((btn) => {
@@ -156,30 +155,15 @@ const setupApproverUI = (member) => {
 };
 
 const renderPaymentSection = (application) => {
-  const payment = application.payment || {};
-  const hasManualProof = Boolean(application.files?.paymentProof);
-  const isStripePaid = payment.status === "paid" && payment.method === "stripe";
+  const hasProof = Boolean(application.files?.paymentProof);
 
-  if (isStripePaid) {
-    return `
-      <section class="approval-section approval-section-payment">
-        <h4>Potwierdzenie wpłaty (Stripe)</h4>
-        <div class="approval-meta">
-          <div>Status: <strong class="payment-paid">Opłacono online</strong></div>
-          <div>Kwota: <strong>${formatMoney(payment.amount)}</strong></div>
-          <div>Data wpłaty: <strong>${formatDate(payment.paidAt)}</strong></div>
-        </div>
-      </section>
-    `;
-  }
-
-  if (hasManualProof) {
+  if (hasProof) {
     return `
       <section class="approval-section approval-section-payment">
         <h4>Potwierdzenie wpłaty (przelew)</h4>
         <div class="approval-meta">
           <div>Status: <strong>Dowód przelewu załączony</strong></div>
-          <div>Kwota: <strong>${formatMoney(application.fees?.total || payment.amount)}</strong></div>
+          <div>Kwota: <strong>${formatMoney(application.fees?.total || application.payment?.amount)}</strong></div>
         </div>
         <div class="approval-files">
           <a href="${fileUrl(application.code, "payment-proof")}" target="_blank" rel="noopener">Pobierz dowód wpłaty</a>
@@ -191,7 +175,7 @@ const renderPaymentSection = (application) => {
   return `
     <section class="approval-section approval-section-payment approval-section-warning">
       <h4>Potwierdzenie wpłaty</h4>
-      <p class="approval-alert">Brak potwierdzenia wpłaty.</p>
+      <p class="approval-alert">Brak dowodu przelewu.</p>
     </section>
   `;
 };
@@ -223,7 +207,7 @@ const renderApplicationCard = (application) => {
         <div><dt>Typ członkostwa</dt><dd>${typeLabels[application.type] || application.type || "—"}</dd></div>
         <div><dt>Data wniosku</dt><dd>${formatDate(application.submittedAt)}</dd></div>
         <div><dt>Kwota wg kalkulatora</dt><dd>${formatMoney(fees.total || application.payment?.amount)}</dd></div>
-        <div><dt>Oświadczenie o niekaralności</dt><dd>${application.criminalDeclaration ? "Zaakceptowane" : application.exempt ? "Zwolnienie" : "Brak"}</dd></div>
+        <div><dt>Oświadczenie o niekaralności</dt><dd>${application.criminalDeclaration ? "Zaakceptowane" : "Brak"}</dd></div>
       </dl>
     </section>
 
