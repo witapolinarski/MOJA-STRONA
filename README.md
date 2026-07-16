@@ -10,6 +10,8 @@ Dostęp mają wyłącznie osoby ze **zatwierdzoną** deklaracją członkowską. 
 
 W strefie członek może wygenerować i wydrukować **zaświadczenie o członkostwie** (imię i nazwisko, PESEL, data wydruku, podpis prezesa). Własny skan podpisu wgraj jako `assets/podpis-prezesa.svg` lub `.png` i zaktualizuj ścieżkę w `strefa.html`.
 
+Osoby z uprawnieniami approvera (domyślnie Witold Apolinarski) po zalogowaniu widzą dodatkową zakładkę **Akceptacja wniosków** — ten sam mechanizm co w panelu `/admin.html`: podgląd formularza, deklaracji, statusu płatności Stripe/przelewu oraz przyciski zatwierdzenia lub odrzucenia.
+
 ## Panel administratora (Witold Apolinarski)
 
 Adres: **`/admin.html`**

@@ -1,4 +1,5 @@
 import { createMemberToken, jsonResponse } from "./lib/auth.mjs";
+import { isApproverApplication } from "./lib/approvers.mjs";
 import { isValidPesel, normalizePesel } from "./lib/pesel.mjs";
 import { findApprovedMember } from "./lib/store.mjs";
 
@@ -35,6 +36,8 @@ export default async (request) => {
       ok: true,
       token: createMemberToken(member.code),
       name: member.name,
+      isApprover: isApproverApplication(member),
+      role: isApproverApplication(member) ? "Prezes zarządu — akceptacja wniosków" : null,
     });
   } catch (error) {
     console.error(error);

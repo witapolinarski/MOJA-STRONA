@@ -55,17 +55,28 @@
         <div class="strefa-panel-intro">
           <p class="eyebrow">Dokumenty klubowe</p>
           <h1>Witaj, <span id="member-name">członku</span></h1>
-          <p>
+          <p id="member-role" class="strefa-role hidden"></p>
+          <p id="member-panel-lead">
             Poniżej znajdziesz zaświadczenie o członkostwie zgodne z danymi z deklaracji.
             Data na dokumencie odpowiada dniowi wydruku.
           </p>
+        </div>
+
+        <nav id="member-tabs" class="strefa-tabs hidden" aria-label="Sekcje strefy klubowej">
+          <button type="button" class="strefa-tabs__btn is-active" data-tab="certificate">Moje zaświadczenie</button>
+          <button type="button" class="strefa-tabs__btn" data-tab="approvals" id="tab-approvals">
+            Akceptacja wniosków
+            <span class="strefa-tabs__badge hidden" id="approvals-badge">0</span>
+          </button>
+        </nav>
+
+        <div id="tab-panel-certificate" class="strefa-tab-panel">
           <div class="strefa-actions">
             <button class="button primary" type="button" id="print-button">Drukuj zaświadczenie</button>
             <button class="button secondary" type="button" id="refresh-button">Odśwież datę wydruku</button>
           </div>
-        </div>
 
-        <article class="certificate-sheet" id="certificate-sheet" aria-label="Zaświadczenie o członkostwie">
+          <article class="certificate-sheet" id="certificate-sheet" aria-label="Zaświadczenie o członkostwie">
           <header class="certificate-header">
             <div class="certificate-logo" aria-hidden="true">
               <div class="certificate-logo-mark">
@@ -99,6 +110,18 @@
             <img src="assets/podpis-prezesa.svg" alt="Podpis elektroniczny prezesa zarządu" class="certificate-signature">
           </footer>
         </article>
+        </div>
+
+        <div id="tab-panel-approvals" class="strefa-tab-panel hidden">
+          <div class="strefa-approvals-intro">
+            <p>
+              Jako osoba upoważniona możesz zatwierdzać wnioski nowych członków po wypełnieniu deklaracji
+              i potwierdzeniu wpłaty wpisowego.
+            </p>
+            <p id="approvals-summary" class="approvals-summary" role="status"></p>
+          </div>
+          <div id="approvals-list" class="approvals-list"></div>
+        </div>
       </section>
     </div>
 

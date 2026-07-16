@@ -1,4 +1,5 @@
 import { jsonResponse, requireMember } from "./lib/auth.mjs";
+import { isApproverApplication } from "./lib/approvers.mjs";
 import { getApplication } from "./lib/store.mjs";
 
 const polishMonths = [
@@ -48,6 +49,8 @@ export default async (request) => {
         honorific: application.honorific || "pan",
         email: application.email,
         code: application.code,
+        isApprover: isApproverApplication(application),
+        role: isApproverApplication(application) ? "Prezes zarządu — akceptacja wniosków" : "Członek klubu",
       },
       certificate: {
         ledgerRef: application.ledgerRef || `—/${issueDate.getFullYear()}`,

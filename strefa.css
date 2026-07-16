@@ -73,6 +73,189 @@
   gap: 24px;
 }
 
+.strefa-role {
+  margin-top: 8px;
+  color: var(--accent, #b42318);
+  font-weight: 700;
+}
+
+.strefa-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.strefa-tabs__btn {
+  position: relative;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.strefa-tabs__btn.is-active {
+  background: var(--ink, #14213d);
+  color: var(--white);
+  border-color: var(--ink, #14213d);
+}
+
+.strefa-tabs__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #b42318;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.strefa-tab-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.strefa-approvals-intro {
+  width: min(760px, 100%);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 24px 28px;
+}
+
+.approvals-summary {
+  margin-top: 12px;
+  font-weight: 700;
+}
+
+.approvals-list {
+  display: grid;
+  gap: 20px;
+}
+
+.approvals-empty {
+  color: var(--muted);
+  margin: 0;
+}
+
+.approval-card {
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 24px 28px;
+  display: grid;
+  gap: 18px;
+}
+
+.approval-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.approval-card-header h3 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.approval-meta {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.approval-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.approval-status--ready {
+  background: #e7f6ec;
+  color: #1a6b34;
+}
+
+.approval-status--wait {
+  background: #fff4e5;
+  color: #9a5b00;
+}
+
+.approval-section h4 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.approval-form-result {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px 20px;
+  margin: 0;
+}
+
+.approval-form-result div {
+  display: grid;
+  gap: 4px;
+}
+
+.approval-form-result dt {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.approval-form-result dd {
+  margin: 0;
+}
+
+.approval-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.approval-files a {
+  color: var(--ink, #14213d);
+  font-weight: 700;
+}
+
+.approval-alert {
+  margin: 0;
+  color: #9a5b00;
+  font-weight: 600;
+}
+
+.approval-section-warning {
+  border-left: 4px solid #f0b429;
+  padding-left: 12px;
+}
+
+.payment-paid {
+  color: #1a6b34;
+}
+
+.approval-review-note {
+  width: 100%;
+  min-height: 72px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  font: inherit;
+  resize: vertical;
+}
+
+.approval-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .strefa-actions {
   display: flex;
   flex-wrap: wrap;
@@ -181,6 +364,10 @@
   .strefa-header,
   .strefa-panel-intro,
   .strefa-login,
+  .strefa-tabs,
+  .strefa-approvals-intro,
+  .strefa-actions,
+  #tab-panel-approvals,
   #logout-button {
     display: none !important;
   }
