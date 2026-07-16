@@ -25,6 +25,9 @@ const rosterImportText = document.querySelector("#roster-import-text");
 const rosterImportButton = document.querySelector("#roster-import-button");
 const rosterRefreshButton = document.querySelector("#roster-refresh-button");
 const rosterImportNote = document.querySelector("#roster-import-note");
+const licenseRenewalYear = document.querySelector("#license-renewal-year");
+const licenseSummaryGrid = document.querySelector("#license-summary-grid");
+const licenseSummaryYears = document.querySelector("#license-summary-years");
 
 const certLedger = document.querySelector("#cert-ledger");
 const certPlace = document.querySelector("#cert-place");
@@ -404,6 +407,74 @@ const renderRosterTable = (members = []) => {
   `;
 };
 
+const renderLicenseSummary = (summary) => {
+  if (!licenseSummaryGrid) return;
+
+  if (!summary?.totalPlayers) {
+    licenseSummaryGrid.innerHTML = `<p class="roster-empty">Brak danych do zestawienia licencji.</p>`;
+    if (licenseSummaryYears) licenseSummaryYears.replaceChildren();
+    if (licenseRenewalYear) licenseRenewalYear.textContent = "";
+    return;
+  }
+
+  if (licenseRenewalYear) licenseRenewalYear.textContent = String(summary.renewalYear);
+
+  const cards = [
+    ["Zawodnicy w bazie", summary.totalPlayers],
+    ["Aktywni (bez blokady)", summary.activePlayers],
+    ["Do wznowienia licencji", summary.renewals],
+    ["Nowe licencje (przyjęci w roku)", summary.newLicenses],
+    ["Zablokowani", summary.blockedPlayers],
+    ["Dorośli", summary.adults],
+    ["Niepełnoletni", summary.minors],
+    ["Szac. opłata klubu", formatMoney(summary.estimatedClubCostPln)],
+  ];
+
+  licenseSummaryGrid.innerHTML = cards
+    .map(
+      ([label, value]) => `
+        <article class="license-summary-card">
+          <p class="license-summary-label">${label}</p>
+          <p class="license-summary-value">${value}</p>
+        </article>
+      `,
+    )
+    .join("");
+
+  if (!licenseSummaryYears) return;
+
+  const years = Object.entries(summary.joinedByYear || {}).sort(([a], [b]) => Number(b) - Number(a));
+  if (!years.length) {
+    licenseSummaryYears.replaceChildren();
+    return;
+  }
+
+  licenseSummaryYears.innerHTML = `
+    <h4>Przyjęcia do klubu wg roku</h4>
+    <table class="roster-table license-years-table">
+      <thead>
+        <tr>
+          <th>Rok</th>
+          <th>Liczba zawodników</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${years
+          .map(
+            ([year, count]) => `
+              <tr>
+                <td>${year}</td>
+                <td>${count}</td>
+              </tr>
+            `,
+          )
+          .join("")}
+      </tbody>
+    </table>
+    <p class="roster-hint">Opłata licencyjna PZSS: ${formatMoney(summary.licenseFeePln)} za zawodnika · szacunek łączny dla ${summary.activePlayers} aktywnych.</p>
+  `;
+};
+
 const renderRoster = (data) => {
   rosterCache = data;
   const roster = data?.roster || {};
@@ -413,6 +484,7 @@ const renderRoster = (data) => {
     rosterSummary.textContent = `Baza: ${roster.memberCount || 0} członków (${roster.activeCount || 0} aktywnych) · ${referrals.totalPoints || 0} punktów rekomendacji · aktualizacja: ${roster.updatedAt ? formatDate(roster.updatedAt) : "—"}`;
   }
 
+  renderLicenseSummary(data?.licenseSummary);
   renderLeaderboard(referrals.leaderboard || []);
   renderRosterTable(roster.members || []);
 };
@@ -430,6 +502,8 @@ const loadRoster = async () => {
     if (rosterSummary) rosterSummary.textContent = error.message;
     referralLeaderboard?.replaceChildren();
     rosterTableWrap?.replaceChildren();
+    licenseSummaryGrid?.replaceChildren();
+    if (licenseSummaryYears) licenseSummaryYears.replaceChildren();
   }
 };
 

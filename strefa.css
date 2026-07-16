@@ -487,6 +487,48 @@
   margin: 0;
 }
 
+.license-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.license-summary-card {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.license-summary-label {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.license-summary-value {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--brand-dark);
+}
+
+.license-summary-years {
+  margin-top: 18px;
+}
+
+.license-summary-years h4 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+}
+
+.license-years-table {
+  max-height: 240px;
+}
+
 .approval-match,
 .admin-match {
   color: #1a6b34;

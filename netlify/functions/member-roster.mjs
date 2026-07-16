@@ -1,6 +1,7 @@
 import { jsonResponse } from "./lib/auth.mjs";
 import { requireApprover } from "./lib/approvers.mjs";
 import { buildReferralLeaderboard, getReferralLedger } from "./lib/referrals.mjs";
+import { buildLicenseRenewalSummary } from "./lib/license-stats.mjs";
 import {
   ensureRosterSeeded,
   getRosterRecord,
@@ -18,6 +19,7 @@ export default async (request) => {
       const roster = await getRosterRecord();
       const ledger = await getReferralLedger();
       const leaderboard = buildReferralLeaderboard(ledger, roster.members || []);
+      const licenseSummary = buildLicenseRenewalSummary(roster.members || []);
 
       return jsonResponse({
         roster: {
@@ -27,6 +29,7 @@ export default async (request) => {
           activeCount: roster.members?.filter((member) => member.active !== false).length || 0,
           members: roster.members || [],
         },
+        licenseSummary,
         referrals: {
           totalPoints: leaderboard.reduce((sum, entry) => sum + entry.points, 0),
           leaderboard,
