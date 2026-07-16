@@ -346,6 +346,27 @@ h3 {
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
+.hero-mundurowi-note {
+  max-width: 820px;
+  margin: 12px 0 0;
+  padding: 12px 18px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(196, 92, 38, 0.22);
+  border: 1px solid rgba(240, 180, 138, 0.35);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.hero-mundurowi-note strong {
+  color: var(--accent-soft);
+}
+
+.hero-mundurowi-note a {
+  color: #ffffff;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
 .hero-note strong {
   color: var(--accent-soft);
   white-space: nowrap;
