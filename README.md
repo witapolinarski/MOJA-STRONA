@@ -40,6 +40,7 @@ Opcjonalnie:
 | `ADMIN_EMAIL` | E-mail administratora (domyślnie: apolinarski@op.pl) |
 | `STRIPE_SECRET_KEY` | Klucz sekretny Stripe (`sk_live_...` lub `sk_test_...`) |
 | `STRIPE_WEBHOOK_SECRET` | Sekret webhooka Stripe (`whsec_...`) |
+| `APPROVER_EMAILS` | E-maile członków z prawem akceptacji wniosków w strefie (domyślnie: `apolinarski@yahoo.com,apolinarski@op.pl`) |
 
 ### Stripe — płatności online
 
