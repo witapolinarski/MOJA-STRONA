@@ -41,6 +41,16 @@
   to = "/rodo.html"
   status = 301
 
+[[redirects]]
+  from = "/mundurowi"
+  to = "/oferta-dla-mundurowych.html"
+  status = 301
+
+[[redirects]]
+  from = "/oferta-dla-mundurowych"
+  to = "/oferta-dla-mundurowych.html"
+  status = 301
+
 [[headers]]
   for = "/*"
   [headers.values]

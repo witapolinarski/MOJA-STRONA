@@ -443,6 +443,78 @@ h3 {
   padding-top: 0;
 }
 
+.audience-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
+  gap: 18px;
+  margin-top: 34px;
+  align-items: stretch;
+}
+
+.audience-layout .audience-grid {
+  margin-top: 0;
+}
+
+.audience-offer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 100%;
+  padding: 28px;
+  color: var(--white);
+  background:
+    linear-gradient(165deg, rgba(20, 33, 61, 0.96), rgba(43, 76, 126, 0.92)),
+    var(--brand-dark);
+  box-shadow: var(--shadow);
+}
+
+.audience-offer::after {
+  content: "";
+  position: absolute;
+  right: -34px;
+  bottom: -34px;
+  width: 120px;
+  height: 120px;
+  border: 24px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+}
+
+.audience-offer {
+  position: relative;
+  overflow: hidden;
+}
+
+.audience-offer span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  color: var(--brand-dark);
+  background: var(--accent-soft);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.audience-offer h3 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  line-height: 1.15;
+}
+
+.audience-offer p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.audience-offer__btn {
+  width: 100%;
+  margin-top: auto;
+  border: 0;
+  text-align: center;
+}
+
 .audience-grid,
 .steps-row,
 .board-grid,
@@ -1276,6 +1348,10 @@ summary {
 
   .feature-grid,
   .price-layout,
+  .audience-layout {
+    grid-template-columns: 1fr;
+  }
+
   .audience-grid,
   .steps-row,
   .photo-grid,
@@ -1329,6 +1405,7 @@ summary {
   .quick-facts,
   .feature-grid,
   .price-layout,
+  .audience-layout,
   .audience-grid,
   .steps-row,
   .photo-grid,
