@@ -312,6 +312,19 @@ h3 {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.button.secondary.mundurowi {
+  color: var(--brand-dark);
+  border-color: var(--accent-soft);
+  background: var(--accent-soft);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.92rem;
+}
+
+.button.secondary.mundurowi:hover {
+  background: #f5c9a8;
+}
+
 .quick-facts {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
