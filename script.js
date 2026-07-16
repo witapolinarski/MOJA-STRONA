@@ -19,8 +19,8 @@ const membershipForm = document.querySelector("#membership-form");
 const formNote = document.querySelector("#form-note");
 const submitButton = document.querySelector("#membership-submit");
 const applicationCodeField = document.querySelector("#application-code");
-const criminalRecordWrap = document.querySelector("#criminal-record-wrap");
-const criminalRecordInput = document.querySelector("#member-criminal-record");
+const criminalDeclarationWrap = document.querySelector("#criminal-declaration-wrap");
+const criminalDeclarationInput = document.querySelector("#member-criminal-declaration");
 const checklistCriminal = document.querySelector("#checklist-criminal");
 
 const fields = {
@@ -33,6 +33,7 @@ const fields = {
   type: document.querySelector("#member-type"),
   recommender: document.querySelector("#member-recommender"),
   exempt: document.querySelector("#member-exempt"),
+  criminalDeclaration: document.querySelector("#member-criminal-declaration"),
   statute: document.querySelector("#member-statute"),
   rodo: document.querySelector("#member-rodo"),
   declaration: document.querySelector("#member-declaration"),
@@ -171,20 +172,20 @@ const updateFeeCalculator = () => {
 const updateCriminalRequirement = () => {
   const isExempt = fields.exempt?.checked;
 
-  if (criminalRecordInput) {
-    criminalRecordInput.required = !isExempt;
-    if (isExempt) criminalRecordInput.value = "";
+  if (criminalDeclarationInput) {
+    criminalDeclarationInput.required = !isExempt;
+    if (isExempt) criminalDeclarationInput.checked = false;
   }
 
-  if (criminalRecordWrap) {
-    criminalRecordWrap.classList.toggle("is-muted", isExempt);
+  if (criminalDeclarationWrap) {
+    criminalDeclarationWrap.classList.toggle("is-muted", isExempt);
   }
 
   if (checklistCriminal) {
-    checklistCriminal.classList.toggle("done", isExempt);
+    checklistCriminal.classList.toggle("done", isExempt || fields.criminalDeclaration?.checked);
     checklistCriminal.textContent = isExempt
-      ? "Zaświadczenie o niekaralności — zwolnienie"
-      : "Zaświadczenie o niekaralności (max 30 dni)";
+      ? "Oświadczenie o niekaralności — zwolnienie"
+      : "Oświadczenie o niekaralności";
   }
 };
 
@@ -242,8 +243,8 @@ const validateForm = () => {
     return false;
   }
 
-  if (!fields.exempt?.checked && !criminalRecordInput?.files?.length) {
-    setFormMessage("Dołącz zaświadczenie o niekaralności lub zaznacz zwolnienie.");
+  if (!fields.exempt?.checked && !fields.criminalDeclaration?.checked) {
+    setFormMessage("Zaakceptuj oświadczenie o niekaralności lub zaznacz zwolnienie.");
     return false;
   }
 
@@ -259,6 +260,7 @@ const buildSubmissionFormData = (data) => {
   const formData = new FormData(membershipForm);
   formData.set("application-code", data.code);
   formData.set("exempt", data.exempt ? "tak" : "nie");
+  formData.set("criminal-declaration", fields.criminalDeclaration?.checked ? "tak" : "nie");
   formData.set("statute", fields.statute?.checked ? "tak" : "nie");
   formData.set("rodo", fields.rodo?.checked ? "tak" : "nie");
   return formData;

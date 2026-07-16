@@ -50,7 +50,7 @@ Kandydat musi podać m.in. **PESEL** i formę zwracania się (Pan/Pani) — dane
 Kandydat musi załączyć:
 - podpisaną **deklarację członkowską** (PDF/JPG/PNG),
 - **dowód wpłaty** wpisowego (PDF/JPG/PNG),
-- **zaświadczenie o niekaralności** (jeśli nie dotyczy zwolnienia).
+- **oświadczenie o niekaralności** (akceptacja w formularzu; zwolnienie dla służb mundurowych / posiadaczy pozwolenia na broń).
 
 Wniosek trafia do **Netlify Blobs** przez funkcję `submit-application`.
 

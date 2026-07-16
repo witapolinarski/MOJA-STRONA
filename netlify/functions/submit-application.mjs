@@ -69,6 +69,8 @@ export default async (request) => {
     const code = String(formData.get("application-code")).trim();
     const pesel = normalizePesel(formData.get("pesel"));
     const honorific = String(formData.get("honorific") || "").trim().toLowerCase();
+    const exempt = formData.get("exempt") === "tak";
+    const criminalDeclaration = formData.get("criminal-declaration") === "tak";
 
     if (!isValidPesel(pesel)) {
       return jsonResponse({ error: "Podaj prawidłowy numer PESEL." }, 400);
@@ -78,12 +80,8 @@ export default async (request) => {
       return jsonResponse({ error: "Wybierz formę zwracania się: Pan lub Pani." }, 400);
     }
 
-    const criminalRecord = formData.get("criminal-record");
-    const exempt = formData.get("exempt") === "tak";
-
-    if (!exempt) {
-      const criminalError = validateFile(criminalRecord, "Zaświadczenie o niekaralności");
-      if (criminalError) return jsonResponse({ error: criminalError }, 400);
+    if (!exempt && !criminalDeclaration) {
+      return jsonResponse({ error: "Wymagana akceptacja oświadczenia o niekaralności." }, 400);
     }
 
     const application = {
@@ -99,6 +97,8 @@ export default async (request) => {
       section: "",
       recommender: String(formData.get("recommender")).trim(),
       exempt,
+      criminalDeclaration,
+      criminalDeclarationAt: criminalDeclaration ? new Date().toISOString() : null,
       submittedAt: new Date().toISOString(),
       reviewedAt: null,
       reviewNote: "",
@@ -107,10 +107,6 @@ export default async (request) => {
 
     application.files.declaration = await saveFile(code, "declaration", declaration);
     application.files.paymentProof = await saveFile(code, "payment-proof", paymentProof);
-
-    if (!exempt && criminalRecord && criminalRecord.size > 0) {
-      application.files.criminalRecord = await saveFile(code, "criminal-record", criminalRecord);
-    }
 
     await saveApplication(application);
 

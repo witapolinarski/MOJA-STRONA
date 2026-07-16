@@ -89,7 +89,8 @@ const renderApplication = (application) => {
       <div>PESEL: <strong>${application.pesel || "—"}</strong></div>
       <div>Typ: <strong>${application.type}</strong></div>
       <div>Rekomendacja: <strong>${application.recommender}</strong></div>
-      <div>Zwolnienie z zaświadczenia: <strong>${application.exempt ? "tak" : "nie"}</strong></div>
+      <div>Zwolnienie z oświadczenia: <strong>${application.exempt ? "tak" : "nie"}</strong></div>
+      <div>Oświadczenie o niekaralności: <strong>${application.criminalDeclaration ? "zaakceptowane" : application.exempt ? "zwolnienie" : "brak"}</strong></div>
       <div>Złożono: <strong>${formatDate(application.submittedAt)}</strong></div>
       ${application.reviewedAt ? `<div>Rozpatrzono: <strong>${formatDate(application.reviewedAt)}</strong></div>` : ""}
       ${application.reviewNote ? `<div>Uwagi: <strong>${application.reviewNote}</strong></div>` : ""}
@@ -97,7 +98,6 @@ const renderApplication = (application) => {
     <div class="admin-files">
       <a href="${fileUrl(application.code, "declaration")}" target="_blank" rel="noopener">Deklaracja członkowska</a>
       <a href="${fileUrl(application.code, "payment-proof")}" target="_blank" rel="noopener">Dowód wpłaty</a>
-      ${application.files?.criminalRecord ? `<a href="${fileUrl(application.code, "criminal-record")}" target="_blank" rel="noopener">Zaświadczenie o niekaralności</a>` : ""}
     </div>
     <textarea class="admin-review-note" placeholder="Uwagi dla wniosku (opcjonalnie)" aria-label="Uwagi">${application.reviewNote || ""}</textarea>
     <div class="admin-actions">

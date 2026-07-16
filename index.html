@@ -208,7 +208,7 @@
             <h3>Dołącz dokumenty</h3>
             <p>
               Dołącz podpisaną deklarację członkowską, dowód wpłaty wpisowego
-              oraz — jeśli wymagane — zaświadczenie o niekaralności.
+              oraz zaakceptuj oświadczenie o niekaralności.
             </p>
           </article>
           <article>
@@ -391,8 +391,26 @@
 
             <label class="checkbox-label">
               <input type="checkbox" id="member-exempt" name="exempt" value="tak">
-              Jestem funkcjonariuszem służb mundurowych lub posiadam pozwolenie na broń (zwolnienie z zaświadczenia o niekaralności)
+              Jestem funkcjonariuszem służb mundurowych lub posiadam pozwolenie na broń (zwolnienie z oświadczenia o niekaralności)
             </label>
+
+            <div class="declaration-box" id="criminal-declaration-wrap">
+              <label class="checkbox-label declaration-label">
+                <input type="checkbox" id="member-criminal-declaration" name="criminal-declaration" value="tak" required>
+                <span>
+                  <strong>Oświadczenie o niekaralności</strong>
+                  <span class="declaration-text">
+                    Oświadczam, że: 1) nie byłem/am skazany/a prawomocnym wyrokiem sądu za przestępstwo umyślne;
+                    2) nie byłem/am ukarany/a prawomocnym wyrokiem sądu za przestępstwo skarbowe popełnione
+                    w zamiarze bezpośrednim; 3) nie toczy się przeciwko mnie postępowanie w sprawie o przestępstwo
+                    umyślne lub przestępstwo skarbowe popełnione w zamiarze bezpośrednim. Oświadczenie składam
+                    na potrzeby członkostwa w TMS „Sagittarius” oraz postępowania o pozwolenie na broń.
+                    Oświadczam, że informacje są zgodne z prawdą. Jestem świadomy/a odpowiedzialności karnej
+                    za składanie fałszywych oświadczeń.
+                  </span>
+                </span>
+              </label>
+            </div>
 
             <label class="checkbox-label">
               <input type="checkbox" id="member-statute" name="statute" value="tak" required>
@@ -414,11 +432,6 @@
             <label>
               Dowód wpłaty wpisowego (PDF, JPG lub PNG)
               <input type="file" id="member-payment" name="payment-proof" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf" required>
-            </label>
-
-            <label id="criminal-record-wrap">
-              Zaświadczenie o niekaralności (max 30 dni, PDF/JPG/PNG)
-              <input type="file" id="member-criminal-record" name="criminal-record" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf">
             </label>
 
             <button type="submit" class="button primary submit-button" id="membership-submit">
@@ -462,7 +475,7 @@
               <ul id="preview-checklist">
                 <li>Podpisana deklaracja członkowska</li>
                 <li>Dowód wpłaty wpisowego</li>
-                <li id="checklist-criminal">Zaświadczenie o niekaralności (max 30 dni)</li>
+                <li id="checklist-criminal">Oświadczenie o niekaralności</li>
               </ul>
             </div>
           </aside>
@@ -486,10 +499,9 @@
           <details>
             <summary>Jakie dokumenty są potrzebne?</summary>
             <p class="faq-answer">
-              Deklaracja członkostwa, rekomendacja członka klubu, zaświadczenie o niekaralności
-              za przestępstwo umyślne (nie starsze niż 30 dni).
-              Funkcjonariusze służb mundurowych i osoby z pozwoleniem na broń są zwolnieni
-              z zaświadczenia o niekaralności.
+              Deklaracja członkostwa, rekomendacja członka klubu oraz oświadczenie o niekaralności
+              (wymagane przy wniosku o pozwolenie na broń). Funkcjonariusze służb mundurowych
+              i osoby z pozwoleniem na broń są zwolnione z oświadczenia.
             </p>
           </details>
           <details>

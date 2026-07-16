@@ -902,6 +902,29 @@ h3 {
   cursor: not-allowed;
 }
 
+.declaration-box {
+  padding: 14px;
+  background: #f8f9fc;
+  border: 1px solid var(--line);
+}
+
+.declaration-label {
+  align-items: flex-start !important;
+}
+
+.declaration-text {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.declaration-box.is-muted {
+  opacity: 0.55;
+}
+
 .form-preview {
   display: grid;
   align-content: start;
