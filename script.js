@@ -295,7 +295,7 @@ const validateForm = () => {
 
   if (!fields.statute?.checked || !fields.rodo?.checked) {
     if (formNote) {
-      formNote.textContent = "Zaakceptuj statut i zgodę RODO, aby wysłać wniosek.";
+      formNote.textContent = "Zaakceptuj statut i politykę prywatności (RODO), aby wysłać wniosek.";
       formNote.classList.remove("success");
     }
     return false;

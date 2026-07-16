@@ -31,6 +31,16 @@
   to = "/strefa.html"
   status = 301
 
+[[redirects]]
+  from = "/rodo"
+  to = "/rodo.html"
+  status = 301
+
+[[redirects]]
+  from = "/polityka-prywatnosci"
+  to = "/rodo.html"
+  status = 301
+
 [[headers]]
   for = "/*"
   [headers.values]
