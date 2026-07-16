@@ -48,6 +48,37 @@ export const saveFile = async (code, field, file) => {
   };
 };
 
+export const getNextLedgerNumber = async () => {
+  const store = getApplicationsStore();
+  const year = new Date().getFullYear();
+  const current =
+    (await store.get("meta:ledger-counter", { type: "json" })) || { year, number: 0 };
+
+  if (current.year !== year) {
+    current.year = year;
+    current.number = 0;
+  }
+
+  current.number += 1;
+  await store.setJSON("meta:ledger-counter", current);
+  return `${current.number}/${year}`;
+};
+
+export const findApprovedMember = async (email, pesel) => {
+  const applications = await listApplications();
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const normalizedPesel = String(pesel || "").replace(/\D/g, "");
+
+  return (
+    applications.find(
+      (application) =>
+        application.status === "approved" &&
+        String(application.email || "").trim().toLowerCase() === normalizedEmail &&
+        String(application.pesel || "").replace(/\D/g, "") === normalizedPesel,
+    ) || null
+  );
+};
+
 export const getFile = async (code, field) => {
   const store = getFilesStore();
   const key = `${code}/${field}`;

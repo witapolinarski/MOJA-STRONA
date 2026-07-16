@@ -22,6 +22,16 @@
     X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
+  for = "/strefa.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[redirects]]
+  from = "/strefa"
+  to = "/strefa.html"
+  status = 301
+
+[[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"

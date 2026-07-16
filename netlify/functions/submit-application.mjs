@@ -1,4 +1,5 @@
 import { jsonResponse } from "./lib/auth.mjs";
+import { isValidPesel, normalizePesel } from "./lib/pesel.mjs";
 import { saveApplication, saveFile } from "./lib/store.mjs";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
@@ -15,6 +16,8 @@ const requiredFields = [
   "email",
   "phone",
   "address",
+  "pesel",
+  "honorific",
   "type",
   "section",
   "recommender",
@@ -65,6 +68,17 @@ export default async (request) => {
     if (paymentError) return jsonResponse({ error: paymentError }, 400);
 
     const code = String(formData.get("application-code")).trim();
+    const pesel = normalizePesel(formData.get("pesel"));
+    const honorific = String(formData.get("honorific") || "").trim().toLowerCase();
+
+    if (!isValidPesel(pesel)) {
+      return jsonResponse({ error: "Podaj prawidłowy numer PESEL." }, 400);
+    }
+
+    if (!["pan", "pani"].includes(honorific)) {
+      return jsonResponse({ error: "Wybierz formę zwracania się: Pan lub Pani." }, 400);
+    }
+
     const criminalRecord = formData.get("criminal-record");
     const exempt = formData.get("exempt") === "tak";
 
@@ -80,6 +94,8 @@ export default async (request) => {
       email: String(formData.get("email")).trim(),
       phone: String(formData.get("phone")).trim(),
       address: String(formData.get("address")).trim(),
+      pesel,
+      honorific,
       type: String(formData.get("type")).trim(),
       section: String(formData.get("section")).trim(),
       recommender: String(formData.get("recommender")).trim(),

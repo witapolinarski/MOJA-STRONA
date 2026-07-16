@@ -28,6 +28,8 @@ const fields = {
   email: document.querySelector("#member-email"),
   phone: document.querySelector("#member-phone"),
   address: document.querySelector("#member-address"),
+  pesel: document.querySelector("#member-pesel"),
+  honorific: document.querySelector("#member-honorific"),
   type: document.querySelector("#member-type"),
   section: document.querySelector("#member-section"),
   recommender: document.querySelector("#member-recommender"),
@@ -57,6 +59,20 @@ const sectionLabels = {
   sportowa: "Sekcja sportowa",
   kolekcjonerska: "Sekcja kolekcjonerska",
   szkoleniowa: "Sekcja szkoleniowa",
+};
+
+const isValidPesel = (value) => {
+  const pesel = String(value || "").replace(/\D/g, "");
+  if (!/^\d{11}$/.test(pesel)) return false;
+
+  const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+  let sum = 0;
+
+  for (let index = 0; index < 10; index += 1) {
+    sum += Number(pesel[index]) * weights[index];
+  }
+
+  return (10 - (sum % 10)) % 10 === Number(pesel[10]);
 };
 
 const isLocalPreview =
@@ -155,6 +171,11 @@ const validateForm = () => {
 
   if (!fields.exempt?.checked && !criminalRecordInput?.files?.length) {
     setFormMessage("Dołącz zaświadczenie o niekaralności lub zaznacz zwolnienie.");
+    return false;
+  }
+
+  if (!isValidPesel(fields.pesel?.value)) {
+    setFormMessage("Podaj prawidłowy numer PESEL.");
     return false;
   }
 

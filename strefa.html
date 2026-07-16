@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Strefa klubowa TMS Sagittarius — zaświadczenie o członkostwie dla członków z zaakceptowaną deklaracją.">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Strefa klubowa | Sagittarius</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Times+New+Roman&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="strefa.css">
+  </head>
+  <body class="strefa-body">
+    <div class="strefa-shell">
+      <header class="strefa-header">
+        <a class="brand" href="/">
+          <span class="brand-mark">S</span>
+          <span>
+            <strong>Sagittarius</strong>
+            <small>Strefa klubowa</small>
+          </span>
+        </a>
+        <div class="strefa-header-actions">
+          <a class="button secondary" href="/">Strona główna</a>
+          <button class="button dark hidden" type="button" id="logout-button">Wyloguj</button>
+        </div>
+      </header>
+
+      <section class="strefa-login" id="member-login">
+        <div class="strefa-login-card">
+          <p class="eyebrow">Dostęp zamknięty</p>
+          <h1>Strefa klubowa</h1>
+          <p class="strefa-lead">
+            Logowanie jest możliwe wyłącznie dla osób, których deklaracja członkowska została
+            zaakceptowana przez zarząd. Użyj adresu e-mail i numeru PESEL podanych we wniosku.
+          </p>
+          <form id="login-form" class="strefa-form">
+            <label>
+              Adres e-mail
+              <input type="email" id="member-email" name="email" required autocomplete="email" placeholder="jan@example.com">
+            </label>
+            <label>
+              Numer PESEL
+              <input type="text" id="member-pesel" name="pesel" required inputmode="numeric" pattern="[0-9]{11}" maxlength="11" placeholder="00000000000">
+            </label>
+            <button class="button primary" type="submit">Wejdź do strefy klubowej</button>
+            <p class="form-note" id="login-note" role="status"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="strefa-panel hidden" id="member-panel">
+        <div class="strefa-panel-intro">
+          <p class="eyebrow">Dokumenty klubowe</p>
+          <h1>Witaj, <span id="member-name">członku</span></h1>
+          <p>
+            Poniżej znajdziesz zaświadczenie o członkostwie zgodne z danymi z deklaracji.
+            Data na dokumencie odpowiada dniowi wydruku.
+          </p>
+          <div class="strefa-actions">
+            <button class="button primary" type="button" id="print-button">Drukuj zaświadczenie</button>
+            <button class="button secondary" type="button" id="refresh-button">Odśwież datę wydruku</button>
+          </div>
+        </div>
+
+        <article class="certificate-sheet" id="certificate-sheet" aria-label="Zaświadczenie o członkostwie">
+          <header class="certificate-header">
+            <div class="certificate-logo" aria-hidden="true">
+              <div class="certificate-logo-mark">
+                <span class="certificate-logo-title">Sagittarius</span>
+                <span class="certificate-logo-subtitle">Towarzystwo Miłośników Strzelectwa</span>
+              </div>
+            </div>
+            <div class="certificate-org">
+              <p>Towarzystwo Miłośników Strzelectwa „SAGITTARIUS”</p>
+              <p>ul. Młyńska 4, 47 – 320 Gogolin</p>
+              <p>REGON 363199500; NIP 1990113174</p>
+              <p>KRS 0000591210</p>
+              <p>tel. kontaktowy - 662475714</p>
+            </div>
+          </header>
+
+          <hr class="certificate-rule">
+
+          <div class="certificate-meta">
+            <p>l.dz. <span id="cert-ledger">—</span></p>
+            <p><span id="cert-place">Izbicko</span>, <span id="cert-date">—</span></p>
+          </div>
+
+          <h2 class="certificate-title">ZAŚWIADCZENIE</h2>
+
+          <p class="certificate-body" id="cert-body">
+            Ładowanie treści zaświadczenia…
+          </p>
+
+          <footer class="certificate-footer">
+            <img src="assets/podpis-prezesa.svg" alt="Podpis elektroniczny prezesa zarządu" class="certificate-signature">
+          </footer>
+        </article>
+      </section>
+    </div>
+
+    <script src="strefa.js" type="module"></script>
+  </body>
+</html>

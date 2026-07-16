@@ -1,0 +1,216 @@
+.strefa-body {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(20, 33, 61, 0.96), rgba(13, 21, 40, 0.98)),
+    var(--paper);
+}
+
+.strefa-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 72px;
+}
+
+.strefa-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.strefa-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.strefa-login {
+  display: grid;
+  place-items: center;
+  min-height: 70vh;
+}
+
+.strefa-login-card,
+.strefa-panel-intro {
+  width: min(760px, 100%);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+.strefa-login-card h1,
+.strefa-panel-intro h1 {
+  margin-top: 8px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.strefa-lead {
+  color: var(--muted);
+}
+
+.strefa-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.strefa-form label {
+  display: grid;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.strefa-form input {
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  font: inherit;
+}
+
+.strefa-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.strefa-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.certificate-sheet {
+  width: min(210mm, 100%);
+  margin: 0 auto;
+  background: #fff;
+  color: #111;
+  padding: 18mm 16mm 20mm;
+  box-shadow: var(--shadow);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 12pt;
+  line-height: 1.45;
+}
+
+.certificate-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.certificate-logo-mark {
+  display: grid;
+  gap: 4px;
+}
+
+.certificate-logo-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #b42318;
+  letter-spacing: 0.02em;
+}
+
+.certificate-logo-subtitle {
+  font-size: 0.72rem;
+  color: #333;
+}
+
+.certificate-org {
+  text-align: right;
+  font-size: 0.82rem;
+}
+
+.certificate-org p {
+  margin: 0;
+}
+
+.certificate-rule {
+  border: 0;
+  border-top: 3px double #111;
+  margin: 14px 0 18px;
+}
+
+.certificate-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.95rem;
+}
+
+.certificate-meta p {
+  margin: 0;
+}
+
+.certificate-title {
+  margin: 28px 0 22px;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-decoration: underline;
+  letter-spacing: 0.08em;
+}
+
+.certificate-body {
+  margin: 0;
+  text-align: justify;
+  text-indent: 1.25cm;
+}
+
+.certificate-footer {
+  margin-top: 42mm;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.certificate-signature {
+  width: min(280px, 70%);
+  height: auto;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .strefa-header,
+  .strefa-panel-intro,
+  .strefa-login,
+  #logout-button {
+    display: none !important;
+  }
+
+  .strefa-shell,
+  .strefa-panel {
+    width: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .certificate-sheet {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+}
+
+@media (max-width: 720px) {
+  .certificate-header {
+    grid-template-columns: 1fr;
+  }
+
+  .certificate-org {
+    text-align: left;
+  }
+
+  .certificate-meta {
+    flex-direction: column;
+  }
+}

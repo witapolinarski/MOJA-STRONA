@@ -39,6 +39,7 @@
         <a href="#oferta">Oferta</a>
         <a class="nav-join" href="#czlonkostwo">Dołącz</a>
         <a href="#faq">FAQ</a>
+        <a href="/strefa.html">Strefa klubowa</a>
         <span class="nav-cta" aria-label="Telefon kontaktowy">662 475 714</span>
       </nav>
     </header>
@@ -230,7 +231,7 @@
             Po zatwierdzeniu otrzymasz potwierdzenie członkostwa. Dodamy Cię też do grupy na WhatsApp —
             to zapewnia szybką i jednoczesną informację dla naszych klubowiczów. Maksymalnie prosto i przejrzyście.
             Po każdym etapie otrzymasz informację mailową.
-            Otrzymasz także dostęp do strefy klubowej — tam wydrukujesz wszystkie dokumenty niezbędne
+            Otrzymasz także dostęp do <a href="/strefa.html">strefy klubowej</a> — tam wydrukujesz wszystkie dokumenty niezbędne
             przy składaniu wniosku o pozwolenie na broń.
           </p>
         </div>
@@ -269,6 +270,19 @@
             <label>
               Adres zamieszkania
               <input type="text" id="member-address" name="address" required placeholder="ul. Przykładowa 1, 47-320 Gogolin">
+            </label>
+
+            <label>
+              Numer PESEL
+              <input type="text" id="member-pesel" name="pesel" required inputmode="numeric" pattern="[0-9]{11}" maxlength="11" placeholder="00000000000">
+            </label>
+
+            <label>
+              Forma zwracania się
+              <select id="member-honorific" name="honorific" required>
+                <option value="pan">Pan</option>
+                <option value="pani">Pani</option>
+              </select>
             </label>
 
             <label>

@@ -1,5 +1,5 @@
 import { jsonResponse, requireAdmin } from "./lib/auth.mjs";
-import { getApplication, listApplications, saveApplication } from "./lib/store.mjs";
+import { getApplication, getNextLedgerNumber, listApplications, saveApplication } from "./lib/store.mjs";
 
 export default async (request) => {
   const auth = requireAdmin(request);
@@ -39,6 +39,14 @@ export default async (request) => {
       application.status = status;
       application.reviewedAt = status === "pending" ? null : new Date().toISOString();
       application.reviewNote = String(reviewNote || "").trim();
+
+      if (status === "approved" && !application.ledgerRef) {
+        application.ledgerRef = await getNextLedgerNumber();
+      }
+
+      if (status !== "approved") {
+        application.ledgerRef = application.ledgerRef || null;
+      }
 
       await saveApplication(application);
       return jsonResponse({ ok: true, application });
