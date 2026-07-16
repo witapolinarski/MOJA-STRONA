@@ -250,6 +250,96 @@
               <label>Nie wypełniaj tego pola: <input name="bot-field"></label>
             </p>
 
+            <div class="form-documents">
+              <button
+                type="button"
+                class="documents-toggle button primary"
+                id="documents-toggle"
+                aria-expanded="true"
+                aria-controls="documents-panel"
+              >
+                Dokumenty do wypełnienia
+              </button>
+
+              <div class="documents-panel" id="documents-panel">
+                <div class="documents-block">
+                  <h4>Deklaracja członkowska</h4>
+                  <p>
+                    Pobierz wzór, wydrukuj, uzupełnij danymi i podpisz. Podpisaną wersję załączysz niżej we wniosku.
+                  </p>
+                  <div class="documents-actions">
+                    <a class="button secondary" href="/deklaracja" target="_blank" rel="noopener">
+                      Pobierz deklarację członkowską (PDF)
+                    </a>
+                    <a class="button secondary" href="https://www.strzelamy.org.pl/wp-content/uploads/2024/04/STATUT-SAGITTARIUS.pdf" target="_blank" rel="noopener">
+                      Statut klubu (PDF)
+                    </a>
+                  </div>
+                </div>
+
+                <div class="documents-block">
+                  <h4>Opłaty członkowskie</h4>
+                  <ul class="fee-rules">
+                    <li><strong>Wpisowe:</strong> <span id="fee-entry-display">350 zł</span> — jednorazowo przy przyjęciu.</li>
+                    <li><strong>Składka miesięczna:</strong> 30 zł.</li>
+                    <li>
+                      <strong>Składka do końca roku:</strong> liczona od <em>następnego miesiąca</em>
+                      po dniu przyjęcia do grudnia (30 zł × liczba miesięcy).
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="documents-block fee-calculator" aria-live="polite">
+                  <h4>Kalkulator wpłaty na dzień przyjęcia</h4>
+                  <label>
+                    Przewidywana data przyjęcia do klubu
+                    <input type="date" id="fee-acceptance-date" name="fee-acceptance-date">
+                  </label>
+                  <dl class="fee-breakdown">
+                    <div>
+                      <dt>Wpisowe</dt>
+                      <dd id="fee-entry-amount">350,00 zł</dd>
+                    </div>
+                    <div>
+                      <dt>Składka do końca roku (<span id="fee-months-count">0</span> mies.)</dt>
+                      <dd id="fee-annual-amount">0,00 zł</dd>
+                    </div>
+                    <div class="fee-total">
+                      <dt>Łącznie do wpłaty</dt>
+                      <dd id="fee-total-amount">350,00 zł</dd>
+                    </div>
+                  </dl>
+                  <p class="fee-months-note" id="fee-months-note"></p>
+                </div>
+
+                <div class="documents-block payment-details">
+                  <h4>Dane do przelewu</h4>
+                  <dl class="payment-transfer">
+                    <div>
+                      <dt>Odbiorca</dt>
+                      <dd>Towarzystwo Miłośników Strzelectwa „SAGITTARIUS”</dd>
+                    </div>
+                    <div>
+                      <dt>Numer rachunku</dt>
+                      <dd id="payment-account">Skontaktuj się: kontakt@strzelamy.org.pl</dd>
+                    </div>
+                    <div>
+                      <dt>Tytuł przelewu</dt>
+                      <dd id="payment-title">Wpisowe i składka — [imię i nazwisko] — [nr wniosku]</dd>
+                    </div>
+                  </dl>
+                  <p class="payment-hint">
+                    Po wysłaniu wniosku dołącz potwierdzenie wpłaty w sekcji dokumentów poniżej.
+                  </p>
+                  <div class="payment-future">
+                    <p class="eyebrow">Płatności online</p>
+                    <p>Wkrótce uruchomimy opłatę kartą i BLIK przez Stripe — bez ręcznego przelewu.</p>
+                    <button type="button" class="button secondary" disabled>Zapłać online (wkrótce)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <h3>Dane wnioskodawcy</h3>
 
             <label>

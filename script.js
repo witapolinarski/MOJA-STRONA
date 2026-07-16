@@ -85,6 +85,89 @@ const getApplicationCode = () => {
   return code;
 };
 
+const membershipFees = {
+  entryFee: 350,
+  monthlyFee: 30,
+  bankAccount: "",
+  bankName: "",
+};
+
+const documentsToggle = document.querySelector("#documents-toggle");
+const documentsPanel = document.querySelector("#documents-panel");
+const feeAcceptanceDate = document.querySelector("#fee-acceptance-date");
+const feeEntryDisplay = document.querySelector("#fee-entry-display");
+const feeEntryAmount = document.querySelector("#fee-entry-amount");
+const feeMonthsCount = document.querySelector("#fee-months-count");
+const feeAnnualAmount = document.querySelector("#fee-annual-amount");
+const feeTotalAmount = document.querySelector("#fee-total-amount");
+const feeMonthsNote = document.querySelector("#fee-months-note");
+const paymentAccount = document.querySelector("#payment-account");
+const paymentTitle = document.querySelector("#payment-title");
+
+const formatMoney = (value) =>
+  new Intl.NumberFormat("pl-PL", {
+    style: "currency",
+    currency: "PLN",
+  }).format(value);
+
+const monthNames = [
+  "stycznia",
+  "lutego",
+  "marca",
+  "kwietnia",
+  "maja",
+  "czerwca",
+  "lipca",
+  "sierpnia",
+  "września",
+  "października",
+  "listopada",
+  "grudnia",
+];
+
+const countFeeMonths = (acceptanceDate) => {
+  const month = acceptanceDate.getMonth();
+  const nextMonthIndex = month + 1;
+  if (nextMonthIndex > 11) return 0;
+  return 12 - nextMonthIndex;
+};
+
+const updateFeeCalculator = () => {
+  const rawDate = feeAcceptanceDate?.value;
+  const acceptanceDate = rawDate ? new Date(`${rawDate}T12:00:00`) : new Date();
+  const months = countFeeMonths(acceptanceDate);
+  const annualFee = months * membershipFees.monthlyFee;
+  const total = membershipFees.entryFee + annualFee;
+  const applicantName = fields.name?.value.trim() || "[imię i nazwisko]";
+  const code = getApplicationCode();
+
+  if (feeEntryDisplay) feeEntryDisplay.textContent = `${membershipFees.entryFee} zł`;
+  if (feeEntryAmount) feeEntryAmount.textContent = formatMoney(membershipFees.entryFee);
+  if (feeMonthsCount) feeMonthsCount.textContent = String(months);
+  if (feeAnnualAmount) feeAnnualAmount.textContent = formatMoney(annualFee);
+  if (feeTotalAmount) feeTotalAmount.textContent = formatMoney(total);
+
+  if (feeMonthsNote) {
+    if (months === 0) {
+      feeMonthsNote.textContent =
+        "Przy przyjęciu w grudniu składka roczna za bieżący rok nie jest naliczana — od stycznia obowiązuje składka miesięczna 30 zł.";
+    } else {
+      const fromMonth = monthNames[acceptanceDate.getMonth() + 1];
+      feeMonthsNote.textContent = `Naliczono ${months} mies. (od ${fromMonth} do grudnia) × 30 zł = ${formatMoney(annualFee)}.`;
+    }
+  }
+
+  if (paymentAccount) {
+    paymentAccount.textContent = membershipFees.bankAccount
+      ? `${membershipFees.bankAccount}${membershipFees.bankName ? ` (${membershipFees.bankName})` : ""}`
+      : "Skontaktuj się: kontakt@strzelamy.org.pl";
+  }
+
+  if (paymentTitle) {
+    paymentTitle.textContent = `Wpisowe i składka — ${applicantName} — ${code}`;
+  }
+};
+
 const updateCriminalRequirement = () => {
   const isExempt = fields.exempt?.checked;
 
@@ -120,6 +203,7 @@ const updatePreview = () => {
   if (applicationCodeField) applicationCodeField.value = code;
 
   updateCriminalRequirement();
+  updateFeeCalculator();
 };
 
 const getFormData = () => ({
@@ -236,3 +320,18 @@ if (membershipForm) {
 
   membershipForm.addEventListener("submit", handleSubmit);
 }
+
+if (documentsToggle && documentsPanel) {
+  documentsToggle.addEventListener("click", () => {
+    const collapsed = documentsPanel.classList.toggle("is-collapsed");
+    documentsToggle.setAttribute("aria-expanded", String(!collapsed));
+  });
+}
+
+if (feeAcceptanceDate) {
+  const today = new Date();
+  feeAcceptanceDate.value = today.toISOString().slice(0, 10);
+  feeAcceptanceDate.addEventListener("change", updateFeeCalculator);
+}
+
+updateFeeCalculator();

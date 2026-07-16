@@ -752,6 +752,156 @@ h3 {
   font-weight: 700;
 }
 
+.form-documents {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.documents-toggle {
+  width: 100%;
+  justify-content: center;
+  border: 0;
+  cursor: pointer;
+}
+
+.documents-panel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  background: #f4f7fb;
+  border: 1px solid rgba(43, 76, 126, 0.14);
+}
+
+.documents-panel.is-collapsed {
+  display: none;
+}
+
+.documents-block {
+  padding: 14px;
+  background: var(--white);
+  border: 1px solid var(--line);
+}
+
+.documents-block h4 {
+  margin: 0 0 8px;
+  font-size: 0.98rem;
+}
+
+.documents-block p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.documents-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.documents-actions .button {
+  flex: 1 1 180px;
+  justify-content: center;
+  text-align: center;
+}
+
+.fee-rules {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.fee-rules strong {
+  color: var(--ink);
+}
+
+.fee-calculator label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.fee-calculator input[type="date"] {
+  width: 100%;
+  border: 1px solid rgba(21, 22, 23, 0.18);
+  background: #f8f9fc;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 12px;
+}
+
+.fee-breakdown,
+.payment-transfer {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.fee-breakdown div,
+.payment-transfer div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.86rem;
+}
+
+.fee-breakdown dt,
+.payment-transfer dt {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.fee-breakdown dd,
+.payment-transfer dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 800;
+}
+
+.fee-breakdown .fee-total {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 2px solid var(--brand-dark);
+  font-size: 0.95rem;
+}
+
+.fee-breakdown .fee-total dd {
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.fee-months-note,
+.payment-hint {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.payment-future {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+
+.payment-future p {
+  margin: 0 0 10px;
+}
+
+.payment-future .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .form-preview {
   display: grid;
   align-content: start;
