@@ -31,7 +31,7 @@ const renderSummary = async () => {
 
   if (!code) {
     summary.innerHTML =
-      "<p>Wniosek został przyjęty. Jeśli nie otrzymasz wiadomości w ciągu kilku dni, napisz na kontakt@strzelamy.org.pl.</p>";
+      "<p>Wniosek został przyjęty. Jeśli nie otrzymasz wiadomości w ciągu kilku dni, napisz na apolinarski@yahoo.com.</p>";
     return;
   }
 

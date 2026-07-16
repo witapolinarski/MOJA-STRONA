@@ -43,8 +43,8 @@ Opcjonalnie:
 |---|---|
 | `ADMIN_TOKEN_SECRET` | Osobny sekret do tokenów (jeśli puste, używane jest `ADMIN_PASSWORD`) |
 | `ADMIN_NAME` | Nazwa administratora (domyślnie: Witold Apolinarski) |
-| `ADMIN_EMAIL` | E-mail administratora (domyślnie: apolinarski@op.pl) |
-| `APPROVER_EMAILS` | E-maile członków z prawem akceptacji wniosków w strefie (domyślnie: `apolinarski@yahoo.com,apolinarski@op.pl`) |
+| `ADMIN_EMAIL` | E-mail administratora (domyślnie: apolinarski@yahoo.com) |
+| `APPROVER_EMAILS` | E-maile członków z prawem akceptacji wniosków w strefie (domyślnie: `apolinarski@yahoo.com`) |
 
 ## Wdrożenie
 

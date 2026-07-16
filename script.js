@@ -211,7 +211,7 @@ const updateFeeCalculator = () => {
   if (paymentAccount) {
     paymentAccount.textContent = membershipFees.bankAccount
       ? `${membershipFees.bankAccount}${membershipFees.bankName ? ` (${membershipFees.bankName})` : ""}`
-      : "Skontaktuj się: kontakt@strzelamy.org.pl";
+      : "Skontaktuj się: apolinarski@yahoo.com";
   }
 
   if (paymentTitle) {

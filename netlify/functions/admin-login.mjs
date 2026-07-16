@@ -18,7 +18,7 @@ export default async (request) => {
       token,
       admin: {
         name: process.env.ADMIN_NAME || "Witold Apolinarski",
-        email: process.env.ADMIN_EMAIL || "apolinarski@op.pl",
+        email: process.env.ADMIN_EMAIL || "apolinarski@yahoo.com",
         role: "Prezes zarządu — zatwierdzanie wniosków",
       },
     });

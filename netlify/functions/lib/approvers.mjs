@@ -2,7 +2,7 @@ import { getBearerToken, jsonResponse, verifyMemberToken } from "./auth.mjs";
 import { getApplication } from "./store.mjs";
 
 export const getApproverEmails = () =>
-  (process.env.APPROVER_EMAILS || "apolinarski@yahoo.com,apolinarski@op.pl")
+  (process.env.APPROVER_EMAILS || "apolinarski@yahoo.com")
     .split(",")
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean);
