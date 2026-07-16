@@ -12,6 +12,11 @@
     <link rel="stylesheet" href="rodo.css">
   </head>
   <body class="rodo-body">
+    <script>
+      if (new URLSearchParams(window.location.search).get("embed") === "1") {
+        document.body.classList.add("rodo-embed");
+      }
+    </script>
     <div class="top-line" aria-label="Szybki kontakt">
       <span>TMS „Sagittarius” · dokument RODO</span>
       <a href="mailto:kontakt@strzelamy.org.pl">kontakt@strzelamy.org.pl</a>

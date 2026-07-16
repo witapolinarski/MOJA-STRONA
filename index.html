@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="rodo.css">
   </head>
   <body>
     <div class="top-line" aria-label="Szybki kontakt">
@@ -396,8 +397,9 @@
 
             <label class="checkbox-label">
               <input type="checkbox" id="member-rodo" name="rodo" value="tak" required>
-              Wyrażam zgodę na przetwarzanie danych osobowych (<a href="/rodo.html" target="_blank" rel="noopener">RODO</a>)
+              Wyrażam zgodę na przetwarzanie danych osobowych (<a href="/rodo.html" class="rodo-policy-link" id="rodo-policy-open">RODO</a>)
             </label>
+            <p class="form-note rodo-policy-hint">Kliknij „RODO”, aby otworzyć i zapoznać się z pełną polityką prywatności przed zaznaczeniem zgody.</p>
 
             <h3>Dokumenty do weryfikacji</h3>
 
@@ -530,6 +532,23 @@
       <a class="join" href="#czlonkostwo">Dołącz</a>
       <a href="#faq">FAQ</a>
     </div>
+
+    <dialog class="rodo-dialog" id="rodo-policy-dialog" aria-labelledby="rodo-dialog-title">
+      <div class="rodo-dialog-header">
+        <h2 id="rodo-dialog-title">Polityka prywatności (RODO)</h2>
+        <button type="button" class="rodo-dialog-close" id="rodo-dialog-close" aria-label="Zamknij podgląd polityki">×</button>
+      </div>
+      <iframe
+        class="rodo-dialog-frame"
+        id="rodo-policy-frame"
+        title="Pełna treść polityki prywatności RODO"
+        loading="lazy"
+      ></iframe>
+      <div class="rodo-dialog-actions">
+        <a class="button secondary" href="/rodo.html" target="_blank" rel="noopener">Otwórz w nowej karcie</a>
+        <button type="button" class="button primary" id="rodo-dialog-confirm">Zapoznałem/am się z polityką</button>
+      </div>
+    </dialog>
 
     <script src="script.js"></script>
   </body>

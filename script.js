@@ -74,6 +74,54 @@ const isLocalPreview =
 
 let recommenderValid = false;
 let recommenderValidateTimer = null;
+let rodoPolicyViewed = false;
+
+const rodoPolicyOpen = document.querySelector("#rodo-policy-open");
+const rodoPolicyDialog = document.querySelector("#rodo-policy-dialog");
+const rodoPolicyFrame = document.querySelector("#rodo-policy-frame");
+const rodoDialogClose = document.querySelector("#rodo-dialog-close");
+const rodoDialogConfirm = document.querySelector("#rodo-dialog-confirm");
+
+const openRodoPolicyDialog = () => {
+  if (!rodoPolicyDialog) {
+    window.open("/rodo.html", "_blank", "noopener");
+    return;
+  }
+
+  if (rodoPolicyFrame && !rodoPolicyFrame.src) {
+    rodoPolicyFrame.src = "/rodo.html?embed=1";
+  }
+
+  if (typeof rodoPolicyDialog.showModal === "function") {
+    rodoPolicyDialog.showModal();
+  } else {
+    window.open("/rodo.html", "_blank", "noopener");
+  }
+};
+
+const closeRodoPolicyDialog = () => {
+  rodoPolicyDialog?.close();
+};
+
+rodoPolicyOpen?.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  openRodoPolicyDialog();
+});
+
+rodoDialogClose?.addEventListener("click", closeRodoPolicyDialog);
+rodoDialogConfirm?.addEventListener("click", () => {
+  rodoPolicyViewed = true;
+  closeRodoPolicyDialog();
+});
+
+rodoPolicyDialog?.addEventListener("click", (event) => {
+  if (event.target === rodoPolicyDialog) closeRodoPolicyDialog();
+});
+
+rodoPolicyDialog?.addEventListener("close", () => {
+  rodoPolicyViewed = true;
+});
 
 const getApplicationCode = () => {
   let code = sessionStorage.getItem("sagittariusAppCode");
@@ -298,6 +346,12 @@ const validateForm = () => {
       formNote.textContent = "Zaakceptuj statut i zgodę RODO, aby wysłać wniosek.";
       formNote.classList.remove("success");
     }
+    return false;
+  }
+
+  if (fields.rodo?.checked && !rodoPolicyViewed) {
+    setFormMessage("Przed wysłaniem wniosku otwórz i zapoznaj się z polityką RODO — kliknij link „RODO”.");
+    openRodoPolicyDialog();
     return false;
   }
 
