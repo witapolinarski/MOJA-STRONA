@@ -45,6 +45,8 @@ Po ustawieniu zmiennych wykonaj **Trigger deploy**.
 
 ## Formularz członkostwa
 
+Kandydat musi podać m.in. **PESEL** i formę zwracania się (Pan/Pani) — dane trafiają na zaświadczenie o członkostwie.
+
 Kandydat musi załączyć:
 - podpisaną **deklarację członkowską** (PDF/JPG/PNG),
 - **dowód wpłaty** wpisowego (PDF/JPG/PNG),
@@ -57,6 +59,7 @@ Wniosek trafia do **Netlify Blobs** przez funkcję `submit-application`.
 | Plik / folder | Opis |
 |---|---|
 | `index.html` | Strona główna + formularz |
+| `strefa.html` | Strefa klubowa + zaświadczenie |
 | `admin.html` | Panel administratora |
 | `netlify/functions/` | API: zgłoszenia, logowanie, pliki |
 | `assets/` | Zdjęcia klubu |
