@@ -152,6 +152,16 @@
   border-top: 1px solid var(--line);
 }
 
+.rodo-dialog-actions .button.secondary {
+  color: var(--brand-dark);
+  background: var(--white);
+  border: 1px solid rgba(24, 32, 51, 0.18);
+}
+
+.rodo-dialog-actions .button.secondary:hover {
+  background: #eef1f6;
+}
+
 .rodo-policy-link {
   color: var(--brand);
   text-decoration: underline;
