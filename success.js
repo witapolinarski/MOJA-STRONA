@@ -41,7 +41,6 @@ const renderSummary = () => {
   appendItem(list, "E-mail", data?.email);
   appendItem(list, "Telefon", data?.phone);
   appendItem(list, "Typ członkostwa", data?.type);
-  appendItem(list, "Sekcja", data?.section);
   appendItem(list, "Rekomendacja", data?.recommender);
 
   summary.replaceChildren(list);

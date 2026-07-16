@@ -19,7 +19,6 @@ const requiredFields = [
   "pesel",
   "honorific",
   "type",
-  "section",
   "recommender",
 ];
 
@@ -97,7 +96,7 @@ export default async (request) => {
       pesel,
       honorific,
       type: String(formData.get("type")).trim(),
-      section: String(formData.get("section")).trim(),
+      section: "",
       recommender: String(formData.get("recommender")).trim(),
       exempt,
       submittedAt: new Date().toISOString(),

@@ -87,7 +87,7 @@ const renderApplication = (application) => {
       <div>Telefon: <strong>${application.phone}</strong></div>
       <div>Adres: <strong>${application.address}</strong></div>
       <div>PESEL: <strong>${application.pesel || "—"}</strong></div>
-      <div>Typ: <strong>${application.type}</strong> · Sekcja: <strong>${application.section}</strong></div>
+      <div>Typ: <strong>${application.type}</strong></div>
       <div>Rekomendacja: <strong>${application.recommender}</strong></div>
       <div>Zwolnienie z zaświadczenia: <strong>${application.exempt ? "tak" : "nie"}</strong></div>
       <div>Złożono: <strong>${formatDate(application.submittedAt)}</strong></div>

@@ -31,7 +31,6 @@ const fields = {
   pesel: document.querySelector("#member-pesel"),
   honorific: document.querySelector("#member-honorific"),
   type: document.querySelector("#member-type"),
-  section: document.querySelector("#member-section"),
   recommender: document.querySelector("#member-recommender"),
   exempt: document.querySelector("#member-exempt"),
   statute: document.querySelector("#member-statute"),
@@ -44,7 +43,6 @@ const preview = {
   name: document.querySelector("#preview-name"),
   email: document.querySelector("#preview-email"),
   type: document.querySelector("#preview-type"),
-  section: document.querySelector("#preview-section"),
   recommender: document.querySelector("#preview-recommender"),
   code: document.querySelector("#preview-code"),
 };
@@ -53,12 +51,6 @@ const typeLabels = {
   zwyczajne: "Członkostwo zwyczajne",
   mlodsze: "Członkostwo młodsze",
   wspierajace: "Członkostwo wspierające",
-};
-
-const sectionLabels = {
-  sportowa: "Sekcja sportowa",
-  kolekcjonerska: "Sekcja kolekcjonerska",
-  szkoleniowa: "Sekcja szkoleniowa",
 };
 
 const isValidPesel = (value) => {
@@ -117,14 +109,12 @@ const updatePreview = () => {
   const name = fields.name?.value.trim() || "—";
   const email = fields.email?.value.trim() || "—";
   const type = fields.type?.value || "zwyczajne";
-  const section = fields.section?.value || "sportowa";
   const recommender = fields.recommender?.value.trim() || "—";
   const code = getApplicationCode();
 
   if (preview.name) preview.name.textContent = name;
   if (preview.email) preview.email.textContent = email;
   if (preview.type) preview.type.textContent = typeLabels[type] || type;
-  if (preview.section) preview.section.textContent = sectionLabels[section] || section;
   if (preview.recommender) preview.recommender.textContent = recommender;
   if (preview.code) preview.code.textContent = code;
   if (applicationCodeField) applicationCodeField.value = code;
@@ -139,7 +129,6 @@ const getFormData = () => ({
   phone: fields.phone?.value.trim() || "",
   address: fields.address?.value.trim() || "",
   type: typeLabels[fields.type?.value || "zwyczajne"] || fields.type?.value || "",
-  section: sectionLabels[fields.section?.value || "sportowa"] || fields.section?.value || "",
   recommender: fields.recommender?.value.trim() || "",
   exempt: fields.exempt?.checked,
   submittedAt: new Date().toISOString(),
