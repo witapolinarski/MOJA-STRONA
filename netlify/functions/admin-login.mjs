@@ -13,7 +13,15 @@ export default async (request) => {
     }
 
     const token = createAdminToken();
-    return jsonResponse({ ok: true, token });
+    return jsonResponse({
+      ok: true,
+      token,
+      admin: {
+        name: process.env.ADMIN_NAME || "Witold Apolinarski",
+        email: process.env.ADMIN_EMAIL || "apolinarski@op.pl",
+        role: "Prezes zarządu — zatwierdzanie wniosków",
+      },
+    });
   } catch (error) {
     console.error(error);
     return jsonResponse({ error: "Błąd logowania." }, 500);

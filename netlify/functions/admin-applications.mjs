@@ -1,5 +1,14 @@
 import { jsonResponse, requireAdmin } from "./lib/auth.mjs";
+import { getPaymentRecord } from "./lib/payments.mjs";
 import { getApplication, getNextLedgerNumber, listApplications, saveApplication } from "./lib/store.mjs";
+
+const enrichApplication = async (application) => {
+  if (!application?.payment) {
+    const payment = await getPaymentRecord(application.code);
+    if (payment) application.payment = payment;
+  }
+  return application;
+};
 
 export default async (request) => {
   const auth = requireAdmin(request);
@@ -12,7 +21,7 @@ export default async (request) => {
       const status = url.searchParams.get("status");
 
       if (code) {
-        const application = await getApplication(code);
+        const application = await enrichApplication(await getApplication(code));
         if (!application) return jsonResponse({ error: "Nie znaleziono wniosku." }, 404);
         return jsonResponse({ application });
       }
@@ -21,6 +30,8 @@ export default async (request) => {
       if (status && status !== "all") {
         applications = applications.filter((item) => item.status === status);
       }
+
+      applications = await Promise.all(applications.map((item) => enrichApplication(item)));
 
       return jsonResponse({ applications });
     }
@@ -38,6 +49,8 @@ export default async (request) => {
 
       application.status = status;
       application.reviewedAt = status === "pending" ? null : new Date().toISOString();
+      application.reviewedBy =
+        status === "pending" ? null : process.env.ADMIN_NAME || "Witold Apolinarski";
       application.reviewNote = String(reviewNote || "").trim();
 
       if (status === "approved" && !application.ledgerRef) {

@@ -1,4 +1,6 @@
 import { jsonResponse } from "./lib/auth.mjs";
+import { calculateMembershipFees } from "./lib/fees.mjs";
+import { getPaymentRecord } from "./lib/payments.mjs";
 import { isValidPesel, normalizePesel } from "./lib/pesel.mjs";
 import { saveApplication, saveFile } from "./lib/store.mjs";
 
@@ -63,10 +65,24 @@ export default async (request) => {
     const declarationError = validateFile(declaration, "Deklaracja członkowska");
     if (declarationError) return jsonResponse({ error: declarationError }, 400);
 
-    const paymentError = validateFile(paymentProof, "Dowód wpłaty");
-    if (paymentError) return jsonResponse({ error: paymentError }, 400);
-
     const code = String(formData.get("application-code")).trim();
+    const existingPayment = await getPaymentRecord(code);
+    const stripePaid = existingPayment?.status === "paid";
+    const hasManualProof =
+      paymentProof && typeof paymentProof !== "string" && paymentProof.size > 0;
+
+    if (!stripePaid && !hasManualProof) {
+      return jsonResponse(
+        { error: "Dołącz dowód wpłaty lub opłać wniosek online (Stripe)." },
+        400,
+      );
+    }
+
+    if (!stripePaid && hasManualProof) {
+      const paymentError = validateFile(paymentProof, "Dowód wpłaty");
+      if (paymentError) return jsonResponse({ error: paymentError }, 400);
+    }
+
     const pesel = normalizePesel(formData.get("pesel"));
     const honorific = String(formData.get("honorific") || "").trim().toLowerCase();
     const exempt = formData.get("exempt") === "tak";
@@ -84,6 +100,8 @@ export default async (request) => {
       return jsonResponse({ error: "Wymagana akceptacja oświadczenia o niekaralności." }, 400);
     }
 
+    const fees = calculateMembershipFees(String(formData.get("fee-acceptance-date") || "").trim() || undefined);
+
     const application = {
       code,
       status: "pending",
@@ -99,14 +117,24 @@ export default async (request) => {
       exempt,
       criminalDeclaration,
       criminalDeclarationAt: criminalDeclaration ? new Date().toISOString() : null,
+      fees,
+      payment: existingPayment || {
+        status: hasManualProof ? "manual" : "unpaid",
+        method: hasManualProof ? "transfer" : null,
+        amount: fees.total,
+      },
       submittedAt: new Date().toISOString(),
       reviewedAt: null,
+      reviewedBy: null,
       reviewNote: "",
       files: {},
     };
 
     application.files.declaration = await saveFile(code, "declaration", declaration);
-    application.files.paymentProof = await saveFile(code, "payment-proof", paymentProof);
+
+    if (hasManualProof) {
+      application.files.paymentProof = await saveFile(code, "payment-proof", paymentProof);
+    }
 
     await saveApplication(application);
 

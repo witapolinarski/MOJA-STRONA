@@ -26,7 +26,7 @@ export const listApplications = async () => {
     blobs.map(async ({ key }) => store.get(key, { type: "json" })),
   );
   return applications
-    .filter(Boolean)
+    .filter((item) => item?.code && String(item.code).startsWith("SG-"))
     .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
 };
 

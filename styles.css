@@ -925,6 +925,27 @@ h3 {
   opacity: 0.55;
 }
 
+.payment-status {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.payment-status.is-paid {
+  color: #14532d;
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.payment-status.is-pending {
+  color: #6a4d12;
+  border-color: #f6e7b8;
+  background: #fffbeb;
+}
+
 .form-preview {
   display: grid;
   align-content: start;

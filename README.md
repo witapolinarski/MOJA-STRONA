@@ -10,14 +10,16 @@ Dostęp mają wyłącznie osoby ze **zatwierdzoną** deklaracją członkowską. 
 
 W strefie członek może wygenerować i wydrukować **zaświadczenie o członkostwie** (imię i nazwisko, PESEL, data wydruku, podpis prezesa). Własny skan podpisu wgraj jako `assets/podpis-prezesa.svg` lub `.png` i zaktualizuj ścieżkę w `strefa.html`.
 
-## Panel administratora
+## Panel administratora (Witold Apolinarski)
 
 Adres: **`/admin.html`**
 
-Administrator loguje się hasłem i może:
-- przeglądać wnioski (oczekujące / zatwierdzone / odrzucone),
-- pobierać **deklarację członkowską** i **dowód wpłaty**,
-- **zatwierdzać** lub **odrzucać** wniosek z uwagami.
+**Witold Apolinarski** loguje się hasłem i zatwierdza kandydatów. Panel pokazuje:
+- pełny **wynik formularza** kandydata,
+- **deklarację członkowską** do pobrania,
+- **potwierdzenie wpłaty** — automatycznie z Stripe po płatności online lub załączony dowód przelewu.
+
+Zatwierdzenie jest możliwe dopiero przy komplecie: deklaracja + potwierdzona wpłata.
 
 ## Wymagana konfiguracja Netlify
 
@@ -32,8 +34,21 @@ Opcjonalnie:
 | Zmienna | Opis |
 |---|---|
 | `ADMIN_TOKEN_SECRET` | Osobny sekret do tokenów (jeśli puste, używane jest `ADMIN_PASSWORD`) |
+| `ADMIN_NAME` | Nazwa administratora (domyślnie: Witold Apolinarski) |
+| `ADMIN_EMAIL` | E-mail administratora (domyślnie: apolinarski@op.pl) |
+| `STRIPE_SECRET_KEY` | Klucz sekretny Stripe (`sk_live_...` lub `sk_test_...`) |
+| `STRIPE_WEBHOOK_SECRET` | Sekret webhooka Stripe (`whsec_...`) |
 
-Po ustawieniu zmiennych wykonaj **Trigger deploy**.
+### Stripe — płatności online
+
+1. W [Stripe Dashboard](https://dashboard.stripe.com) utwórz webhook na adres:
+   `https://TWOJA-DOMENA.netlify.app/.netlify/functions/stripe-webhook`
+2. Zaznacz zdarzenie: `checkout.session.completed`
+3. Skopiuj `STRIPE_WEBHOOK_SECRET` do zmiennych Netlify
+4. Ustaw `STRIPE_SECRET_KEY`
+5. **Trigger deploy**
+
+Kandydat klika **Zapłać online** w formularzu — po opłacie potwierdzenie trafia do panelu Witolda.
 
 ## Wdrożenie
 
@@ -49,7 +64,7 @@ Kandydat musi podać m.in. **PESEL** i formę zwracania się (Pan/Pani) — dane
 
 Kandydat musi załączyć:
 - podpisaną **deklarację członkowską** (PDF/JPG/PNG),
-- **dowód wpłaty** wpisowego (PDF/JPG/PNG),
+- **wpłatę** — online przez Stripe **lub** dowód przelewu (PDF/JPG/PNG),
 - **oświadczenie o niekaralności** (akceptacja w formularzu; zwolnienie dla służb mundurowych / posiadaczy pozwolenia na broń).
 
 Wniosek trafia do **Netlify Blobs** przez funkcję `submit-application`.

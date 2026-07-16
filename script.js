@@ -22,6 +22,9 @@ const applicationCodeField = document.querySelector("#application-code");
 const criminalDeclarationWrap = document.querySelector("#criminal-declaration-wrap");
 const criminalDeclarationInput = document.querySelector("#member-criminal-declaration");
 const checklistCriminal = document.querySelector("#checklist-criminal");
+const checklistPayment = document.querySelector("#checklist-payment");
+const paymentStatusEl = document.querySelector("#payment-status");
+const payOnlineButton = document.querySelector("#pay-online-button");
 
 const fields = {
   name: document.querySelector("#member-name"),
@@ -72,6 +75,8 @@ const isLocalPreview =
   window.location.protocol === "file:" ||
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
+
+let onlinePaymentPaid = false;
 
 const getApplicationCode = () => {
   let code = sessionStorage.getItem("sagittariusAppCode");
@@ -187,6 +192,52 @@ const updateCriminalRequirement = () => {
       ? "Oświadczenie o niekaralności — zwolnienie"
       : "Oświadczenie o niekaralności";
   }
+
+  updatePaymentChecklist();
+};
+
+const updatePaymentChecklist = () => {
+  const hasManualProof = Boolean(fields.paymentProof?.files?.length);
+  const isPaid = onlinePaymentPaid || hasManualProof;
+
+  if (checklistPayment) {
+    checklistPayment.classList.toggle("done", isPaid);
+    checklistPayment.textContent = onlinePaymentPaid
+      ? "Wpłata — potwierdzona online (Stripe)"
+      : hasManualProof
+        ? "Wpłata — dowód przelewu załączony"
+        : "Wpłata — online lub dowód przelewu";
+  }
+
+  if (paymentStatusEl) {
+    if (onlinePaymentPaid) {
+      paymentStatusEl.textContent = "Płatność online została potwierdzona. Możesz wysłać wniosek bez załączania dowodu przelewu.";
+      paymentStatusEl.className = "payment-status is-paid";
+    } else if (hasManualProof) {
+      paymentStatusEl.textContent = "Załączono dowód przelewu. Wniosek można wysłać.";
+      paymentStatusEl.className = "payment-status is-paid";
+    } else {
+      paymentStatusEl.textContent = "Nie wykryto płatności online. Zapłać przez Stripe lub dołącz dowód przelewu przed wysłaniem.";
+      paymentStatusEl.className = "payment-status is-pending";
+    }
+  }
+};
+
+const refreshPaymentStatus = async () => {
+  if (isLocalPreview) return;
+
+  const code = getApplicationCode();
+  try {
+    const response = await fetch(
+      `/.netlify/functions/payment-status?code=${encodeURIComponent(code)}`,
+    );
+    const data = await response.json().catch(() => ({}));
+    onlinePaymentPaid = data.payment?.status === "paid";
+  } catch {
+    onlinePaymentPaid = false;
+  }
+
+  updatePaymentChecklist();
 };
 
 const updatePreview = () => {
@@ -238,8 +289,8 @@ const validateForm = () => {
     return false;
   }
 
-  if (!fields.paymentProof?.files?.length) {
-    setFormMessage("Dołącz dowód wpłaty wpisowego.");
+  if (!onlinePaymentPaid && !fields.paymentProof?.files?.length) {
+    setFormMessage("Zapłać online (Stripe) lub dołącz dowód wpłaty przed wysłaniem wniosku.");
     return false;
   }
 
@@ -275,6 +326,7 @@ const setFormMessage = (message, isSuccess = false) => {
 const handleSubmit = async (event) => {
   event.preventDefault();
   updatePreview();
+  await refreshPaymentStatus();
 
   if (!validateForm()) return;
 
@@ -336,4 +388,46 @@ if (feeAcceptanceDate) {
   feeAcceptanceDate.addEventListener("change", updateFeeCalculator);
 }
 
+payOnlineButton?.addEventListener("click", async () => {
+  const name = fields.name?.value.trim() || "";
+  const email = fields.email?.value.trim() || "";
+
+  if (!name || !email) {
+    setFormMessage("Uzupełnij imię i nazwisko oraz e-mail przed płatnością online.");
+    return;
+  }
+
+  if (isLocalPreview) {
+    setFormMessage("Płatności online działają po wdrożeniu na Netlify ze skonfigurowanym Stripe.");
+    return;
+  }
+
+  updateFeeCalculator();
+  const code = getApplicationCode();
+  const acceptanceDate = feeAcceptanceDate?.value || new Date().toISOString().slice(0, 10);
+
+  if (payOnlineButton) payOnlineButton.disabled = true;
+  setFormMessage("Przekierowanie do bezpiecznej płatności Stripe…");
+
+  try {
+    const response = await fetch("/.netlify/functions/create-payment-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, name, email, acceptanceDate }),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.url) {
+      throw new Error(data.error || "Nie udało się rozpocząć płatności.");
+    }
+
+    window.location.href = data.url;
+  } catch (error) {
+    setFormMessage(error.message || "Nie udało się rozpocząć płatności online.");
+    if (payOnlineButton) payOnlineButton.disabled = false;
+  }
+});
+
+fields.paymentProof?.addEventListener("change", updatePaymentChecklist);
+refreshPaymentStatus();
 updateFeeCalculator();

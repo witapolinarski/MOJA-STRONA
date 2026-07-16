@@ -329,12 +329,13 @@
                     </div>
                   </dl>
                   <p class="payment-hint">
-                    Po wysłaniu wniosku dołącz potwierdzenie wpłaty w sekcji dokumentów poniżej.
+                    Możesz zapłacić online (Stripe) lub wykonać przelew tradycyjny i dołączyć potwierdzenie poniżej.
                   </p>
+                  <p class="payment-status" id="payment-status" role="status"></p>
                   <div class="payment-future">
                     <p class="eyebrow">Płatności online</p>
-                    <p>Wkrótce uruchomimy opłatę kartą i BLIK przez Stripe — bez ręcznego przelewu.</p>
-                    <button type="button" class="button secondary" disabled>Zapłać online (wkrótce)</button>
+                    <p>Opłać wpisowe i składkę kartą, BLIK lub Przelewy24 — potwierdzenie trafi automatycznie do panelu zarządu.</p>
+                    <button type="button" class="button primary" id="pay-online-button">Zapłać online</button>
                   </div>
                 </div>
               </div>
@@ -430,8 +431,8 @@
             </label>
 
             <label>
-              Dowód wpłaty wpisowego (PDF, JPG lub PNG)
-              <input type="file" id="member-payment" name="payment-proof" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf" required>
+              Dowód wpłaty (PDF, JPG lub PNG) — opcjonalnie po płatności online
+              <input type="file" id="member-payment" name="payment-proof" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf">
             </label>
 
             <button type="submit" class="button primary submit-button" id="membership-submit">
@@ -474,7 +475,7 @@
               <p><strong>Wymagane dokumenty:</strong></p>
               <ul id="preview-checklist">
                 <li>Podpisana deklaracja członkowska</li>
-                <li>Dowód wpłaty wpisowego</li>
+                <li id="checklist-payment">Wpłata — online lub dowód przelewu</li>
                 <li id="checklist-criminal">Oświadczenie o niekaralności</li>
               </ul>
             </div>
