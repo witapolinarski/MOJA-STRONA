@@ -111,8 +111,7 @@ const formatMoney = (value) => {
 const fileUrl = (code, field) =>
   `/.netlify/functions/member-file?code=${encodeURIComponent(code)}&field=${encodeURIComponent(field)}`;
 
-const canApprove = (application) =>
-  Boolean(application.files?.declaration) && Boolean(application.files?.paymentProof);
+const canApprove = (application) => Boolean(application.files?.paymentProof);
 
 const switchTab = (tab) => {
   document.querySelectorAll(".strefa-tabs__btn").forEach((btn) => {
@@ -211,20 +210,13 @@ const renderApplicationCard = (application) => {
       </dl>
     </section>
 
-    <section class="approval-section">
-      <h4>Dokumenty</h4>
-      <div class="approval-files">
-        ${application.files?.declaration ? `<a href="${fileUrl(application.code, "declaration")}" target="_blank" rel="noopener">Deklaracja członkowska</a>` : `<span class="approval-alert">Brak deklaracji</span>`}
-      </div>
-    </section>
-
     ${renderPaymentSection(application)}
 
-    ${!ready ? `<p class="approval-alert">Wymagana deklaracja i potwierdzona wpłata przed zatwierdzeniem.</p>` : ""}
+    ${!ready ? `<p class="approval-alert">Wymagany dowód wpłaty przed zatwierdzeniem.</p>` : ""}
 
     <textarea class="approval-review-note" placeholder="Uwagi (opcjonalnie)" aria-label="Uwagi">${application.reviewNote || ""}</textarea>
     <div class="approval-actions">
-      <button type="button" class="button primary" data-action="approved" ${!ready ? "disabled title='Wymagana deklaracja i potwierdzona wpłata'" : ""}>Zatwierdź członkostwo</button>
+      <button type="button" class="button primary" data-action="approved" ${!ready ? "disabled title='Wymagany dowód wpłaty'" : ""}>Zatwierdź członkostwo</button>
       <button type="button" class="button dark" data-action="rejected">Odrzuć wniosek</button>
     </div>
   `;

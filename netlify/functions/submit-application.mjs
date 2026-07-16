@@ -58,11 +58,7 @@ export default async (request) => {
       return jsonResponse({ error: "Wymagana akceptacja statutu i RODO." }, 400);
     }
 
-    const declaration = formData.get("declaration");
     const paymentProof = formData.get("payment-proof");
-
-    const declarationError = validateFile(declaration, "Deklaracja członkowska");
-    if (declarationError) return jsonResponse({ error: declarationError }, 400);
 
     const paymentError = validateFile(paymentProof, "Dowód wpłaty");
     if (paymentError) return jsonResponse({ error: paymentError }, 400);
@@ -113,7 +109,6 @@ export default async (request) => {
       files: {},
     };
 
-    application.files.declaration = await saveFile(code, "declaration", declaration);
     application.files.paymentProof = await saveFile(code, "payment-proof", paymentProof);
 
     await saveApplication(application);

@@ -10,7 +10,7 @@ Dostęp mają wyłącznie osoby ze **zatwierdzoną** deklaracją członkowską. 
 
 W strefie członek może wygenerować i wydrukować **zaświadczenie o członkostwie** (imię i nazwisko, PESEL, data wydruku, podpis prezesa). Własny skan podpisu wgraj jako `assets/podpis-prezesa.svg` lub `.png` i zaktualizuj ścieżkę w `strefa.html`.
 
-Osoby z uprawnieniami approvera (domyślnie Witold Apolinarski) po zalogowaniu widzą dodatkową zakładkę **Akceptacja wniosków** — ten sam mechanizm co w panelu `/admin.html`: podgląd formularza, deklaracji, dowodu przelewu oraz przyciski zatwierdzenia lub odrzucenia.
+Osoby z uprawnieniami approvera (domyślnie Witold Apolinarski) po zalogowaniu widzą dodatkową zakładkę **Akceptacja wniosków** — ten sam mechanizm co w panelu `/admin.html`: podgląd formularza, dowodu przelewu oraz przyciski zatwierdzenia lub odrzucenia.
 
 ## Panel administratora (Witold Apolinarski)
 
@@ -18,10 +18,9 @@ Adres: **`/admin.html`**
 
 **Witold Apolinarski** loguje się hasłem i zatwierdza kandydatów. Panel pokazuje:
 - pełny **wynik formularza** kandydata,
-- **deklarację członkowską** do pobrania,
 - **dowód przelewu** załączony przez kandydata.
 
-Zatwierdzenie jest możliwe dopiero przy komplecie: deklaracja + dowód wpłaty.
+Zatwierdzenie jest możliwe dopiero po weryfikacji danych z formularza i dowodu wpłaty.
 
 ## Wymagana konfiguracja Netlify
 
@@ -53,9 +52,10 @@ Opcjonalnie:
 Kandydat musi podać m.in. **PESEL** i formę zwracania się (Pan/Pani) — dane trafiają na zaświadczenie o członkostwie.
 
 Kandydat musi załączyć:
-- podpisaną **deklarację członkowską** (PDF/JPG/PNG),
 - **dowód przelewu** wpisowego i składki (PDF/JPG/PNG),
 - **oświadczenie o niekaralności** (akceptacja w formularzu).
+
+Deklarację członkowską kandydat pobiera z formularza (PDF) i podpisuje we własnym zakresie.
 
 Wniosek trafia do **Netlify Blobs** przez funkcję `submit-application`.
 

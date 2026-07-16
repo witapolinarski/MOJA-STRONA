@@ -139,8 +139,7 @@ const renderApplication = (application) => {
   const card = document.createElement("article");
   card.className = "admin-card";
   const fees = application.fees || {};
-  const readyToApprove =
-    Boolean(application.files?.declaration) && Boolean(application.files?.paymentProof);
+  const readyToApprove = Boolean(application.files?.paymentProof);
 
   card.innerHTML = `
     <div class="admin-card-header">
@@ -168,20 +167,13 @@ const renderApplication = (application) => {
       </dl>
     </section>
 
-    <section class="admin-section">
-      <h3>Dokumenty do weryfikacji</h3>
-      <div class="admin-files">
-        ${application.files?.declaration ? `<a href="${fileUrl(application.code, "declaration")}" target="_blank" rel="noopener">Deklaracja członkowska</a>` : `<span class="admin-alert">Brak deklaracji</span>`}
-      </div>
-    </section>
-
     ${renderPaymentSection(application)}
 
-    ${!readyToApprove && application.status === "pending" ? `<p class="admin-alert">Uzupełnij weryfikację: wymagana deklaracja i potwierdzona wpłata.</p>` : ""}
+    ${!readyToApprove && application.status === "pending" ? `<p class="admin-alert">Uzupełnij weryfikację: wymagany dowód wpłaty.</p>` : ""}
 
     <textarea class="admin-review-note" placeholder="Uwagi dla wniosku (opcjonalnie)" aria-label="Uwagi">${application.reviewNote || ""}</textarea>
     <div class="admin-actions">
-      <button type="button" class="button primary" data-action="approved" ${!readyToApprove ? "disabled title='Wymagana deklaracja i potwierdzona wpłata'" : ""}>Zatwierdź kandydata</button>
+      <button type="button" class="button primary" data-action="approved" ${!readyToApprove ? "disabled title='Wymagany dowód wpłaty'" : ""}>Zatwierdź kandydata</button>
       <button type="button" class="button dark" data-action="rejected">Odrzuć wniosek</button>
       ${application.status !== "pending" ? `<button type="button" class="button secondary" data-action="pending">Przywróć do oczekujących</button>` : ""}
     </div>

@@ -35,7 +35,6 @@ const fields = {
   criminalDeclaration: document.querySelector("#member-criminal-declaration"),
   statute: document.querySelector("#member-statute"),
   rodo: document.querySelector("#member-rodo"),
-  declaration: document.querySelector("#member-declaration"),
   paymentProof: document.querySelector("#member-payment"),
 };
 
@@ -238,11 +237,6 @@ const validateForm = () => {
       formNote.textContent = "Zaakceptuj statut i zgodę RODO, aby wysłać wniosek.";
       formNote.classList.remove("success");
     }
-    return false;
-  }
-
-  if (!fields.declaration?.files?.length) {
-    setFormMessage("Dołącz podpisaną deklarację członkowską.");
     return false;
   }
 
