@@ -71,6 +71,9 @@
           <button type="button" class="strefa-tabs__btn" data-tab="roster" id="tab-roster">
             Baza PZSS i rekomendacje
           </button>
+          <button type="button" class="strefa-tabs__btn" data-tab="dues" id="tab-dues">
+            Składki
+          </button>
         </nav>
 
         <div id="tab-panel-certificate" class="strefa-tab-panel">
@@ -175,9 +178,46 @@
             <div id="roster-table-wrap" class="roster-table-wrap"></div>
           </section>
         </div>
+
+        <div id="tab-panel-dues" class="strefa-tab-panel hidden">
+          <div class="strefa-roster-intro">
+            <p>
+              Wgraj bieżący plik rozliczeń składek (Excel lub CSV). System porówna wpłaty z bazą
+              zawodników PZSS i wyliczy zaległości według zasad klubu: wpisowe 350 zł przy przyjęciu
+              oraz 30 zł za każdy miesiąc składki (od miesiąca następującego po przyjęciu).
+            </p>
+            <p id="dues-summary" class="roster-summary" role="status"></p>
+          </div>
+
+          <section class="roster-panel">
+            <h3>Plik rozliczeń składek</h3>
+            <p class="roster-hint">
+              Plik jest widoczny tylko w Twoim profilu prezesa. Podmieniaj go po każdej aktualizacji
+              rozliczeń — poprzednia wersja zostanie nadpisana.
+            </p>
+            <div class="dues-file-panel">
+              <p id="dues-file-info" class="dues-file-info">Brak wgranego pliku.</p>
+              <div class="roster-actions">
+                <label class="dues-upload-label button secondary">
+                  Wybierz nowy plik
+                  <input type="file" id="dues-file-input" accept=".xlsx,.xls,.csv,.txt" hidden>
+                </label>
+                <button type="button" class="button secondary hidden" id="dues-download-button">Pobierz aktualny plik</button>
+                <button type="button" class="button secondary" id="dues-refresh-button">Odśwież zestawienie</button>
+              </div>
+              <p id="dues-upload-note" class="form-note" role="status"></p>
+            </div>
+          </section>
+
+          <section class="roster-panel">
+            <h3>Zaległości składek</h3>
+            <div id="dues-summary-grid" class="license-summary-grid" role="status"></div>
+            <div id="dues-arrears-wrap" class="roster-table-wrap"></div>
+          </section>
+        </div>
       </section>
     </div>
 
-    <script src="strefa.js?v=5" type="module"></script>
+    <script src="strefa.js?v=6" type="module"></script>
   </body>
 </html>

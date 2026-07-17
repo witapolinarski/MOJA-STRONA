@@ -453,6 +453,27 @@
   margin-top: 12px;
 }
 
+.dues-file-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.dues-file-info {
+  margin: 0;
+  font-weight: 600;
+}
+
+.dues-upload-label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dues-upload-label input {
+  display: none;
+}
+
 .roster-table-wrap {
   overflow: auto;
   max-height: 480px;
