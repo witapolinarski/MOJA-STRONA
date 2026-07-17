@@ -6,6 +6,9 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions."member-dues"]
+  timeout = 26
+
 [[redirects]]
   from = "/deklaracja"
   to = "/assets/deklaracja-rodo.pdf"

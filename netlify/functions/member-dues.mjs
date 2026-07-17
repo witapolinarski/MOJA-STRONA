@@ -2,12 +2,25 @@ import { jsonResponse } from "./lib/auth.mjs";
 import { requireApprover } from "./lib/approvers.mjs";
 import { parsePaymentsSpreadsheet, reconcileDues } from "./lib/dues.mjs";
 import {
+  getPaymentsAnalysis,
   getPaymentsFile,
   getPaymentsMeta,
+  savePaymentsAnalysis,
   savePaymentsBuffer,
   savePaymentsFile,
 } from "./lib/payments-file.mjs";
 import { ensureRosterSeeded, getRosterRecord } from "./lib/roster.mjs";
+
+const trimReconciliation = (reconciliation) => {
+  if (!reconciliation) return null;
+
+  const arrears = reconciliation.arrears || [];
+  return {
+    ...reconciliation,
+    arrears: arrears.slice(0, 400),
+    arrearsTotal: arrears.length,
+  };
+};
 
 const analyzeBuffer = async (buffer, fileName) => {
   await ensureRosterSeeded();
@@ -36,13 +49,33 @@ const analyzePayments = async () => {
     };
   }
 
+  const cached = await getPaymentsAnalysis(meta);
+  if (cached) {
+    return {
+      file: meta,
+      parse: cached.parse,
+      reconciliation: trimReconciliation(cached.reconciliation),
+      cached: true,
+      cachedAt: cached.cachedAt,
+    };
+  }
+
   const buffer = Buffer.from(await file.data.arrayBuffer());
   const result = await analyzeBuffer(buffer, file.fileName);
+  await savePaymentsAnalysis(meta, result);
 
   return {
     file: meta,
-    ...result,
+    parse: result.parse,
+    reconciliation: trimReconciliation(result.reconciliation),
+    cached: false,
   };
+};
+
+const persistAndAnalyze = async (buffer, fileMeta) => {
+  const result = await analyzeBuffer(buffer, fileMeta.fileName);
+  await savePaymentsAnalysis(fileMeta, result);
+  return result;
 };
 
 export default async (request) => {
@@ -87,13 +120,13 @@ export default async (request) => {
           auth.member.name,
           "text/plain",
         );
-        const result = await analyzeBuffer(buffer, meta.fileName);
+        const result = await persistAndAnalyze(buffer, meta);
 
         return jsonResponse({
           ok: true,
           file: meta,
           parse: result.parse,
-          reconciliation: result.reconciliation,
+          reconciliation: trimReconciliation(result.reconciliation),
         });
       }
 
@@ -106,13 +139,13 @@ export default async (request) => {
 
       const meta = await savePaymentsFile(file, auth.member.name);
       const buffer = Buffer.from(await file.arrayBuffer());
-      const result = await analyzeBuffer(buffer, meta.fileName);
+      const result = await persistAndAnalyze(buffer, meta);
 
       return jsonResponse({
         ok: true,
         file: meta,
         parse: result.parse,
-        reconciliation: result.reconciliation,
+        reconciliation: trimReconciliation(result.reconciliation),
       });
     }
 

@@ -611,6 +611,7 @@ const renderDuesSummary = (reconciliation, parseNotes = []) => {
 
   const notes = (parseNotes || []).filter(Boolean);
   const rows = reconciliation.arrears || [];
+  const totalArrears = reconciliation.arrearsTotal ?? rows.length;
 
   if (!rows.length) {
     duesArrearsWrap.innerHTML = `
@@ -649,7 +650,7 @@ const renderDuesSummary = (reconciliation, parseNotes = []) => {
           .join("")}
       </tbody>
     </table>
-    <p class="roster-hint">Należność = wpisowe 350 zł (jeśli przyjęcie w ${year}) + miesiące × 30 zł. Pokazano ${rows.length} osób z zaległością.</p>
+    <p class="roster-hint">Należność = wpisowe 350 zł (jeśli przyjęcie w ${year}) + miesiące × 30 zł. Pokazano ${rows.length}${totalArrears > rows.length ? ` z ${totalArrears}` : ""} osób z zaległością.</p>
   `;
 };
 
@@ -665,8 +666,12 @@ const loadDues = async () => {
     if (duesUploadNote) duesUploadNote.textContent = "";
   } catch (error) {
     if (duesSummary) duesSummary.textContent = error.message;
-    duesSummaryGrid?.replaceChildren();
-    duesArrearsWrap?.replaceChildren();
+    if (duesSummaryGrid) {
+      duesSummaryGrid.innerHTML = `<p class="roster-empty">Nie udało się wczytać zestawienia. Kliknij „Odśwież zestawienie”.</p>`;
+    }
+    if (duesArrearsWrap) {
+      duesArrearsWrap.innerHTML = `<p class="roster-empty">${escapeHtml(error.message)}</p>`;
+    }
   }
 };
 

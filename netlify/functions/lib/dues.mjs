@@ -1,6 +1,6 @@
 import XLSX from "xlsx";
 import { ENTRY_FEE, MONTHLY_FEE } from "./fees.mjs";
-import { findRosterMember } from "./names.mjs";
+import { findRosterMember, normalizeText } from "./names.mjs";
 
 const MONTH_HEADER =
   /^(sty|cze|lip|sie|wrz|paź|paz|lis|gru|stycze|luty|lut|marzec|mar|kwie|maj|czerw|lipiec|sierp|wrze|październik|listopad|grudzie|\d{1,2})$/i;
@@ -9,6 +9,7 @@ const AMOUNT_HEADER = /(kwota|zapłac|zaplac|wpłat|wplat|suma|razem|paid|amount
 const NAME_HEADER = /(nazw|imię|imie|name|zawodnik|członk|clonk|kontrahent|nadawca|odbiorca)/i;
 const PESEL_HEADER = /pesel/i;
 const TITLE_HEADER = /(tytuł|tytul|opis|treść|tresc|operac|szczegół|szczegol)/i;
+const SENDER_HEADER = /nadawca/i;
 
 const parseAmount = (value) => {
   if (value == null || value === "") return 0;
@@ -70,6 +71,7 @@ const buildColumnMap = (headers) => {
     const lower = label.toLowerCase();
     if (map.pesel < 0 && PESEL_HEADER.test(lower)) map.pesel = index;
     if (map.name < 0 && NAME_HEADER.test(lower)) map.name = index;
+    if (map.name < 0 && SENDER_HEADER.test(lower)) map.name = index;
     if (map.title < 0 && TITLE_HEADER.test(lower)) map.title = index;
     if (map.amount < 0 && AMOUNT_HEADER.test(lower)) map.amount = index;
     if (MONTH_HEADER.test(lower.replace(/\./g, ""))) map.monthColumns.push(index);
@@ -93,6 +95,32 @@ const peselFromText = (value) => {
   return match ? match[0] : "";
 };
 
+export const extractBankPartyName = (value) => {
+  const lines = String(value || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (!lines.length) return "";
+
+  if (lines.length >= 2 && /^\d[\d\s]+$/.test(lines[0])) {
+    return lines[1];
+  }
+
+  return lines[0];
+};
+
+const pickPaymentName = (row, columns) => {
+  const sender = columns.name >= 0 ? String(row[columns.name] || "").trim() : "";
+  const title = columns.title >= 0 ? String(row[columns.title] || "").trim() : "";
+  const senderName = extractBankPartyName(sender);
+  const titleName = extractBankPartyName(title);
+
+  if (senderName && !/^\d[\d\s]+$/.test(senderName)) return senderName;
+  if (titleName) return titleName;
+  return sender || title || String(row[0] || "").trim();
+};
+
 export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
   let rows = rowsFromWorkbook(buffer);
   if (!rows?.length) rows = rowsFromText(buffer);
@@ -111,11 +139,12 @@ export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
 
     const peselFromColumn = columns.pesel >= 0 ? normalizePesel(row[columns.pesel]) : "";
     const titleText = columns.title >= 0 ? String(row[columns.title] || "").trim() : "";
-    const pesel = peselFromColumn || peselFromText(titleText) || normalizePesel(row.find((cell) => normalizePesel(cell)));
-    const name =
-      columns.name >= 0
-        ? String(row[columns.name] || "").trim()
-        : titleText || String(row[0] || "").trim();
+    const name = pickPaymentName(row, columns);
+    const pesel =
+      peselFromColumn ||
+      peselFromText(titleText) ||
+      peselFromText(name) ||
+      normalizePesel(row.find((cell) => normalizePesel(cell)));
 
     let amount = 0;
     if (columns.amount >= 0) {
@@ -214,25 +243,75 @@ const indexPayments = (records) => {
   return { byPesel, unmatched };
 };
 
+const buildRosterNameIndex = (members = []) => {
+  const index = new Map();
+
+  for (const member of members) {
+    const keys = [
+      normalizeText(member.displayName),
+      normalizeText(`${member.firstName} ${member.lastName}`),
+      normalizeText(`${member.lastName} ${member.firstName}`),
+      normalizeText(member.fullName),
+    ].filter(Boolean);
+
+    for (const key of keys) {
+      if (!index.has(key)) index.set(key, member);
+    }
+  }
+
+  return index;
+};
+
+const findMemberForPayment = (payment, members, nameIndex) => {
+  if (payment.pesel) {
+    const byPesel = members.find((member) => member.pesel === payment.pesel);
+    if (byPesel) return byPesel;
+  }
+
+  const candidates = [payment.name, extractBankPartyName(payment.name)].filter(Boolean);
+  for (const candidate of candidates) {
+    const normalized = normalizeText(candidate);
+    if (nameIndex.has(normalized)) return nameIndex.get(normalized);
+  }
+
+  return findRosterMember(payment.name, members);
+};
+
+const indexPaymentsByMember = (paymentRecords = [], members = []) => {
+  const nameIndex = buildRosterNameIndex(members);
+  const byMemberId = new Map();
+  let unmatchedCount = 0;
+
+  for (const record of paymentRecords) {
+    const member = findMemberForPayment(record, members, nameIndex);
+    if (!member) {
+      unmatchedCount += 1;
+      continue;
+    }
+
+    const current = byMemberId.get(member.id) || { amount: 0, names: new Set() };
+    current.amount += record.amount;
+    if (record.name) current.names.add(record.name);
+    byMemberId.set(member.id, current);
+  }
+
+  return { byMemberId, unmatchedCount };
+};
+
 export const reconcileDues = (members = [], paymentRecords = [], options = {}) => {
   const year = Number(options.year) || new Date().getFullYear();
   const throughMonth = Number(options.throughMonth) || new Date().getMonth() + 1;
   const activeMembers = members.filter((member) => member.active !== false);
-  const { byPesel, unmatched: paymentsWithoutPesel } = indexPayments(paymentRecords);
+  const { byMemberId, unmatchedCount } = indexPaymentsByMember(paymentRecords, activeMembers);
 
   const arrears = [];
   const paid = [];
   const missingFromFile = [];
   const unknownExpectation = [];
-  const matchedPesels = new Set();
-  const processedMemberIds = new Set();
 
   for (const member of activeMembers) {
     const expected = calculateExpectedDues(member, { year, throughMonth });
-    const payment = member.pesel ? byPesel.get(member.pesel) : null;
-
-    if (payment?.pesel) matchedPesels.add(payment.pesel);
-
+    const payment = byMemberId.get(member.id);
     const paidAmount = payment?.amount || 0;
     const balance = (expected.total || 0) - paidAmount;
 
@@ -244,71 +323,17 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
       expected,
       paidAmount,
       balance,
-      paymentName: payment?.name || null,
+      paymentName: payment ? [...payment.names].join(" · ") : null,
     };
 
     if (expected.unknown) {
       unknownExpectation.push(row);
-      processedMemberIds.add(member.id);
       continue;
     }
-
-    processedMemberIds.add(member.id);
 
     if (!payment) {
       missingFromFile.push(row);
       if (balance > 0.5) arrears.push(row);
-      continue;
-    }
-
-    if (balance > 0.5) arrears.push(row);
-    else paid.push(row);
-  }
-
-  const extraPayments = [];
-  for (const [pesel, payment] of byPesel.entries()) {
-    if (matchedPesels.has(pesel)) continue;
-    const rosterMatch = activeMembers.find((member) => member.pesel === pesel) || null;
-    extraPayments.push({
-      pesel,
-      name: payment.name,
-      amount: payment.amount,
-      rosterMatch: rosterMatch?.displayName || null,
-    });
-  }
-
-  for (const payment of paymentsWithoutPesel) {
-    const rosterMatch = findRosterMember(payment.name, activeMembers);
-    if (!rosterMatch) {
-      extraPayments.push({
-        pesel: "",
-        name: payment.name,
-        amount: payment.amount,
-        rosterMatch: null,
-      });
-      continue;
-    }
-
-    if (processedMemberIds.has(rosterMatch.id)) continue;
-    processedMemberIds.add(rosterMatch.id);
-    if (rosterMatch.pesel) matchedPesels.add(rosterMatch.pesel);
-
-    const expected = calculateExpectedDues(rosterMatch, { year, throughMonth });
-    const balance = (expected.total || 0) - payment.amount;
-    const row = {
-      id: rosterMatch.id,
-      displayName: rosterMatch.displayName || rosterMatch.fullName,
-      pesel: rosterMatch.pesel || "",
-      memberSince: rosterMatch.memberSince || "",
-      expected,
-      paidAmount: payment.amount,
-      balance,
-      paymentName: payment.name,
-      matchedByName: true,
-    };
-
-    if (expected.unknown) {
-      unknownExpectation.push(row);
       continue;
     }
 
@@ -328,13 +353,12 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
       paidUp: paid.length,
       missingFromFile: missingFromFile.length,
       unknownExpectation: unknownExpectation.length,
-      extraPayments: extraPayments.length,
+      extraPayments: unmatchedCount,
       totalArrearsPln: Math.round(arrears.reduce((sum, row) => sum + row.balance, 0) * 100) / 100,
     },
     arrears,
     paid,
     missingFromFile,
     unknownExpectation,
-    extraPayments,
   };
 };

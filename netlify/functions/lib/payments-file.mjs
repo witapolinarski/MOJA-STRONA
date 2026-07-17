@@ -2,6 +2,36 @@ import { getApplicationsStore, getFilesStore } from "./store.mjs";
 
 export const PAYMENTS_META_KEY = "meta:club-payments";
 export const PAYMENTS_FILE_KEY = "club/payments-register";
+export const PAYMENTS_ANALYSIS_KEY = "meta:club-payments-analysis";
+
+const analysisStamp = (meta = {}) =>
+  `${meta.uploadedAt || ""}:${meta.size || 0}:${meta.fileName || ""}`;
+
+export const clearPaymentsAnalysis = async () => {
+  const store = getApplicationsStore();
+  await store.delete(PAYMENTS_ANALYSIS_KEY);
+};
+
+export const getPaymentsAnalysis = async (fileMeta) => {
+  if (!fileMeta?.uploadedAt) return null;
+
+  const store = getApplicationsStore();
+  const cached = await store.get(PAYMENTS_ANALYSIS_KEY, { type: "json" });
+  if (!cached?.reconciliation) return null;
+  if (cached.fileStamp !== analysisStamp(fileMeta)) return null;
+
+  return cached;
+};
+
+export const savePaymentsAnalysis = async (fileMeta, result) => {
+  const store = getApplicationsStore();
+  await store.setJSON(PAYMENTS_ANALYSIS_KEY, {
+    fileStamp: analysisStamp(fileMeta),
+    cachedAt: new Date().toISOString(),
+    parse: result.parse,
+    reconciliation: result.reconciliation,
+  });
+};
 
 export const getPaymentsMeta = async () => {
   const store = getApplicationsStore();
@@ -45,6 +75,7 @@ export const savePaymentsFile = async (file, uploadedBy) => {
   };
 
   await metaStore.setJSON(PAYMENTS_META_KEY, meta);
+  await clearPaymentsAnalysis();
   return meta;
 };
 
@@ -68,5 +99,6 @@ export const savePaymentsBuffer = async (buffer, fileName, uploadedBy, contentTy
   };
 
   await metaStore.setJSON(PAYMENTS_META_KEY, meta);
+  await clearPaymentsAnalysis();
   return meta;
 };
