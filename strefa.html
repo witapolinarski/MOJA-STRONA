@@ -163,11 +163,11 @@
             </p>
             <div class="dues-file-panel">
               <p id="license-file-info" class="dues-file-info">Brak wgranego rejestru licencji.</p>
+              <label class="roster-search-label" for="license-file-input">
+                Plik licencji (Excel, CSV)
+                <input type="file" id="license-file-input" class="strefa-file-input">
+              </label>
               <div class="roster-actions">
-                <label class="dues-upload-label button secondary">
-                  Wybierz plik licencji
-                  <input type="file" id="license-file-input" accept=".xlsx,.xls,.csv,.txt" hidden>
-                </label>
                 <button type="button" class="button secondary hidden" id="license-download-button">Pobierz plik</button>
               </div>
               <p id="license-file-note" class="form-note" role="status"></p>
@@ -213,17 +213,26 @@
             <h3>Plik rozliczeń składek</h3>
             <p class="roster-hint">
               Plik jest widoczny tylko w Twoim profilu prezesa. Podmieniaj go po każdej aktualizacji
-              rozliczeń — poprzednia wersja zostanie nadpisana.
+              rozliczeń — poprzednia wersja zostanie nadpisana. Akceptowane są m.in. Excel, CSV
+              i eksport bankowy „zestawienie operacji”. Jeśli na telefonie nie możesz wybrać pliku,
+              wklej tabelę poniżej.
             </p>
-            <div class="dues-file-panel">
+              <div class="dues-file-panel">
               <p id="dues-file-info" class="dues-file-info">Brak wgranego pliku.</p>
+              <label class="roster-search-label" for="dues-file-input">
+                Plik zestawienia (dowolny format: Excel, CSV, eksport banku)
+                <input type="file" id="dues-file-input" class="strefa-file-input">
+              </label>
               <div class="roster-actions">
-                <label class="dues-upload-label button secondary">
-                  Wybierz nowy plik
-                  <input type="file" id="dues-file-input" accept=".xlsx,.xls,.csv,.txt" hidden>
-                </label>
                 <button type="button" class="button secondary hidden" id="dues-download-button">Pobierz aktualny plik</button>
                 <button type="button" class="button secondary" id="dues-refresh-button">Odśwież zestawienie</button>
+              </div>
+              <label class="roster-search-label">
+                Lub wklej zestawienie (Ctrl+A w Excelu → kopiuj → wklej)
+                <textarea id="dues-paste-text" class="roster-import-text" rows="6" placeholder="Wklej skopiowane zestawienie operacji lub listę wpłat…"></textarea>
+              </label>
+              <div class="roster-actions">
+                <button type="button" class="button primary" id="dues-paste-button">Importuj wklejone dane</button>
               </div>
               <p id="dues-upload-note" class="form-note" role="status"></p>
             </div>
@@ -238,6 +247,6 @@
       </section>
     </div>
 
-    <script src="strefa.js?v=7" type="module"></script>
+    <script src="strefa.js?v=8" type="module"></script>
   </body>
 </html>

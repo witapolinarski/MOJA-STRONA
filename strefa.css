@@ -453,6 +453,29 @@
   margin-top: 12px;
 }
 
+.strefa-file-input {
+  display: block;
+  width: min(100%, 420px);
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line, #c8d2e2);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+
+.strefa-file-input::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--navy, #14213d);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .dues-file-panel {
   display: grid;
   gap: 8px;
@@ -461,17 +484,6 @@
 .dues-file-info {
   margin: 0;
   font-weight: 600;
-}
-
-.dues-upload-label {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dues-upload-label input {
-  display: none;
 }
 
 .roster-table-wrap {

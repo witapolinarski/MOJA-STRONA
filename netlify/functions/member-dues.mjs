@@ -4,17 +4,29 @@ import { parsePaymentsSpreadsheet, reconcileDues } from "./lib/dues.mjs";
 import {
   getPaymentsFile,
   getPaymentsMeta,
+  savePaymentsBuffer,
   savePaymentsFile,
 } from "./lib/payments-file.mjs";
 import { ensureRosterSeeded, getRosterRecord } from "./lib/roster.mjs";
 
-const analyzePayments = async () => {
+const analyzeBuffer = async (buffer, fileName) => {
   await ensureRosterSeeded();
-  const [meta, file, roster] = await Promise.all([
-    getPaymentsMeta(),
-    getPaymentsFile(),
-    getRosterRecord(),
-  ]);
+  const roster = await getRosterRecord();
+  const parsed = parsePaymentsSpreadsheet(buffer, fileName);
+  const reconciliation = reconcileDues(roster.members || [], parsed.records);
+
+  return {
+    parse: {
+      rowCount: parsed.rowCount,
+      notes: parsed.notes,
+      headers: parsed.headers,
+    },
+    reconciliation,
+  };
+};
+
+const analyzePayments = async () => {
+  const [meta, file] = await Promise.all([getPaymentsMeta(), getPaymentsFile()]);
 
   if (!file) {
     return {
@@ -25,17 +37,11 @@ const analyzePayments = async () => {
   }
 
   const buffer = Buffer.from(await file.data.arrayBuffer());
-  const parsed = parsePaymentsSpreadsheet(buffer, file.fileName);
-  const reconciliation = reconcileDues(roster.members || [], parsed.records);
+  const result = await analyzeBuffer(buffer, file.fileName);
 
   return {
     file: meta,
-    parse: {
-      rowCount: parsed.rowCount,
-      notes: parsed.notes,
-      headers: parsed.headers,
-    },
-    reconciliation,
+    ...result,
   };
 };
 
@@ -65,15 +71,42 @@ export default async (request) => {
     }
 
     if (request.method === "POST") {
+      const contentType = request.headers.get("content-type") || "";
+
+      if (contentType.includes("application/json")) {
+        const body = await request.json();
+        const text = String(body.text || "").trim();
+        if (!text) {
+          return jsonResponse({ error: "Wklej zestawienie operacji lub listę wpłat przed importem." }, 400);
+        }
+
+        const buffer = Buffer.from(text, "utf8");
+        const meta = await savePaymentsBuffer(
+          buffer,
+          "zestawienie-wklejone.txt",
+          auth.member.name,
+          "text/plain",
+        );
+        const result = await analyzeBuffer(buffer, meta.fileName);
+
+        return jsonResponse({
+          ok: true,
+          file: meta,
+          parse: result.parse,
+          reconciliation: result.reconciliation,
+        });
+      }
+
       const formData = await request.formData();
       const file = formData.get("file");
 
       if (!file || typeof file.arrayBuffer !== "function") {
-        return jsonResponse({ error: "Wybierz plik Excel (.xlsx) lub CSV ze stanem wpłat." }, 400);
+        return jsonResponse({ error: "Wybierz plik zestawienia lub wklej dane w pole tekstowe." }, 400);
       }
 
       const meta = await savePaymentsFile(file, auth.member.name);
-      const result = await analyzePayments();
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const result = await analyzeBuffer(buffer, meta.fileName);
 
       return jsonResponse({
         ok: true,

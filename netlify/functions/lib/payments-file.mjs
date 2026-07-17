@@ -47,3 +47,26 @@ export const savePaymentsFile = async (file, uploadedBy) => {
   await metaStore.setJSON(PAYMENTS_META_KEY, meta);
   return meta;
 };
+
+export const savePaymentsBuffer = async (buffer, fileName, uploadedBy, contentType = "text/plain") => {
+  const store = getFilesStore();
+  const metaStore = getApplicationsStore();
+
+  await store.set(PAYMENTS_FILE_KEY, buffer, {
+    metadata: {
+      contentType,
+      fileName,
+    },
+  });
+
+  const meta = {
+    fileName,
+    contentType,
+    size: buffer.length,
+    uploadedAt: new Date().toISOString(),
+    uploadedBy: uploadedBy || null,
+  };
+
+  await metaStore.setJSON(PAYMENTS_META_KEY, meta);
+  return meta;
+};

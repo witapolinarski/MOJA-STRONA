@@ -32,6 +32,8 @@ const licenseSummaryYears = document.querySelector("#license-summary-years");
 const duesSummary = document.querySelector("#dues-summary");
 const duesFileInfo = document.querySelector("#dues-file-info");
 const duesFileInput = document.querySelector("#dues-file-input");
+const duesPasteText = document.querySelector("#dues-paste-text");
+const duesPasteButton = document.querySelector("#dues-paste-button");
 const duesDownloadButton = document.querySelector("#dues-download-button");
 const duesRefreshButton = document.querySelector("#dues-refresh-button");
 const duesUploadNote = document.querySelector("#dues-upload-note");
@@ -814,6 +816,12 @@ duesDownloadButton?.addEventListener("click", async () => {
   }
 });
 
+const applyDuesUploadResult = (data, sourceLabel) => {
+  renderDuesFileInfo(data.file);
+  renderDuesSummary(data.reconciliation, data.parse?.notes);
+  if (duesUploadNote) duesUploadNote.textContent = sourceLabel;
+};
+
 duesFileInput?.addEventListener("change", async () => {
   const file = duesFileInput.files?.[0];
   if (!file) return;
@@ -832,13 +840,35 @@ duesFileInput?.addEventListener("change", async () => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Nie udało się wgrać pliku.");
 
-    renderDuesFileInfo(data.file);
-    renderDuesSummary(data.reconciliation, data.parse?.notes);
-    if (duesUploadNote) duesUploadNote.textContent = `Wgrano ${data.file?.fileName || file.name}.`;
+    applyDuesUploadResult(data, `Wgrano ${data.file?.fileName || file.name}.`);
   } catch (error) {
     if (duesUploadNote) duesUploadNote.textContent = error.message;
   } finally {
     duesFileInput.value = "";
+  }
+});
+
+duesPasteButton?.addEventListener("click", async () => {
+  const text = duesPasteText?.value.trim() || "";
+  if (!text) {
+    if (duesUploadNote) duesUploadNote.textContent = "Wklej zestawienie przed importem.";
+    return;
+  }
+
+  duesPasteButton.disabled = true;
+  if (duesUploadNote) duesUploadNote.textContent = "Importowanie wklejonych danych…";
+
+  try {
+    const data = await apiFetch("/.netlify/functions/member-dues", {
+      method: "POST",
+      body: JSON.stringify({ text }),
+    });
+    applyDuesUploadResult(data, "Zaimportowano wklejone zestawienie.");
+    if (duesPasteText) duesPasteText.value = "";
+  } catch (error) {
+    if (duesUploadNote) duesUploadNote.textContent = error.message;
+  } finally {
+    duesPasteButton.disabled = false;
   }
 });
 

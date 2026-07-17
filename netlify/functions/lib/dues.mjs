@@ -5,9 +5,10 @@ import { findRosterMember } from "./names.mjs";
 const MONTH_HEADER =
   /^(sty|cze|lip|sie|wrz|paź|paz|lis|gru|stycze|luty|lut|marzec|mar|kwie|maj|czerw|lipiec|sierp|wrze|październik|listopad|grudzie|\d{1,2})$/i;
 
-const AMOUNT_HEADER = /(kwota|zapłac|zaplac|wpłat|wplat|suma|razem|paid|amount|należn|nalezn)/i;
-const NAME_HEADER = /(nazw|imię|imie|name|zawodnik|członk|clonk)/i;
+const AMOUNT_HEADER = /(kwota|zapłac|zaplac|wpłat|wplat|suma|razem|paid|amount|należn|nalezn|wartość|wartosc|obciąż|obciaz|uznan)/i;
+const NAME_HEADER = /(nazw|imię|imie|name|zawodnik|członk|clonk|kontrahent|nadawca|odbiorca)/i;
 const PESEL_HEADER = /pesel/i;
+const TITLE_HEADER = /(tytuł|tytul|opis|treść|tresc|operac|szczegół|szczegol)/i;
 
 const parseAmount = (value) => {
   if (value == null || value === "") return 0;
@@ -17,6 +18,7 @@ const parseAmount = (value) => {
     .trim()
     .replace(/\s/g, "")
     .replace(/zł|zl/gi, "")
+    .replace(/\./g, "")
     .replace(",", ".");
 
   const amount = Number(normalized);
@@ -49,7 +51,11 @@ const detectHeaderRow = (rows) => {
   for (let index = 0; index < Math.min(rows.length, 15); index += 1) {
     const row = rows[index] || [];
     const joined = row.map((cell) => String(cell).toLowerCase()).join(" ");
-    if (PESEL_HEADER.test(joined) || /(nazwisko|zawodnik)/i.test(joined)) {
+    if (
+      PESEL_HEADER.test(joined) ||
+      /(nazwisko|zawodnik)/i.test(joined) ||
+      /(tytuł|tytul|operac)/i.test(joined)
+    ) {
       return index;
     }
   }
@@ -57,13 +63,14 @@ const detectHeaderRow = (rows) => {
 };
 
 const buildColumnMap = (headers) => {
-  const map = { pesel: -1, name: -1, amount: -1, monthColumns: [] };
+  const map = { pesel: -1, name: -1, amount: -1, title: -1, monthColumns: [] };
 
   headers.forEach((header, index) => {
     const label = String(header || "").trim();
     const lower = label.toLowerCase();
     if (map.pesel < 0 && PESEL_HEADER.test(lower)) map.pesel = index;
     if (map.name < 0 && NAME_HEADER.test(lower)) map.name = index;
+    if (map.title < 0 && TITLE_HEADER.test(lower)) map.title = index;
     if (map.amount < 0 && AMOUNT_HEADER.test(lower)) map.amount = index;
     if (MONTH_HEADER.test(lower.replace(/\./g, ""))) map.monthColumns.push(index);
   });
@@ -73,16 +80,21 @@ const buildColumnMap = (headers) => {
     if (nameIndex >= 0) map.name = nameIndex;
   }
 
+  if (map.amount < 0) {
+    const amountIndex = headers.findIndex((header) => /(kwota|wartość|wartosc|uznan)/i.test(String(header)));
+    if (amountIndex >= 0) map.amount = amountIndex;
+  }
+
   return map;
 };
 
-export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
-  const lowerName = String(fileName).toLowerCase();
-  let rows =
-    lowerName.endsWith(".xlsx") || lowerName.endsWith(".xls") || buffer[0] === 0x50
-      ? rowsFromWorkbook(buffer)
-      : null;
+const peselFromText = (value) => {
+  const match = String(value || "").match(/\b\d{11}\b/);
+  return match ? match[0] : "";
+};
 
+export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
+  let rows = rowsFromWorkbook(buffer);
   if (!rows?.length) rows = rowsFromText(buffer);
   if (!rows?.length) {
     return { records: [], notes: ["Nie udało się odczytać pliku."], headers: [] };
@@ -97,25 +109,29 @@ export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
   for (const row of rows.slice(headerIndex + 1)) {
     if (!row?.length) continue;
 
-    const pesel = columns.pesel >= 0 ? normalizePesel(row[columns.pesel]) : "";
-    const fallbackPesel = pesel || normalizePesel(row.find((cell) => normalizePesel(cell)));
-    const name = columns.name >= 0 ? String(row[columns.name] || "").trim() : String(row[0] || "").trim();
+    const peselFromColumn = columns.pesel >= 0 ? normalizePesel(row[columns.pesel]) : "";
+    const titleText = columns.title >= 0 ? String(row[columns.title] || "").trim() : "";
+    const pesel = peselFromColumn || peselFromText(titleText) || normalizePesel(row.find((cell) => normalizePesel(cell)));
+    const name =
+      columns.name >= 0
+        ? String(row[columns.name] || "").trim()
+        : titleText || String(row[0] || "").trim();
 
     let amount = 0;
     if (columns.amount >= 0) {
-      amount = parseAmount(row[columns.amount]);
+      amount = Math.abs(parseAmount(row[columns.amount]));
     } else if (columns.monthColumns.length) {
-      amount = columns.monthColumns.reduce((sum, index) => sum + parseAmount(row[index]), 0);
+      amount = columns.monthColumns.reduce((sum, index) => sum + Math.abs(parseAmount(row[index])), 0);
     } else {
-      const numericCells = row.map(parseAmount).filter((value) => value > 0);
+      const numericCells = row.map((cell) => Math.abs(parseAmount(cell))).filter((value) => value > 0);
       amount = numericCells.length ? Math.max(...numericCells) : 0;
     }
 
-    if (!fallbackPesel && !name) continue;
-    if (!amount && !fallbackPesel) continue;
+    if (!pesel && !name) continue;
+    if (!amount && !pesel) continue;
 
     records.push({
-      pesel: fallbackPesel,
+      pesel,
       name,
       amount,
     });
