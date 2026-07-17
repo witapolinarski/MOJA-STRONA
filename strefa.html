@@ -155,6 +155,26 @@
           </section>
 
           <section class="roster-panel">
+            <h3>Rejestr licencji (plik PZSS)</h3>
+            <p class="roster-hint">
+              Wgraj eksport licencji z PZSS (kolumny: Nazwisko, Imię, Nr licencji, Data ważności).
+              Plik jest widoczny tylko w Twoim profilu — podmieniaj go po każdej aktualizacji.
+              System dopasuje wpisy do bazy zawodników i uzupełni status licencji.
+            </p>
+            <div class="dues-file-panel">
+              <p id="license-file-info" class="dues-file-info">Brak wgranego rejestru licencji.</p>
+              <div class="roster-actions">
+                <label class="dues-upload-label button secondary">
+                  Wybierz plik licencji
+                  <input type="file" id="license-file-input" accept=".xlsx,.xls,.csv,.txt" hidden>
+                </label>
+                <button type="button" class="button secondary hidden" id="license-download-button">Pobierz plik</button>
+              </div>
+              <p id="license-file-note" class="form-note" role="status"></p>
+            </div>
+          </section>
+
+          <section class="roster-panel">
             <h3>Import z PZSS</h3>
             <p class="roster-hint">
               W SOZ przejdź do <strong>Zawodnicy → Lista</strong>, zaznacz 100 wpisów na stronę,
@@ -218,6 +238,6 @@
       </section>
     </div>
 
-    <script src="strefa.js?v=6" type="module"></script>
+    <script src="strefa.js?v=7" type="module"></script>
   </body>
 </html>

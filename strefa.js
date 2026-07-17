@@ -37,6 +37,10 @@ const duesRefreshButton = document.querySelector("#dues-refresh-button");
 const duesUploadNote = document.querySelector("#dues-upload-note");
 const duesSummaryGrid = document.querySelector("#dues-summary-grid");
 const duesArrearsWrap = document.querySelector("#dues-arrears-wrap");
+const licenseFileInfo = document.querySelector("#license-file-info");
+const licenseFileInput = document.querySelector("#license-file-input");
+const licenseDownloadButton = document.querySelector("#license-download-button");
+const licenseFileNote = document.querySelector("#license-file-note");
 
 const certLedger = document.querySelector("#cert-ledger");
 const certPlace = document.querySelector("#cert-place");
@@ -153,6 +157,32 @@ const switchTab = (tab) => {
   if (tab === "approvals") loadApplications();
   if (tab === "roster") loadRoster();
   if (tab === "dues") loadDues();
+};
+
+const renderLicenseFileInfo = (file) => {
+  if (!licenseFileInfo) return;
+
+  if (!file?.fileName) {
+    licenseFileInfo.textContent = "Brak wgranego rejestru licencji.";
+    licenseDownloadButton?.classList.add("hidden");
+    return;
+  }
+
+  const uploadedAt = file.uploadedAt ? formatDate(file.uploadedAt) : "—";
+  const sizeKb = file.size ? `${Math.round(file.size / 1024)} KB` : "";
+  licenseFileInfo.textContent = `Aktualny plik: ${file.fileName} · ${sizeKb} · wgrany ${uploadedAt}`;
+  licenseDownloadButton?.classList.remove("hidden");
+};
+
+const loadLicenseFileMeta = async () => {
+  if (!currentMember?.isApprover || isLocalPreview) return;
+
+  try {
+    const data = await apiFetch("/.netlify/functions/member-license-file");
+    renderLicenseFileInfo(data.file);
+  } catch {
+    renderLicenseFileInfo(null);
+  }
 };
 
 const renderCertificate = (payload) => {
@@ -651,6 +681,7 @@ const loadRoster = async () => {
     const data = await apiFetch("/.netlify/functions/member-roster");
     renderRoster(data);
     if (rosterImportNote) rosterImportNote.textContent = "";
+    await loadLicenseFileMeta();
   } catch (error) {
     if (rosterSummary) rosterSummary.textContent = error.message;
     referralLeaderboard?.replaceChildren();
@@ -808,6 +839,57 @@ duesFileInput?.addEventListener("change", async () => {
     if (duesUploadNote) duesUploadNote.textContent = error.message;
   } finally {
     duesFileInput.value = "";
+  }
+});
+
+licenseDownloadButton?.addEventListener("click", async () => {
+  try {
+    const token = getToken();
+    const response = await fetch("/.netlify/functions/member-license-file?download=1", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!response.ok) throw new Error("Nie udało się pobrać pliku.");
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "rejestr-licencji";
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    if (licenseFileNote) licenseFileNote.textContent = error.message;
+  }
+});
+
+licenseFileInput?.addEventListener("change", async () => {
+  const file = licenseFileInput.files?.[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+  if (licenseFileNote) licenseFileNote.textContent = "Importowanie rejestru licencji…";
+
+  try {
+    const token = getToken();
+    const response = await fetch("/.netlify/functions/member-license-file", {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Nie udało się zaimportować pliku.");
+
+    renderLicenseFileInfo(data.file);
+    if (licenseFileNote) {
+      licenseFileNote.textContent = `Zaimportowano ${data.import?.matched || 0} licencji do bazy${
+        data.import?.unmatchedCount ? ` · ${data.import.unmatchedCount} bez dopasowania` : ""
+      }.`;
+    }
+    await loadRoster();
+  } catch (error) {
+    if (licenseFileNote) licenseFileNote.textContent = error.message;
+  } finally {
+    licenseFileInput.value = "";
   }
 });
 
