@@ -453,7 +453,29 @@
   margin-top: 12px;
 }
 
-.strefa-file-input {
+.dues-drop-target {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding: 20px;
+  border: 2px dashed rgba(196, 92, 38, 0.55);
+  border-radius: 12px;
+  background: rgba(196, 92, 38, 0.08);
+}
+
+.dues-drop-target.is-dragover {
+  border-color: var(--accent, #c45c26);
+  background: rgba(196, 92, 38, 0.16);
+}
+
+.dues-drop-target p {
+  margin: 0;
+}
+
+.dues-mac-hint {
+  margin: 0;
+}
+
   display: block;
   width: min(100%, 420px);
   min-height: 48px;

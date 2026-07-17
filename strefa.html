@@ -165,9 +165,15 @@
               <p id="license-file-info" class="dues-file-info">Brak wgranego rejestru licencji.</p>
               <label class="roster-search-label" for="license-file-input">
                 Plik licencji (Excel, CSV)
-                <input type="file" id="license-file-input" class="strefa-file-input">
+                <input
+                  type="file"
+                  id="license-file-input"
+                  class="strefa-file-input"
+                  accept=".xlsx,.xls,.csv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain"
+                >
               </label>
               <div class="roster-actions">
+                <button type="button" class="button secondary" id="license-pick-button">Wybierz plik (alternatywa)</button>
                 <button type="button" class="button secondary hidden" id="license-download-button">Pobierz plik</button>
               </div>
               <p id="license-file-note" class="form-note" role="status"></p>
@@ -217,12 +223,18 @@
               i eksport bankowy „zestawienie operacji”. Jeśli na telefonie nie możesz wybrać pliku,
               wklej tabelę poniżej.
             </p>
-              <div class="dues-file-panel">
+              <div class="dues-file-panel" id="dues-drop-zone">
               <p id="dues-file-info" class="dues-file-info">Brak wgranego pliku.</p>
-              <label class="roster-search-label" for="dues-file-input">
-                Plik zestawienia (dowolny format: Excel, CSV, eksport banku)
-                <input type="file" id="dues-file-input" class="strefa-file-input">
-              </label>
+              <p class="roster-hint dues-mac-hint">
+                Na Macu pliki z iCloud na Biurku bywają wyszarzone — w Finderze kliknij prawym
+                na plik → <strong>Pobierz teraz</strong>, albo przeciągnij plik na żółte pole poniżej,
+                albo wklej tabelę z Excela.
+              </p>
+              <div class="dues-drop-target" id="dues-drop-target">
+                <p><strong>Przeciągnij tutaj plik</strong> „Zestawienie operacji.xlsx”</p>
+                <p>lub</p>
+                <button type="button" class="button primary" id="dues-pick-button">Wybierz plik z dysku</button>
+              </div>
               <div class="roster-actions">
                 <button type="button" class="button secondary hidden" id="dues-download-button">Pobierz aktualny plik</button>
                 <button type="button" class="button secondary" id="dues-refresh-button">Odśwież zestawienie</button>
@@ -247,6 +259,6 @@
       </section>
     </div>
 
-    <script src="strefa.js?v=8" type="module"></script>
+    <script src="strefa.js?v=9" type="module"></script>
   </body>
 </html>

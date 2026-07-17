@@ -32,6 +32,9 @@ const licenseSummaryYears = document.querySelector("#license-summary-years");
 const duesSummary = document.querySelector("#dues-summary");
 const duesFileInfo = document.querySelector("#dues-file-info");
 const duesFileInput = document.querySelector("#dues-file-input");
+const duesPickButton = document.querySelector("#dues-pick-button");
+const duesDropZone = document.querySelector("#dues-drop-zone");
+const duesDropTarget = document.querySelector("#dues-drop-target");
 const duesPasteText = document.querySelector("#dues-paste-text");
 const duesPasteButton = document.querySelector("#dues-paste-button");
 const duesDownloadButton = document.querySelector("#dues-download-button");
@@ -41,6 +44,7 @@ const duesSummaryGrid = document.querySelector("#dues-summary-grid");
 const duesArrearsWrap = document.querySelector("#dues-arrears-wrap");
 const licenseFileInfo = document.querySelector("#license-file-info");
 const licenseFileInput = document.querySelector("#license-file-input");
+const licensePickButton = document.querySelector("#license-pick-button");
 const licenseDownloadButton = document.querySelector("#license-download-button");
 const licenseFileNote = document.querySelector("#license-file-note");
 
@@ -822,25 +826,80 @@ const applyDuesUploadResult = (data, sourceLabel) => {
   if (duesUploadNote) duesUploadNote.textContent = sourceLabel;
 };
 
-duesFileInput?.addEventListener("change", async () => {
-  const file = duesFileInput.files?.[0];
+const uploadDuesFile = async (file) => {
   if (!file) return;
 
   const formData = new FormData();
   formData.append("file", file);
-  if (duesUploadNote) duesUploadNote.textContent = "Wgrywanie pliku…";
+  if (duesUploadNote) duesUploadNote.textContent = `Wgrywanie: ${file.name}…`;
+
+  const token = getToken();
+  const response = await fetch("/.netlify/functions/member-dues", {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Nie udało się wgrać pliku.");
+
+  applyDuesUploadResult(data, `Wgrano ${data.file?.fileName || file.name}.`);
+};
+
+const openNativeFilePicker = (onFile) => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.style.display = "none";
+  document.body.appendChild(input);
+  input.addEventListener(
+    "change",
+    () => {
+      const file = input.files?.[0];
+      input.remove();
+      if (file) onFile(file);
+    },
+    { once: true },
+  );
+  input.click();
+};
+
+duesPickButton?.addEventListener("click", () => {
+  openNativeFilePicker(async (file) => {
+    try {
+      await uploadDuesFile(file);
+    } catch (error) {
+      if (duesUploadNote) duesUploadNote.textContent = error.message;
+    }
+  });
+});
+
+duesDropTarget?.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  duesDropTarget.classList.add("is-dragover");
+});
+
+duesDropTarget?.addEventListener("dragleave", () => {
+  duesDropTarget.classList.remove("is-dragover");
+});
+
+duesDropTarget?.addEventListener("drop", async (event) => {
+  event.preventDefault();
+  duesDropTarget.classList.remove("is-dragover");
+  const file = event.dataTransfer?.files?.[0];
+  if (!file) return;
 
   try {
-    const token = getToken();
-    const response = await fetch("/.netlify/functions/member-dues", {
-      method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      body: formData,
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Nie udało się wgrać pliku.");
+    await uploadDuesFile(file);
+  } catch (error) {
+    if (duesUploadNote) duesUploadNote.textContent = error.message;
+  }
+});
 
-    applyDuesUploadResult(data, `Wgrano ${data.file?.fileName || file.name}.`);
+duesFileInput?.addEventListener("change", async () => {
+  const file = duesFileInput.files?.[0];
+  if (!file) return;
+
+  try {
+    await uploadDuesFile(file);
   } catch (error) {
     if (duesUploadNote) duesUploadNote.textContent = error.message;
   } finally {
@@ -889,6 +948,40 @@ licenseDownloadButton?.addEventListener("click", async () => {
   } catch (error) {
     if (licenseFileNote) licenseFileNote.textContent = error.message;
   }
+});
+
+licensePickButton?.addEventListener("click", () => {
+  openNativeFilePicker(async (file) => {
+    if (licenseFileInput) {
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      licenseFileInput.files = transfer.files;
+      licenseFileInput.dispatchEvent(new Event("change"));
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    if (licenseFileNote) licenseFileNote.textContent = "Importowanie rejestru licencji…";
+
+    try {
+      const token = getToken();
+      const response = await fetch("/.netlify/functions/member-license-file", {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Nie udało się zaimportować pliku.");
+      renderLicenseFileInfo(data.file);
+      if (licenseFileNote) {
+        licenseFileNote.textContent = `Zaimportowano ${data.import?.matched || 0} licencji do bazy.`;
+      }
+      await loadRoster();
+    } catch (error) {
+      if (licenseFileNote) licenseFileNote.textContent = error.message;
+    }
+  });
 });
 
 licenseFileInput?.addEventListener("change", async () => {
