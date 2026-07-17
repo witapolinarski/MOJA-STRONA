@@ -76,6 +76,18 @@
           </button>
         </nav>
 
+        <section class="strefa-drop-panel hidden" id="approver-drop-panel" aria-label="Wgranie pliku klubowego">
+          <div class="strefa-drop-target" id="strefa-drop-target">
+            <p class="strefa-drop-title">Upuść plik z pulpitu tutaj</p>
+            <p class="strefa-drop-lead">
+              Przeciągnij np. <strong>Zestawienie operacji.xlsx</strong> z Biurka — system zapisze plik
+              i sprawdzi składki względem bazy zawodników. Możesz też upuścić rejestr licencji PZSS.
+            </p>
+            <button type="button" class="button secondary" id="strefa-drop-pick-button">Wybierz plik z dysku</button>
+          </div>
+          <p id="strefa-drop-status" class="form-note" role="status"></p>
+        </section>
+
         <div id="tab-panel-certificate" class="strefa-tab-panel">
           <div class="strefa-actions">
             <button class="button primary" type="button" id="print-button">Drukuj zaświadczenie</button>
@@ -259,6 +271,6 @@
       </section>
     </div>
 
-    <script src="strefa.js?v=9" type="module"></script>
+    <script src="strefa.js?v=10" type="module"></script>
   </body>
 </html>

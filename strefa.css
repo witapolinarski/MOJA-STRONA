@@ -453,6 +453,45 @@
   margin-top: 12px;
 }
 
+.strefa-drop-panel {
+  margin-bottom: 8px;
+}
+
+.strefa-drop-target {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+  min-height: 180px;
+  padding: 28px 24px;
+  border: 3px dashed rgba(196, 92, 38, 0.65);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(196, 92, 38, 0.12), rgba(196, 92, 38, 0.05)),
+    #fff;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.strefa-drop-target.is-dragover {
+  border-color: var(--accent, #c45c26);
+  background: rgba(196, 92, 38, 0.18);
+  transform: scale(1.01);
+}
+
+.strefa-drop-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--navy, #14213d);
+}
+
+.strefa-drop-lead {
+  margin: 0;
+  max-width: 640px;
+  color: var(--muted, #5b6475);
+  line-height: 1.5;
+}
+
 .dues-drop-target {
   display: grid;
   gap: 8px;

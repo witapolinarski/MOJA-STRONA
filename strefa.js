@@ -45,6 +45,10 @@ const duesArrearsWrap = document.querySelector("#dues-arrears-wrap");
 const licenseFileInfo = document.querySelector("#license-file-info");
 const licenseFileInput = document.querySelector("#license-file-input");
 const licensePickButton = document.querySelector("#license-pick-button");
+const approverDropPanel = document.querySelector("#approver-drop-panel");
+const strefaDropTarget = document.querySelector("#strefa-drop-target");
+const strefaDropPickButton = document.querySelector("#strefa-drop-pick-button");
+const strefaDropStatus = document.querySelector("#strefa-drop-status");
 const licenseDownloadButton = document.querySelector("#license-download-button");
 const licenseFileNote = document.querySelector("#license-file-note");
 
@@ -202,6 +206,7 @@ const renderCertificate = (payload) => {
 const setupApproverUI = (member) => {
   if (member?.isApprover) {
     memberTabs?.classList.remove("hidden");
+    approverDropPanel?.classList.remove("hidden");
     if (memberRole) {
       memberRole.textContent = member.role || "Prezes zarządu — akceptacja wniosków";
       memberRole.classList.remove("hidden");
@@ -213,6 +218,7 @@ const setupApproverUI = (member) => {
     loadApplications();
   } else {
     memberTabs?.classList.add("hidden");
+    approverDropPanel?.classList.add("hidden");
     memberRole?.classList.add("hidden");
     if (memberPanelLead) {
       memberPanelLead.textContent =
@@ -862,36 +868,95 @@ const openNativeFilePicker = (onFile) => {
   input.click();
 };
 
-duesPickButton?.addEventListener("click", () => {
+const isLikelyLicenseFile = (fileName = "") =>
+  /licencj|license|rejestr/i.test(fileName) && !/operacj|zestawienie|składk|skladk|wpłat|wplat/i.test(fileName);
+
+const uploadLicenseFile = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const token = getToken();
+  const response = await fetch("/.netlify/functions/member-license-file", {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Nie udało się zaimportować rejestru licencji.");
+
+  renderLicenseFileInfo(data.file);
+  if (licenseFileNote) {
+    licenseFileNote.textContent = `Zaimportowano ${data.import?.matched || 0} licencji do bazy.`;
+  }
+  await loadRoster();
+  return data;
+};
+
+const uploadClubFile = async (file, statusEl = duesUploadNote) => {
+  if (isLikelyLicenseFile(file.name)) {
+    if (statusEl) statusEl.textContent = `Import rejestru licencji: ${file.name}…`;
+    const data = await uploadLicenseFile(file);
+    switchTab("roster");
+    if (statusEl) {
+      statusEl.textContent = `Wgrano rejestr licencji: ${file.name} · dopasowano ${data.import?.matched || 0} osób.`;
+    }
+    return { type: "license", data };
+  }
+
+  if (statusEl) statusEl.textContent = `Wgrywanie zestawienia: ${file.name}…`;
+  await uploadDuesFile(file);
+  switchTab("dues");
+  if (statusEl) statusEl.textContent = `Wgrano zestawienie: ${file.name}.`;
+  return { type: "dues" };
+};
+
+const bindDropTarget = (element, statusEl) => {
+  if (!element) return;
+
+  element.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    element.classList.add("is-dragover");
+  });
+
+  element.addEventListener("dragleave", (event) => {
+    if (!element.contains(event.relatedTarget)) element.classList.remove("is-dragover");
+  });
+
+  element.addEventListener("drop", async (event) => {
+    event.preventDefault();
+    element.classList.remove("is-dragover");
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+
+    try {
+      await uploadClubFile(file, statusEl);
+    } catch (error) {
+      if (statusEl) statusEl.textContent = error.message;
+    }
+  });
+};
+
+bindDropTarget(strefaDropTarget, strefaDropStatus);
+bindDropTarget(duesDropTarget, duesUploadNote);
+
+strefaDropPickButton?.addEventListener("click", () => {
   openNativeFilePicker(async (file) => {
     try {
-      await uploadDuesFile(file);
+      await uploadClubFile(file, strefaDropStatus);
     } catch (error) {
-      if (duesUploadNote) duesUploadNote.textContent = error.message;
+      if (strefaDropStatus) strefaDropStatus.textContent = error.message;
     }
   });
 });
 
-duesDropTarget?.addEventListener("dragover", (event) => {
-  event.preventDefault();
-  duesDropTarget.classList.add("is-dragover");
-});
-
-duesDropTarget?.addEventListener("dragleave", () => {
-  duesDropTarget.classList.remove("is-dragover");
-});
-
-duesDropTarget?.addEventListener("drop", async (event) => {
-  event.preventDefault();
-  duesDropTarget.classList.remove("is-dragover");
-  const file = event.dataTransfer?.files?.[0];
-  if (!file) return;
-
-  try {
-    await uploadDuesFile(file);
-  } catch (error) {
-    if (duesUploadNote) duesUploadNote.textContent = error.message;
-  }
+duesPickButton?.addEventListener("click", () => {
+  openNativeFilePicker(async (file) => {
+    try {
+      await uploadClubFile(file, duesUploadNote);
+    } catch (error) {
+      if (duesUploadNote) duesUploadNote.textContent = error.message;
+    }
+  });
 });
 
 duesFileInput?.addEventListener("change", async () => {
