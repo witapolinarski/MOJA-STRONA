@@ -1,3 +1,5 @@
+import { summarizeLicenseCounts } from "./license-data.mjs";
+
 const LICENSE_FEE_PLN = 50;
 
 const birthDateFromPesel = (pesel) => {
@@ -52,10 +54,15 @@ export const buildLicenseRenewalSummary = (members = [], options = {}) => {
     minors: 0,
     adults: 0,
     unknownAge: 0,
+    activeLicenses: 0,
+    inactiveLicenses: 0,
+    unknownLicenses: 0,
     estimatedClubCostPln: 0,
     joinedByYear: {},
     updatedAt: new Date().toISOString(),
   };
+
+  let hasLicenseData = false;
 
   for (const member of members) {
     summary.totalPlayers += 1;
@@ -69,22 +76,48 @@ export const buildLicenseRenewalSummary = (members = [], options = {}) => {
       summary.joinedByYear[joinedYear] = (summary.joinedByYear[joinedYear] || 0) + 1;
     }
 
-    if (!isActive) continue;
+    if (member.licenseActive === true || member.licenseActive === false) {
+      hasLicenseData = true;
+    }
 
-    if (joinedYear === String(renewalYear)) summary.newLicenses += 1;
-    else summary.renewals += 1;
+    if (!isActive) continue;
 
     const birthDate = birthDateFromPesel(member.pesel);
     if (!birthDate) {
       summary.unknownAge += 1;
-      continue;
+    } else {
+      const age = ageOnDate(birthDate, yearEnd);
+      if (age < 18) summary.minors += 1;
+      else summary.adults += 1;
     }
-
-    const age = ageOnDate(birthDate, yearEnd);
-    if (age < 18) summary.minors += 1;
-    else summary.adults += 1;
   }
 
-  summary.estimatedClubCostPln = summary.activePlayers * LICENSE_FEE_PLN;
+  const licenseCounts = summarizeLicenseCounts(members);
+  summary.activeLicenses = licenseCounts.activeLicenses;
+  summary.inactiveLicenses = licenseCounts.inactiveLicenses;
+  summary.unknownLicenses = licenseCounts.unknownLicenses;
+
+  if (hasLicenseData) {
+    for (const member of members) {
+      if (member.active === false) continue;
+      if (member.licenseActive === false) summary.renewals += 1;
+      else if (member.licenseActive === true) continue;
+      else {
+        const joinedYear = String(member.memberSince || "").slice(0, 4);
+        if (joinedYear === String(renewalYear)) summary.newLicenses += 1;
+        else summary.renewals += 1;
+      }
+    }
+    summary.estimatedClubCostPln = summary.inactiveLicenses * LICENSE_FEE_PLN;
+  } else {
+    for (const member of members) {
+      if (member.active === false) continue;
+      const joinedYear = String(member.memberSince || "").slice(0, 4);
+      if (joinedYear === String(renewalYear)) summary.newLicenses += 1;
+      else summary.renewals += 1;
+    }
+    summary.estimatedClubCostPln = summary.activePlayers * LICENSE_FEE_PLN;
+  }
+
   return summary;
 };

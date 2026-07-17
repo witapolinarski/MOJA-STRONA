@@ -52,7 +52,19 @@ export default async (request) => {
       await ensureRosterSeeded();
       const current = await getRosterRecord();
       const merged = new Map((current.members || []).map((member) => [member.id, member]));
-      for (const member of members) merged.set(member.id, member);
+      for (const member of members) {
+        const existing = merged.get(member.id);
+        merged.set(member.id, {
+          ...existing,
+          ...member,
+          licenseActive: member.licenseActive ?? existing?.licenseActive ?? null,
+          licenseStatus: member.licenseStatus ?? existing?.licenseStatus ?? null,
+          licenseValidYear: member.licenseValidYear ?? existing?.licenseValidYear ?? null,
+          licenseLastValidYear: member.licenseLastValidYear ?? existing?.licenseLastValidYear ?? null,
+          licenseValidUntil: member.licenseValidUntil ?? existing?.licenseValidUntil ?? null,
+          licenseNumber: member.licenseNumber ?? existing?.licenseNumber ?? null,
+        });
+      }
       const mergedMembers = [...merged.values()].sort((a, b) =>
         String(a.lastName).localeCompare(String(b.lastName), "pl"),
       );

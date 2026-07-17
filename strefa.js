@@ -359,6 +359,18 @@ const renderLeaderboard = (leaderboard = []) => {
   `;
 };
 
+const formatLicenseStatus = (member) => {
+  if (member.licenseActive === true) {
+    const year = member.licenseValidYear ? ` (${member.licenseValidYear})` : "";
+    return `Aktualna${year}`;
+  }
+  if (member.licenseActive === false) {
+    const year = member.licenseLastValidYear ? ` — ostatnio ${member.licenseLastValidYear}` : "";
+    return `Nieaktualna${year}`;
+  }
+  return "—";
+};
+
 const renderRosterTable = (members = []) => {
   if (!rosterTableWrap) return;
 
@@ -384,7 +396,8 @@ const renderRosterTable = (members = []) => {
           <th>PESEL</th>
           <th>E-mail</th>
           <th>Od</th>
-          <th>Status</th>
+          <th>Klub</th>
+          <th>Licencja</th>
         </tr>
       </thead>
       <tbody>
@@ -398,6 +411,7 @@ const renderRosterTable = (members = []) => {
             <td>${escapeHtml(member.email || "—")}</td>
             <td>${escapeHtml(member.memberSince || "—")}</td>
             <td>${member.active === false ? "Wykreślony" : "Aktywny"}</td>
+            <td>${escapeHtml(formatLicenseStatus(member))}</td>
           </tr>`,
           )
           .join("")}
@@ -422,11 +436,11 @@ const renderLicenseSummary = (summary) => {
   const cards = [
     ["Zawodnicy w bazie", summary.totalPlayers],
     ["Aktywni (bez blokady)", summary.activePlayers],
+    ["Licencje aktualne", summary.activeLicenses ?? "—"],
+    ["Licencje nieaktualne", summary.inactiveLicenses ?? "—"],
     ["Do wznowienia licencji", summary.renewals],
     ["Nowe licencje (przyjęci w roku)", summary.newLicenses],
     ["Zablokowani", summary.blockedPlayers],
-    ["Dorośli", summary.adults],
-    ["Niepełnoletni", summary.minors],
     ["Szac. opłata klubu", formatMoney(summary.estimatedClubCostPln)],
   ];
 
