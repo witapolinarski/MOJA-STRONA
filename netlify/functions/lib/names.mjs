@@ -102,6 +102,37 @@ export const matchPaymentToMember = (paymentName, members, lookup = null) => {
   return null;
 };
 
+export const findMemberInPaymentText = (text, members = []) => {
+  const norm = normalizeText(text);
+  if (!norm || norm.length < 8) return null;
+
+  const active = (members || []).filter((member) => member.active !== false);
+  const candidates = [];
+
+  for (const member of active) {
+    const last = normalizeText(member.lastName);
+    const first = normalizeText(member.firstName).split(" ").filter(Boolean)[0] || "";
+    if (!last || !first) continue;
+
+    const patterns = new Set(
+      [`${last} ${first}`, `${first} ${last}`, ...buildPaymentNameKeys(member)].filter(
+        (value) => value.length >= 8,
+      ),
+    );
+
+    for (const pattern of patterns) {
+      if (norm.includes(pattern)) {
+        candidates.push({ member, pattern, length: pattern.length });
+      }
+    }
+  }
+
+  if (!candidates.length) return null;
+
+  candidates.sort((a, b) => b.length - a.length);
+  return candidates[0].member;
+};
+
 export const findRosterMember = (recommender, members) => {
   const active = (members || []).filter((member) => member.active !== false);
   const norm = normalizeText(recommender);

@@ -1,6 +1,6 @@
 import XLSX from "xlsx";
 import { ENTRY_FEE, LICENSE_FEE_ANNUAL, MONTHLY_FEE } from "./fees.mjs";
-import { buildRosterNameIndex, matchPaymentToMember, normalizeText } from "./names.mjs";
+import { buildRosterNameIndex, findMemberInPaymentText, matchPaymentToMember, normalizeText } from "./names.mjs";
 
 const MONTH_HEADER =
   /^(sty|cze|lip|sie|wrz|paź|paz|lis|gru|stycze|luty|lut|marzec|mar|kwie|maj|czerw|lipiec|sierp|wrze|październik|listopad|grudzie|\d{1,2})$/i;
@@ -137,18 +137,20 @@ const peselFromText = (value) => {
 };
 
 export const extractBankPartyName = (value) => {
-  const lines = String(value || "")
+  const parts = String(value || "")
     .split(/\r?\n/)
+    .flatMap((line) => line.split(/\s*\/\s*/))
     .map((line) => line.trim())
     .filter(Boolean);
 
-  if (!lines.length) return "";
+  if (!parts.length) return "";
 
-  if (lines.length >= 2 && /^\d[\d\s]+$/.test(lines[0])) {
-    return lines[1];
+  for (const part of parts) {
+    if (/^\d[\d\s]+$/.test(part)) continue;
+    return part;
   }
 
-  return lines[0];
+  return parts[0];
 };
 
 const pickPaymentName = (row, columns) => {
@@ -421,23 +423,38 @@ const indexPayments = (records) => {
   return { byPesel, unmatched };
 };
 
+const resolvePaymentMember = (record, members, lookup) => {
+  if (record.pesel) {
+    const byPesel = members.find((item) => item.pesel === record.pesel);
+    if (byPesel) return byPesel;
+  }
+
+  const senderRaw = record.name || "";
+  const senderName = extractBankPartyName(senderRaw) || senderRaw;
+  const title = record.title || "";
+  const paymentText = [senderRaw, senderName, title].filter(Boolean).join(" ");
+
+  const titleMember =
+    findMemberInPaymentText(title, members) || matchPaymentToMember(title, members, lookup);
+
+  const senderMember =
+    matchPaymentToMember(senderName, members, lookup) ||
+    matchPaymentToMember(senderRaw, members, lookup);
+
+  if (titleMember && senderMember && titleMember.id !== senderMember.id) {
+    return titleMember;
+  }
+
+  return titleMember || senderMember || findMemberInPaymentText(paymentText, members);
+};
+
 const indexPaymentsByMember = (paymentRecords = [], members = []) => {
   const lookup = buildRosterNameIndex(members);
   const byMemberId = new Map();
   let unmatchedCount = 0;
 
   for (const record of paymentRecords) {
-    let member = null;
-    if (record.pesel) {
-      member = members.find((item) => item.pesel === record.pesel) || null;
-    }
-
-    if (!member) {
-      member =
-        matchPaymentToMember(record.name, members, lookup) ||
-        matchPaymentToMember(extractBankPartyName(record.name), members, lookup) ||
-        matchPaymentToMember(record.title, members, lookup);
-    }
+    const member = resolvePaymentMember(record, members, lookup);
 
     if (!member) {
       unmatchedCount += 1;
