@@ -745,7 +745,10 @@ const applyDuesData = (data) => {
     const voucherInfo = summary?.voucherPayments
       ? ` · bony: ${summary.voucherPayments} wpłat (${formatMoney(summary.voucherTotalPln || 0)})`
       : "";
-    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${exemptInfo}${voucherInfo}${paymentsInfo}`;
+    const rosterInfo = data?.rosterUpdatedAt
+      ? ` · baza PZSS: ${formatDate(data.rosterUpdatedAt)} (${data.rosterMemberCount || summary?.activeMembers || duesMembers.length} aktywnych)`
+      : "";
+    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${exemptInfo}${voucherInfo}${rosterInfo}${paymentsInfo}`;
   }
 };
 

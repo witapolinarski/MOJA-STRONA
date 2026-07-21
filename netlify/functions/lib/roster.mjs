@@ -1,5 +1,6 @@
 import { findRosterMember } from "./names.mjs";
 import { getApplicationsStore } from "./store.mjs";
+import { clearPaymentsAnalysis } from "./payments-file.mjs";
 import seedData from "../../../data/club-roster.seed.json" with { type: "json" };
 
 const ROSTER_KEY = "meta:club-roster";
@@ -41,6 +42,30 @@ export const parsePzssRosterText = (text) => {
   return [...unique.values()];
 };
 
+export const getActiveRosterMembers = (members = []) =>
+  (members || []).filter((member) => member.active !== false);
+
+export const mergePzssRosterImport = (currentMembers = [], importedMembers = []) => {
+  const existingById = new Map((currentMembers || []).map((member) => [member.id, member]));
+
+  const merged = (importedMembers || []).map((member) => {
+    const existing = existingById.get(member.id);
+    return {
+      ...member,
+      licenseActive: member.licenseActive ?? existing?.licenseActive ?? null,
+      licenseStatus: member.licenseStatus ?? existing?.licenseStatus ?? null,
+      licenseValidYear: member.licenseValidYear ?? existing?.licenseValidYear ?? null,
+      licenseLastValidYear: member.licenseLastValidYear ?? existing?.licenseLastValidYear ?? null,
+      licenseValidUntil: member.licenseValidUntil ?? existing?.licenseValidUntil ?? null,
+      licenseNumber: member.licenseNumber ?? existing?.licenseNumber ?? null,
+      licenseIssuedAt: member.licenseIssuedAt ?? existing?.licenseIssuedAt ?? null,
+    };
+  });
+
+  merged.sort((a, b) => String(a.lastName).localeCompare(String(b.lastName), "pl"));
+  return merged;
+};
+
 export const getRosterRecord = async () => {
   const store = getApplicationsStore();
   return (
@@ -67,6 +92,7 @@ export const saveRosterMembers = async (members, meta = {}) => {
     memberCount: members.length,
   };
   await store.setJSON(ROSTER_KEY, payload);
+  await clearPaymentsAnalysis();
   return payload;
 };
 

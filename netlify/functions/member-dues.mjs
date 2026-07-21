@@ -2,15 +2,13 @@ import { jsonResponse } from "./lib/auth.mjs";
 import { requireApprover } from "./lib/approvers.mjs";
 import { parsePaymentsSpreadsheet, reconcileDues } from "./lib/dues.mjs";
 import {
-  getPaymentsAnalysis,
   getPaymentsFile,
   getPaymentsMeta,
   getPaymentsParsed,
-  savePaymentsAnalysis,
-  savePaymentsFile,
   savePaymentsParsed,
+  savePaymentsFile,
 } from "./lib/payments-file.mjs";
-import { ensureRosterSeeded, getRosterRecord } from "./lib/roster.mjs";
+import { ensureRosterSeeded, getActiveRosterMembers, getRosterRecord } from "./lib/roster.mjs";
 
 const loadPaymentRecords = async (meta, file) => {
   if (!file) return { records: [], parse: null };
@@ -44,31 +42,16 @@ const loadPaymentRecords = async (meta, file) => {
 const buildReport = async () => {
   await ensureRosterSeeded();
   const roster = await getRosterRecord();
-  const members = roster.members || [];
+  const members = getActiveRosterMembers(roster.members || []);
   const meta = await getPaymentsMeta();
   const file = await getPaymentsFile();
-
-  const cached = meta ? await getPaymentsAnalysis(meta) : null;
-  if (cached?.reconciliation?.members?.length) {
-    return {
-      rosterUpdatedAt: roster.updatedAt,
-      file: meta,
-      parse: cached.parse,
-      reconciliation: cached.reconciliation,
-      cached: true,
-      cachedAt: cached.cachedAt,
-    };
-  }
 
   const { records, parse } = await loadPaymentRecords(meta, file);
   const reconciliation = reconcileDues(members, records);
 
-  if (meta) {
-    await savePaymentsAnalysis(meta, { parse, reconciliation });
-  }
-
   return {
     rosterUpdatedAt: roster.updatedAt,
+    rosterMemberCount: members.length,
     file: meta,
     parse,
     reconciliation,
@@ -98,11 +81,8 @@ export default async (request) => {
       }
 
       if (url.searchParams.get("refresh") === "1") {
-        const meta = await getPaymentsMeta();
-        if (meta) {
-          const { clearPaymentsAnalysis } = await import("./lib/payments-file.mjs");
-          await clearPaymentsAnalysis();
-        }
+        const { clearPaymentsParsed } = await import("./lib/payments-file.mjs");
+        await clearPaymentsParsed();
       }
 
       return jsonResponse(await buildReport());
