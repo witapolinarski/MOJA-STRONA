@@ -1,9 +1,20 @@
 export const ENTRY_FEE = 350;
+export const ENTRY_INSURANCE = 8;
+export const ENTRY_STANDARD_PAYMENT = ENTRY_FEE + ENTRY_INSURANCE;
 export const MONTHLY_FEE = 30;
 export const LICENSE_FEE_ANNUAL = 100;
 
 export const ANNUAL_FEE_EARLY = 300;
 export const ANNUAL_FEE_LATE = 360;
+
+export const DUES_EXEMPT_PESELS = new Set([
+  "80073102937", // PIETRUSZKA Marek (Kostuś) — VIP, poza zestawieniem składek
+]);
+
+export const isDuesExempt = (member) => {
+  const pesel = String(member?.pesel || "").replace(/\D/g, "");
+  return DUES_EXEMPT_PESELS.has(pesel);
+};
 
 const parseMemberSince = (memberSince) => {
   if (!memberSince) return null;

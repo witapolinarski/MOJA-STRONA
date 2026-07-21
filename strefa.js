@@ -636,7 +636,10 @@ const applyDuesData = (data) => {
     const paymentsInfo = summary?.rowsInFile
       ? ` · ${summary.rowsInFile} wpłat z banku`
       : " · bez pliku bankowego";
-    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${paymentsInfo}`;
+    const exemptInfo = summary?.exemptMembers
+      ? ` · poza zestawieniem (VIP): ${summary.exemptMembers}`
+      : "";
+    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${exemptInfo}${paymentsInfo}`;
   }
 };
 

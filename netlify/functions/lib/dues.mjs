@@ -3,10 +3,14 @@ import {
   ANNUAL_FEE_EARLY,
   ANNUAL_FEE_LATE,
   ENTRY_FEE,
+  ENTRY_INSURANCE,
+  ENTRY_STANDARD_PAYMENT,
   LICENSE_FEE_ANNUAL,
+  MONTHLY_FEE,
   annualMembershipFee,
   annualMembershipFeeForMemberYear,
   calculateAnnualMembershipTotal,
+  isDuesExempt,
   listDueMembershipYears,
 } from "./fees.mjs";
 import { buildRosterNameIndex, buildMemberTextPatternIndex, findMemberInPaymentText, matchPaymentToMember, normalizeText } from "./names.mjs";
@@ -22,6 +26,7 @@ const NAME_HEADER = /(nazw|imię|imie|name|zawodnik|członk|clonk|kontrahent|nad
 const PESEL_HEADER = /pesel/i;
 const TITLE_HEADER = /(tytuł|tytul|opis|treść|tresc|operac|szczegół|szczegol)/i;
 const SENDER_HEADER = /nadawca/i;
+const DATE_HEADER = /data (transakcji|zaksięgowania|zaksiegowania)/i;
 
 const parseAmount = (value) => {
   if (value == null || value === "") return 0;
@@ -76,7 +81,7 @@ const detectHeaderRow = (rows) => {
 };
 
 const buildColumnMap = (headers) => {
-  const map = { pesel: -1, name: -1, amount: -1, credit: -1, debit: -1, title: -1, type: -1, monthColumns: [] };
+  const map = { pesel: -1, name: -1, amount: -1, credit: -1, debit: -1, title: -1, type: -1, date: -1, monthColumns: [] };
 
   headers.forEach((header, index) => {
     const label = String(header || "").trim();
@@ -85,6 +90,7 @@ const buildColumnMap = (headers) => {
     if (map.name < 0 && NAME_HEADER.test(lower)) map.name = index;
     if (map.name < 0 && SENDER_HEADER.test(lower)) map.name = index;
     if (map.title < 0 && TITLE_HEADER.test(lower)) map.title = index;
+    if (map.date < 0 && DATE_HEADER.test(lower)) map.date = index;
     if (map.type < 0 && TYPE_HEADER.test(lower)) map.type = index;
     if (map.credit < 0 && CREDIT_HEADER.test(lower)) map.credit = index;
     if (map.debit < 0 && DEBIT_HEADER.test(lower)) map.debit = index;
@@ -138,6 +144,19 @@ const isIncomingTransaction = (row, columns) => {
   const type = String(row[columns.type] || "").trim();
   if (!type) return true;
   return INCOMING_TYPE.test(type);
+};
+
+const parsePaymentDate = (value) => {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const pickPaymentDate = (row, columns) => {
+  if (columns.date < 0) return null;
+  return parsePaymentDate(row[columns.date]);
 };
 
 const peselFromText = (value) => {
@@ -220,6 +239,7 @@ export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
       sender,
       title: titleText,
       amount,
+      date: pickPaymentDate(row, columns),
     });
   }
 
@@ -340,21 +360,70 @@ export const classifyPaymentPurpose = (record) => {
 
 const insuranceDeduction = (title, amount) => {
   const normalized = normalizeText(title);
+  if (amount === ENTRY_STANDARD_PAYMENT && /wpisow/.test(normalized)) return ENTRY_INSURANCE;
   if (!/ubezp|ubezpieczen/.test(normalized)) return 0;
 
   const explicit = normalized.match(/(\d+)\s*zl?\s*ubezp|ubezp[^0-9]*(\d+)/);
   if (explicit) return Math.min(amount, Number(explicit[1] || explicit[2]) || 0);
 
   if (normalized.includes("wpisowe") && amount > ENTRY_FEE) return Math.max(0, amount - ENTRY_FEE);
-  if (amount % 10 === 8 && amount > 8) return 8;
+  if (amount % 10 === 8 && amount > ENTRY_INSURANCE) return ENTRY_INSURANCE;
 
   return Math.min(amount, 50);
 };
 
-export const splitPaymentAmounts = (record) => {
+export const splitEntryBundleAmount = (amount) => {
+  const insurance =
+    amount >= ENTRY_STANDARD_PAYMENT
+      ? ENTRY_INSURANCE
+      : Math.max(0, Math.min(ENTRY_INSURANCE, amount - ENTRY_FEE));
+  const entry = Math.min(ENTRY_FEE, Math.max(0, amount - insurance));
+  const membership = Math.max(0, amount - insurance - entry);
+
+  return { entry, license: 0, membership, excluded: insurance, unknown: 0 };
+};
+
+const isEntryBundleAmount = (amount, title) => {
+  const norm = normalizeText(title || "");
+  if (/wpisow/.test(norm)) return true;
+  if (amount >= ENTRY_STANDARD_PAYMENT) {
+    const remainder = amount - ENTRY_STANDARD_PAYMENT;
+    return remainder === 0 || remainder % MONTHLY_FEE === 0;
+  }
+  if (amount >= ENTRY_FEE && amount <= ENTRY_STANDARD_PAYMENT && !/(skladk|licencj)/.test(norm)) {
+    return true;
+  }
+  return false;
+};
+
+const isLikelyFirstEntryPayment = (amount, title) => {
+  const norm = normalizeText(title || "");
+  if (/licencj/.test(norm) && !/wpisow/.test(norm)) return false;
+  if (/impreza|darowizn|faktur|zwrot/.test(norm)) return false;
+  return isEntryBundleAmount(amount, title);
+};
+
+export const splitPaymentAmounts = (record, options = {}) => {
   const title = record.title || "";
   const normalized = normalizeText(title);
   const amount = record.amount || 0;
+
+  if (classifyPaymentPurpose(record) === "exclude") {
+    return { entry: 0, license: 0, membership: 0, excluded: amount, unknown: 0 };
+  }
+
+  const hasLicenseOnly =
+    /licencj/.test(normalized) &&
+    !/wpisow/.test(normalized) &&
+    !/(skladk|składk|czlonkostw|członkostw)/.test(normalized);
+
+  if (
+    !hasLicenseOnly &&
+    (isEntryBundleAmount(amount, title) || (options.isFirstPayment && isLikelyFirstEntryPayment(amount, title)))
+  ) {
+    return splitEntryBundleAmount(amount);
+  }
+
   const excluded = insuranceDeduction(title, amount);
   let remaining = Math.max(0, amount - excluded);
 
@@ -365,10 +434,6 @@ export const splitPaymentAmounts = (record) => {
   const hasEntry = /wpisow/.test(normalized);
 
   const buckets = { entry: 0, license: 0, membership: 0, excluded, unknown: 0 };
-
-  if (classifyPaymentPurpose(record) === "exclude") {
-    return { entry: 0, license: 0, membership: 0, excluded: amount, unknown: 0 };
-  }
 
   if (hasEntry) {
     const entryPart = Math.min(ENTRY_FEE, remaining);
@@ -632,10 +697,18 @@ const resolvePaymentMember = (record, members, lookup, textPatterns) => {
   return findMemberInPaymentText(paymentText, members, textPatterns);
 };
 
+const comparePaymentDates = (left, right) => {
+  const leftTime = left?.date instanceof Date ? left.date.getTime() : 0;
+  const rightTime = right?.date instanceof Date ? right.date.getTime() : 0;
+  if (leftTime !== rightTime) return leftTime - rightTime;
+  return (left?.amount || 0) - (right?.amount || 0);
+};
+
 const indexPaymentsByMember = (paymentRecords = [], members = []) => {
   const lookup = buildRosterNameIndex(members);
   const textPatterns = buildMemberTextPatternIndex(members);
   const byMemberId = new Map();
+  const grouped = new Map();
   let unmatchedCount = 0;
 
   for (const record of paymentRecords) {
@@ -646,18 +719,29 @@ const indexPaymentsByMember = (paymentRecords = [], members = []) => {
       continue;
     }
 
-    const current = byMemberId.get(member.id) || emptyPaymentBuckets();
-    const split = splitPaymentAmounts(record);
+    const bucket = grouped.get(member.id) || { member, records: [] };
+    bucket.records.push(record);
+    grouped.set(member.id, bucket);
+  }
 
-    current.entry += split.entry;
-    current.license += split.license;
-    current.membership += split.membership;
-    current.unknown += split.unknown;
-    current.excluded += split.excluded;
-    current.amount += split.entry + split.license + split.membership + split.unknown;
+  for (const { member, records } of grouped.values()) {
+    const sorted = [...records].sort(comparePaymentDates);
+    const current = emptyPaymentBuckets();
 
-    if (record.name) current.names.add(record.name);
-    if (record.title) current.names.add(record.title);
+    sorted.forEach((record, index) => {
+      const split = splitPaymentAmounts(record, { isFirstPayment: index === 0 });
+
+      current.entry += split.entry;
+      current.license += split.license;
+      current.membership += split.membership;
+      current.unknown += split.unknown;
+      current.excluded += split.excluded;
+      current.amount += split.entry + split.license + split.membership + split.unknown;
+
+      if (record.name) current.names.add(record.name);
+      if (record.title) current.names.add(record.title);
+    });
+
     byMemberId.set(member.id, current);
   }
 
@@ -667,6 +751,8 @@ const indexPaymentsByMember = (paymentRecords = [], members = []) => {
 export const reconcileDues = (members = [], paymentRecords = [], options = {}) => {
   const asOf = options.asOf instanceof Date ? options.asOf : new Date();
   const activeMembers = members.filter((member) => member.active !== false);
+  const duesMembers = activeMembers.filter((member) => !isDuesExempt(member));
+  const exemptCount = activeMembers.length - duesMembers.length;
   const { byMemberId, unmatchedCount } = indexPaymentsByMember(paymentRecords, activeMembers);
 
   const arrears = [];
@@ -675,7 +761,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
   const unknownExpectation = [];
   const allMembers = [];
 
-  for (const member of activeMembers) {
+  for (const member of duesMembers) {
     const expected = calculateLifetimeExpectedDues(member, { asOf });
     const payment = byMemberId.get(member.id);
     const paidAmount = payment?.amount || 0;
@@ -732,7 +818,8 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
   return {
     asOf: asOf.toISOString().slice(0, 10),
     summary: {
-      activeMembers: activeMembers.length,
+      activeMembers: duesMembers.length,
+      exemptMembers: exemptCount,
       rowsInFile: paymentRecords.length,
       withArrears: arrears.length,
       paidUp: paid.length,
