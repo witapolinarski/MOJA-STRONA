@@ -547,56 +547,14 @@
   font-weight: 600;
 }
 
-.dues-filters {
-  display: grid;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-
-.dues-filter-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.dues-filter-buttons .button.is-active {
-  background: var(--brand-dark);
-  color: #fff;
-  border-color: var(--brand-dark);
-}
-
-.dues-status {
-  display: inline-block;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
+.dues-bank-panel summary {
+  cursor: pointer;
   font-weight: 700;
-  white-space: nowrap;
+  margin-bottom: 10px;
 }
 
-.dues-status--paid {
-  background: #e8f6ec;
-  color: #1a6b34;
-}
-
-.dues-status--arrears {
-  background: #fdecea;
-  color: #b42318;
-}
-
-.dues-status--missing {
-  background: #fff4e5;
-  color: #9a5b00;
-}
-
-.dues-status--unknown {
-  background: #eef2f7;
-  color: #475467;
-}
-
-.dues-status--overpaid {
-  background: #e8f1ff;
-  color: #175cd3;
+.dues-bank-panel[open] summary {
+  margin-bottom: 14px;
 }
 
 .roster-table-wrap {

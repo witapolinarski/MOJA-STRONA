@@ -220,74 +220,43 @@
         <div id="tab-panel-dues" class="strefa-tab-panel hidden">
           <div class="strefa-roster-intro">
             <p>
-              Wgraj bieżący plik rozliczeń składek (Excel lub CSV). System porówna wpłaty z bazą
-              zawodników PZSS i wyliczy stan składek każdego zawodnika od daty przyjęcia:
-              wpisowe 350 zł oraz 30 zł za każdy miesiąc składki (od miesiąca następującego po przyjęciu).
+              Zestawienie składek <strong>wszystkich aktywnych zawodników</strong> z bazy PZSS.
+              Należność od daty przyjęcia: wpisowe 350 zł + 30 zł za każdy miesiąc składki
+              (od miesiąca następującego po przyjęciu).
             </p>
-            <p id="dues-summary" class="roster-summary" role="status"></p>
+            <p id="dues-summary" class="roster-summary" role="status">Ładowanie…</p>
           </div>
 
           <section class="roster-panel">
-            <h3>Plik rozliczeń składek</h3>
-            <p class="roster-hint">
-              Plik jest widoczny tylko w Twoim profilu prezesa. Podmieniaj go po każdej aktualizacji
-              rozliczeń — poprzednia wersja zostanie nadpisana. Akceptowane są m.in. Excel, CSV
-              i eksport bankowy „zestawienie operacji”. Jeśli na telefonie nie możesz wybrać pliku,
-              wklej tabelę poniżej.
-            </p>
-              <div class="dues-file-panel" id="dues-drop-zone">
-              <p id="dues-file-info" class="dues-file-info">Brak wgranego pliku.</p>
-              <p class="roster-hint dues-mac-hint">
-                Na Macu pliki z iCloud na Biurku bywają wyszarzone — w Finderze kliknij prawym
-                na plik → <strong>Pobierz teraz</strong>, albo przeciągnij plik na żółte pole poniżej,
-                albo wklej tabelę z Excela.
-              </p>
-              <div class="dues-drop-target" id="dues-drop-target">
-                <p><strong>Przeciągnij tutaj plik</strong> „Zestawienie operacji.xlsx”</p>
-                <p>lub</p>
-                <button type="button" class="button primary" id="dues-pick-button">Wybierz plik z dysku</button>
-              </div>
-              <div class="roster-actions">
-                <button type="button" class="button secondary hidden" id="dues-download-button">Pobierz aktualny plik</button>
-                <button type="button" class="button secondary" id="dues-refresh-button">Odśwież zestawienie</button>
-              </div>
-              <label class="roster-search-label">
-                Lub wklej zestawienie (Ctrl+A w Excelu → kopiuj → wklej)
-                <textarea id="dues-paste-text" class="roster-import-text" rows="6" placeholder="Wklej skopiowane zestawienie operacji lub listę wpłat…"></textarea>
-              </label>
-              <div class="roster-actions">
-                <button type="button" class="button primary" id="dues-paste-button">Importuj wklejone dane</button>
-              </div>
-              <p id="dues-upload-note" class="form-note" role="status"></p>
+            <h3>Lista zawodników</h3>
+            <div class="roster-actions">
+              <button type="button" class="button primary" id="dues-refresh-button">Odśwież zestawienie</button>
             </div>
+            <label class="roster-search-label">
+              Szukaj zawodnika
+              <input type="search" id="dues-search" placeholder="np. Kowalski">
+            </label>
+            <div id="dues-table-wrap" class="roster-table-wrap"></div>
+            <p id="dues-note" class="form-note" role="status"></p>
           </section>
 
-          <section class="roster-panel">
-            <h3>Zestawienie składek zawodników</h3>
+          <details class="roster-panel dues-bank-panel">
+            <summary>Plik wpłat bankowych (opcjonalnie — do porównania wpłat)</summary>
             <p class="roster-hint">
-              Pełna lista aktywnych zawodników z bazy PZSS. Należność liczona od daty przyjęcia:
-              wpisowe 350 zł + 30 zł za każdy miesiąc składki (od miesiąca następującego po przyjęciu).
+              Wgraj eksport „Zestawienie operacji” z banku. Bez pliku zobaczysz tylko należności
+              od daty przyjęcia; po wgraniu system dopasuje wpłaty do zawodników.
             </p>
-            <div class="dues-filters">
-              <label class="roster-search-label">
-                Szukaj zawodnika
-                <input type="search" id="dues-search" placeholder="np. Kowalski">
-              </label>
-              <div class="dues-filter-buttons" role="group" aria-label="Filtr statusu składek">
-                <button type="button" class="button secondary is-active" data-dues-filter="all">Wszyscy</button>
-                <button type="button" class="button secondary" data-dues-filter="arrears">Zaległości</button>
-                <button type="button" class="button secondary" data-dues-filter="no_payment">Brak wpłaty</button>
-                <button type="button" class="button secondary" data-dues-filter="paid">Rozliczeni</button>
-                <button type="button" class="button secondary" data-dues-filter="unknown">Brak daty przyjęcia</button>
-              </div>
+            <p id="dues-file-info" class="dues-file-info">Brak wgranego pliku.</p>
+            <input type="file" id="dues-file-input" class="strefa-file-input">
+            <div class="roster-actions">
+              <button type="button" class="button secondary" id="dues-pick-button">Wybierz plik</button>
+              <button type="button" class="button secondary hidden" id="dues-download-button">Pobierz plik</button>
             </div>
-            <div id="dues-summary-grid" class="license-summary-grid" role="status"></div>
-            <div id="dues-arrears-wrap" class="roster-table-wrap"></div>
-          </section>
+          </details>
         </div>
       </section>
     </div>
 
-    <script src="strefa.js?v=13" type="module"></script>
+    <script src="strefa.js?v=14" type="module"></script>
   </body>
 </html>

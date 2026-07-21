@@ -33,17 +33,11 @@ const duesSummary = document.querySelector("#dues-summary");
 const duesFileInfo = document.querySelector("#dues-file-info");
 const duesFileInput = document.querySelector("#dues-file-input");
 const duesPickButton = document.querySelector("#dues-pick-button");
-const duesDropZone = document.querySelector("#dues-drop-zone");
-const duesDropTarget = document.querySelector("#dues-drop-target");
-const duesPasteText = document.querySelector("#dues-paste-text");
-const duesPasteButton = document.querySelector("#dues-paste-button");
 const duesDownloadButton = document.querySelector("#dues-download-button");
 const duesRefreshButton = document.querySelector("#dues-refresh-button");
-const duesUploadNote = document.querySelector("#dues-upload-note");
-const duesSummaryGrid = document.querySelector("#dues-summary-grid");
-const duesArrearsWrap = document.querySelector("#dues-arrears-wrap");
+const duesTableWrap = document.querySelector("#dues-table-wrap");
 const duesSearch = document.querySelector("#dues-search");
-const duesFilterButtons = document.querySelectorAll("[data-dues-filter]");
+const duesNote = document.querySelector("#dues-note");
 const licenseFileInfo = document.querySelector("#license-file-info");
 const licenseFileInput = document.querySelector("#license-file-input");
 const licensePickButton = document.querySelector("#license-pick-button");
@@ -79,8 +73,8 @@ const honorificLabels = {
 let currentMember = null;
 let applicationsCache = [];
 let rosterCache = null;
-let duesCache = null;
-let duesFilter = "all";
+let duesMembers = [];
+let duesMeta = null;
 
 const isLocalPreview =
   window.location.protocol === "file:" ||
@@ -554,66 +548,45 @@ const duesStatusLabels = {
   overpaid: "Nadpłata",
 };
 
-const duesStatusClass = {
-  paid: "dues-status--paid",
-  arrears: "dues-status--arrears",
-  no_payment: "dues-status--missing",
-  unknown: "dues-status--unknown",
-  overpaid: "dues-status--overpaid",
-};
-
 const renderDuesFileInfo = (file) => {
   if (!duesFileInfo) return;
 
   if (!file?.fileName) {
-    duesFileInfo.textContent = "Brak wgranego pliku. Wybierz plik Excel (.xlsx) lub CSV ze stanem wpłat.";
+    duesFileInfo.textContent = "Brak wgranego pliku bankowego.";
     duesDownloadButton?.classList.add("hidden");
     return;
   }
 
   const uploadedAt = file.uploadedAt ? formatDate(file.uploadedAt) : "—";
   const sizeKb = file.size ? `${Math.round(file.size / 1024)} KB` : "";
-  duesFileInfo.textContent = `Aktualny plik: ${file.fileName} · ${sizeKb} · wgrany ${uploadedAt}`;
+  duesFileInfo.textContent = `Plik bankowy: ${file.fileName} · ${sizeKb} · wgrany ${uploadedAt}`;
   duesDownloadButton?.classList.remove("hidden");
 };
 
-const filterDuesRows = (rows = []) => {
+const renderDuesTable = () => {
+  if (!duesTableWrap) return;
+
   const query = duesSearch?.value.trim().toLowerCase() || "";
-  return rows.filter((row) => {
-    if (duesFilter !== "all" && row.status !== duesFilter) return false;
+  const rows = duesMembers.filter((row) => {
     if (!query) return true;
-    const haystack = [row.displayName, row.pesel, row.memberSince, row.paymentName]
+    return [row.displayName, row.pesel, row.memberSince]
       .filter(Boolean)
       .join(" ")
-      .toLowerCase();
-    return haystack.includes(query);
+      .toLowerCase()
+      .includes(query);
   });
-};
 
-const renderDuesTable = (rows, reconciliation, parseNotes = []) => {
-  if (!duesArrearsWrap) return;
-
-  const notes = (parseNotes || []).filter(Boolean);
-  const filtered = filterDuesRows(rows);
-  const totalMembers = reconciliation?.membersTotal ?? rows.length;
+  if (!duesMembers.length) {
+    duesTableWrap.innerHTML = `<p class="roster-empty">Brak aktywnych zawodników w bazie PZSS. Zaimportuj bazę w zakładce „Baza PZSS”.</p>`;
+    return;
+  }
 
   if (!rows.length) {
-    duesArrearsWrap.innerHTML = `
-      ${notes.length ? `<p class="roster-hint">${notes.map((note) => escapeHtml(note)).join(" ")}</p>` : ""}
-      <p class="roster-empty">Brak danych zawodników do zestawienia.</p>
-    `;
+    duesTableWrap.innerHTML = `<p class="roster-empty">Brak wyników wyszukiwania.</p>`;
     return;
   }
 
-  if (!filtered.length) {
-    duesArrearsWrap.innerHTML = `
-      <p class="roster-empty">Brak wyników dla wybranego filtra lub wyszukiwania.</p>
-    `;
-    return;
-  }
-
-  duesArrearsWrap.innerHTML = `
-    ${notes.length ? `<p class="roster-hint">${notes.map((note) => escapeHtml(note)).join(" ")}</p>` : ""}
+  duesTableWrap.innerHTML = `
     <table class="roster-table">
       <thead>
         <tr>
@@ -628,7 +601,7 @@ const renderDuesTable = (rows, reconciliation, parseNotes = []) => {
         </tr>
       </thead>
       <tbody>
-        ${filtered
+        ${rows
           .map(
             (row) => `
           <tr>
@@ -639,79 +612,46 @@ const renderDuesTable = (rows, reconciliation, parseNotes = []) => {
             <td>${row.expected?.unknown ? "—" : formatMoney(row.expected?.total || 0)}</td>
             <td>${formatMoney(row.paidAmount || 0)}</td>
             <td><strong>${row.expected?.unknown ? "—" : formatMoney(row.balance || 0)}</strong></td>
-            <td><span class="dues-status ${duesStatusClass[row.status] || ""}">${escapeHtml(duesStatusLabels[row.status] || row.status || "—")}</span></td>
+            <td>${escapeHtml(duesStatusLabels[row.status] || row.status || "—")}</td>
           </tr>`,
           )
           .join("")}
       </tbody>
     </table>
-    <p class="roster-hint">
-      Pokazano ${filtered.length} z ${totalMembers} zawodników.
-      Należność = wpisowe 350 zł + miesiące × 30 zł od daty przyjęcia do dnia ${escapeHtml(reconciliation?.asOf || "—")}.
-    </p>
+    <p class="roster-hint">Pokazano ${rows.length} z ${duesMembers.length} zawodników · stan na ${escapeHtml(duesMeta?.asOf || "—")}.</p>
   `;
 };
 
-const renderDuesSummary = (reconciliation, parseNotes = []) => {
-  duesCache = reconciliation;
-
-  if (!reconciliation) {
-    if (duesSummary) duesSummary.textContent = "Wgraj plik rozliczeń, aby sprawdzić stan składek zawodników.";
-    if (duesSummaryGrid) duesSummaryGrid.innerHTML = `<p class="roster-empty">Brak danych do analizy.</p>`;
-    if (duesArrearsWrap) duesArrearsWrap.replaceChildren();
-    return;
-  }
-
-  const { summary } = reconciliation;
+const applyDuesData = (data) => {
+  const reconciliation = data?.reconciliation;
+  duesMembers = reconciliation?.members || [];
+  duesMeta = reconciliation;
+  renderDuesFileInfo(data?.file);
+  renderDuesTable();
 
   if (duesSummary) {
-    duesSummary.textContent = `Stan składek na dzień ${reconciliation.asOf || "—"} · ${summary.activeMembers} aktywnych zawodników · ${summary.rowsInFile} wpłat w pliku`;
+    const summary = reconciliation?.summary;
+    const paymentsInfo = summary?.rowsInFile
+      ? ` · ${summary.rowsInFile} wpłat z pliku bankowego`
+      : " · bez pliku bankowego (tylko należności)";
+    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników${paymentsInfo}`;
   }
-
-  if (duesSummaryGrid) {
-    const cards = [
-      ["Zaległości", summary.withArrears],
-      ["Rozliczeni", summary.paidUp],
-      ["Brak wpłaty w pliku", summary.missingFromFile],
-      ["Suma zaległości", formatMoney(summary.totalArrearsPln)],
-      ["Należność łącznie", formatMoney(summary.totalExpectedPln)],
-      ["Wpłacono łącznie", formatMoney(summary.totalPaidPln)],
-      ["Wpłaty bez dopasowania", summary.extraPayments],
-      ["Brak daty przyjęcia", summary.unknownExpectation],
-    ];
-
-    duesSummaryGrid.innerHTML = cards
-      .map(
-        ([label, value]) => `
-          <article class="license-summary-card">
-            <p class="license-summary-label">${label}</p>
-            <p class="license-summary-value">${value}</p>
-          </article>
-        `,
-      )
-      .join("");
-  }
-
-  renderDuesTable(reconciliation.members || [], reconciliation, parseNotes);
 };
 
 const loadDues = async () => {
   if (!currentMember?.isApprover || isLocalPreview) return;
 
-  if (duesSummary) duesSummary.textContent = "Ładowanie zestawienia składek…";
+  if (duesSummary) duesSummary.textContent = "Ładowanie zestawienia…";
+  if (duesTableWrap) duesTableWrap.innerHTML = `<p class="roster-empty">Ładowanie listy zawodników…</p>`;
 
   try {
     const data = await apiFetch("/.netlify/functions/member-dues");
-    renderDuesFileInfo(data.file);
-    renderDuesSummary(data.reconciliation, data.parse?.notes);
-    if (duesUploadNote) duesUploadNote.textContent = "";
+    applyDuesData(data);
+    if (duesNote) duesNote.textContent = "";
   } catch (error) {
     if (duesSummary) duesSummary.textContent = error.message;
-    if (duesSummaryGrid) {
-      duesSummaryGrid.innerHTML = `<p class="roster-empty">Nie udało się wczytać zestawienia. Kliknij „Odśwież zestawienie”.</p>`;
-    }
-    if (duesArrearsWrap) {
-      duesArrearsWrap.innerHTML = `<p class="roster-empty">${escapeHtml(error.message)}</p>`;
+    if (duesTableWrap) {
+      duesTableWrap.innerHTML = `<p class="roster-empty">${escapeHtml(error.message)}</p>`;
     }
   }
 };
@@ -853,17 +793,7 @@ rosterImportButton?.addEventListener("click", async () => {
 
 duesRefreshButton?.addEventListener("click", () => loadDues());
 
-duesSearch?.addEventListener("input", () => {
-  if (duesCache) renderDuesTable(duesCache.members || [], duesCache);
-});
-
-duesFilterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    duesFilter = button.dataset.duesFilter || "all";
-    duesFilterButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-    if (duesCache) renderDuesTable(duesCache.members || [], duesCache);
-  });
-});
+duesSearch?.addEventListener("input", () => renderDuesTable());
 
 duesDownloadButton?.addEventListener("click", async () => {
   try {
@@ -880,22 +810,16 @@ duesDownloadButton?.addEventListener("click", async () => {
     link.click();
     URL.revokeObjectURL(url);
   } catch (error) {
-    if (duesUploadNote) duesUploadNote.textContent = error.message;
+    if (duesNote) duesNote.textContent = error.message;
   }
 });
-
-const applyDuesUploadResult = (data, sourceLabel) => {
-  renderDuesFileInfo(data.file);
-  renderDuesSummary(data.reconciliation, data.parse?.notes);
-  if (duesUploadNote) duesUploadNote.textContent = sourceLabel;
-};
 
 const uploadDuesFile = async (file) => {
   if (!file) return;
 
   const formData = new FormData();
   formData.append("file", file);
-  if (duesUploadNote) duesUploadNote.textContent = `Wgrywanie: ${file.name}…`;
+  if (duesNote) duesNote.textContent = `Wgrywanie: ${file.name}…`;
 
   const token = getToken();
   const response = await fetch("/.netlify/functions/member-dues", {
@@ -906,7 +830,8 @@ const uploadDuesFile = async (file) => {
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Nie udało się wgrać pliku.");
 
-  applyDuesUploadResult(data, `Wgrano ${data.file?.fileName || file.name}.`);
+  applyDuesData(data);
+  if (duesNote) duesNote.textContent = `Wgrano plik bankowy: ${data.file?.fileName || file.name}.`;
 };
 
 const openNativeFilePicker = (onFile) => {
@@ -950,7 +875,7 @@ const uploadLicenseFile = async (file) => {
   return data;
 };
 
-const uploadClubFile = async (file, statusEl = duesUploadNote) => {
+const uploadClubFile = async (file, statusEl = duesNote) => {
   if (isLikelyLicenseFile(file.name)) {
     if (statusEl) statusEl.textContent = `Import rejestru licencji: ${file.name}…`;
     const data = await uploadLicenseFile(file);
@@ -995,7 +920,6 @@ const bindDropTarget = (element, statusEl) => {
 };
 
 bindDropTarget(strefaDropTarget, strefaDropStatus);
-bindDropTarget(duesDropTarget, duesUploadNote);
 
 strefaDropPickButton?.addEventListener("click", () => {
   openNativeFilePicker(async (file) => {
@@ -1010,9 +934,9 @@ strefaDropPickButton?.addEventListener("click", () => {
 duesPickButton?.addEventListener("click", () => {
   openNativeFilePicker(async (file) => {
     try {
-      await uploadClubFile(file, duesUploadNote);
+      await uploadDuesFile(file);
     } catch (error) {
-      if (duesUploadNote) duesUploadNote.textContent = error.message;
+      if (duesNote) duesNote.textContent = error.message;
     }
   });
 });
@@ -1024,33 +948,9 @@ duesFileInput?.addEventListener("change", async () => {
   try {
     await uploadDuesFile(file);
   } catch (error) {
-    if (duesUploadNote) duesUploadNote.textContent = error.message;
+    if (duesNote) duesNote.textContent = error.message;
   } finally {
     duesFileInput.value = "";
-  }
-});
-
-duesPasteButton?.addEventListener("click", async () => {
-  const text = duesPasteText?.value.trim() || "";
-  if (!text) {
-    if (duesUploadNote) duesUploadNote.textContent = "Wklej zestawienie przed importem.";
-    return;
-  }
-
-  duesPasteButton.disabled = true;
-  if (duesUploadNote) duesUploadNote.textContent = "Importowanie wklejonych danych…";
-
-  try {
-    const data = await apiFetch("/.netlify/functions/member-dues", {
-      method: "POST",
-      body: JSON.stringify({ text }),
-    });
-    applyDuesUploadResult(data, "Zaimportowano wklejone zestawienie.");
-    if (duesPasteText) duesPasteText.value = "";
-  } catch (error) {
-    if (duesUploadNote) duesUploadNote.textContent = error.message;
-  } finally {
-    duesPasteButton.disabled = false;
   }
 });
 
