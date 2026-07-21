@@ -249,9 +249,16 @@ export const summarizeObligationSchedule = (obligations = []) => {
   };
 };
 
-export const summarizeMemberScheduleSlice = (schedule = [], memberId = null) => {
+export const summarizeMemberScheduleSlice = (schedule = [], memberId = null, expected = null) => {
   const slice = memberId ? schedule.filter((item) => item.memberId === memberId) : schedule;
-  const summary = summarizeObligationSchedule(slice);
+  const summary = expected
+    ? {
+        entryFee: expected.entryFee || 0,
+        annualTotal: expected.monthlyTotal || 0,
+        licenseTotal: expected.licenseTotal || 0,
+        total: expected.total || 0,
+      }
+    : summarizeObligationSchedule(slice);
 
   let paidEntry = 0;
   let paidMonthly = 0;

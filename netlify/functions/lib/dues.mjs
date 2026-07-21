@@ -462,15 +462,42 @@ export const splitPaymentAmounts = (record, options = {}) => {
 
 const lockMembershipSlotAmount = (slot, paymentDate) => {
   if (slot.type !== "membership" || slot.joinYear) return;
-  if (slot.rateLocked) return;
+  if (slot.rateLocked && slot.amount > 0) return;
 
-  const amount = membershipAnnualRate(slot.year, paymentDate || new Date());
+  const referenceDate = paymentDate instanceof Date ? paymentDate : new Date(paymentDate || Date.now());
+  if (Number.isNaN(referenceDate.getTime())) return;
+
+  const paymentYear = referenceDate.getFullYear();
+  if (paymentYear < slot.year) return;
+
+  const amount = membershipAnnualRate(slot.year, referenceDate);
+  if (amount <= 0) return;
+
   slot.amount = amount;
   slot.balance = Math.max(0, amount - (slot.paid || 0));
   slot.rateLocked = true;
 };
 
-export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = []) => {
+const finalizeMembershipSlotAmounts = (schedule = [], asOf = new Date()) => {
+  for (const slot of schedule) {
+    if (slot.type !== "membership" || slot.joinYear) continue;
+
+    if (slot.rateLocked && slot.amount > 0) {
+      slot.balance = Math.max(0, slot.amount - (slot.paid || 0));
+      continue;
+    }
+
+    const amount = membershipAnnualRate(slot.year, asOf);
+    if (amount <= 0) continue;
+
+    slot.amount = amount;
+    slot.balance = Math.max(0, amount - (slot.paid || 0));
+    slot.rateLocked = true;
+  }
+};
+
+export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = [], options = {}) => {
+  const asOf = options.asOf instanceof Date ? options.asOf : new Date();
   const schedule = (obligations || []).map((item) => ({
     ...item,
     paid: 0,
@@ -525,10 +552,7 @@ export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = []
     overpaid += remaining;
   }
 
-  for (const slot of schedule) {
-    if (slot.type !== "membership" || slot.joinYear || slot.rateLocked) continue;
-    lockMembershipSlotAmount(slot, new Date());
-  }
+  finalizeMembershipSlotAmounts(schedule, asOf);
 
   const expectedEntry = schedule
     .filter((item) => item.type === "entry")
@@ -940,7 +964,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
 
       const schedule = buildHouseholdObligationSchedule(household.members, asOf);
       const records = collectHouseholdPayments(household, byHouseholdId, byMemberId);
-      const allocation = allocatePaymentsToSchedule(schedule || [], records);
+      const allocation = allocatePaymentsToSchedule(schedule || [], records, { asOf });
       const paymentNames = [
         ...(byHouseholdId.get(household.id)?.names || []),
         ...household.members.flatMap((item) => [...(byMemberId.get(item.id)?.names || [])]),
@@ -948,7 +972,11 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
 
       for (const householdMember of household.members) {
         const expected = calculateLifetimeExpectedDues(householdMember, { asOf });
-        const memberSlice = summarizeMemberScheduleSlice(allocation.schedule, householdMember.id);
+        const memberSlice = summarizeMemberScheduleSlice(
+          allocation.schedule,
+          householdMember.id,
+          expected,
+        );
         const row = buildMemberDuesRow(
           { ...householdMember, householdKey: household.key },
           expected,
@@ -980,8 +1008,8 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
 
     const expected = calculateLifetimeExpectedDues(member, { asOf });
     const payment = byMemberId.get(member.id);
-    const allocation = allocatePaymentsToSchedule(expected.schedule || [], payment?.records || []);
-    const memberSlice = summarizeMemberScheduleSlice(allocation.schedule, member.id);
+    const allocation = allocatePaymentsToSchedule(expected.schedule || [], payment?.records || [], { asOf });
+    const memberSlice = summarizeMemberScheduleSlice(allocation.schedule, member.id, expected);
     const row = buildMemberDuesRow(
       member,
       expected,
