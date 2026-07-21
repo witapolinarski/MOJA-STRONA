@@ -46,7 +46,7 @@ export default async (request) => {
 
       if (!members.length) {
         return jsonResponse(
-          { error: "Nie udało się odczytać listy członków. Wklej eksport z PZSS (SOZ → Lista zawodników)." },
+          { error: "Nie udało się odczytać listy członków. Wklej eksport z SOZ (Club/Persons/List)." },
           400,
         );
       }

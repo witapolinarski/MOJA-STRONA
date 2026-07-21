@@ -1,5 +1,6 @@
 import { applyStruckOffFlags } from "./fees.mjs";
-import { getRosterExportFile } from "./roster-file.mjs";
+import { fetchSozPersonsText } from "./pzss-soz.mjs";
+import { getRosterExportFile, saveRosterExportBuffer } from "./roster-file.mjs";
 import {
   ensureRosterSeeded,
   getRosterRecord,
@@ -62,7 +63,31 @@ export const syncRosterFromUrl = async (url, meta = {}) => {
   });
 };
 
+export const syncRosterFromSoz = async (meta = {}) => {
+  const text = await fetchSozPersonsText();
+  await saveRosterExportBuffer(Buffer.from(text, "utf8"), "soz-persons-list.txt", meta.importedBy || null);
+  return importPzssRosterText(text, {
+    ...meta,
+    source: meta.source || "soz-persons-list",
+  });
+};
+
 export const runPzssRosterSync = async (meta = {}) => {
+  const login = String(process.env.PZSS_SOZ_LOGIN || "").trim();
+  const password = String(process.env.PZSS_SOZ_PASSWORD || "").trim();
+
+  if (login && password) {
+    try {
+      return await syncRosterFromSoz(meta);
+    } catch (error) {
+      if (!process.env.PZSS_ROSTER_URL) {
+        const file = await getRosterExportFile();
+        if (!file) throw error;
+      }
+      console.warn("SOZ sync failed, falling back:", error.message);
+    }
+  }
+
   const url = String(process.env.PZSS_ROSTER_URL || "").trim();
   if (url) {
     return syncRosterFromUrl(url, { ...meta, source: meta.source || "pzss-url-auto" });

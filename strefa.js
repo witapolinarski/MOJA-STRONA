@@ -211,10 +211,31 @@ const renderCertificate = (payload) => {
   if (certBody) certBody.textContent = payload.certificate.body;
 };
 
+const sozSyncBookmarklet = document.querySelector("#soz-sync-bookmarklet");
+
+const setupSozBookmarklet = () => {
+  if (!sozSyncBookmarklet || isLocalPreview) return;
+
+  const site = window.location.origin.replace(/\/$/, "");
+  const scriptUrl = `${site}/assets/soz-sync.js`;
+  const bookmarklet = `javascript:(function(){var s=document.createElement('script');s.src='${scriptUrl}?'+Date.now();document.body.appendChild(s);})();`;
+
+  sozSyncBookmarklet.href = bookmarklet;
+  sozSyncBookmarklet.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (rosterImportNote) {
+      rosterImportNote.textContent =
+        "Przeciągnij link „Skrypt synchronizacji SOZ” na pasek zakładek, otwórz listę w SOZ i kliknij zakładkę.";
+    }
+    window.prompt("Skopiuj adres bookmarkletu i dodaj jako zakładkę:", bookmarklet);
+  });
+};
+
 const setupApproverUI = (member) => {
   if (member?.isApprover) {
     memberTabs?.classList.remove("hidden");
     approverDropPanel?.classList.remove("hidden");
+    setupSozBookmarklet();
     if (memberRole) {
       memberRole.textContent = member.role || "Prezes zarządu — akceptacja wniosków";
       memberRole.classList.remove("hidden");

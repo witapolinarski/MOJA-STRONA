@@ -27,7 +27,7 @@ Zatwierdzenie jest możliwe dopiero po weryfikacji danych z formularza i dowodu 
 - Pole **Rekomendujący członek klubu** w formularzu jest weryfikowane z bazą członków PZSS (nazwisko musi się zgadzać).
 - Po **zatwierdzeniu** nowego członka osoba rekomendująca otrzymuje **1 punkt**.
 - Baza członków i ranking punktów są dostępne wyłącznie na profilu prezesa w strefie klubowej — zakładka **Baza PZSS i rekomendacje**.
-- Import pełnej listy: w SOZ skopiuj tabelę z **Zawodnicy → Lista** i wklej w zakładce importu (można importować kolejne strony — rekordy są scalane po PESEL).
+- Import pełnej listy: w SOZ otwórz [Club/Persons/List](https://soz.pzss.org.pl/Club/Persons/List), skopiuj tabelę lub użyj skryptu synchronizacji SOZ ze strefy prezesa.
 
 ## Wymagana konfiguracja Netlify
 

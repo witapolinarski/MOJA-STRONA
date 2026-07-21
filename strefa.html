@@ -193,12 +193,36 @@
           </section>
 
           <section class="roster-panel">
-            <h3>Import z PZSS</h3>
+            <h3>Import z PZSS (SOZ)</h3>
             <p class="roster-hint">
-              W SOZ przejdź do <strong>Zawodnicy → Lista</strong>, zaznacz 100 wpisów na stronę,
-              skopiuj tabelę (Ctrl+A na liście) i wklej poniżej albo wgraj plik eksportu.
-              System może też synchronizować bazę automatycznie z ostatniego pliku lub adresu URL
-              (harmonogram: codziennie o 5:00).
+              Lista zawodników w SOZ:
+              <a href="https://soz.pzss.org.pl/Club/Persons/List" target="_blank" rel="noopener">
+                soz.pzss.org.pl/Club/Persons/List
+              </a>.
+              Ustaw 100 wpisów na stronę, skopiuj tabelę (Ctrl+A) i wklej poniżej — albo użyj
+              <strong>skryptu synchronizacji SOZ</strong> (zbiera wszystkie strony automatycznie).
+            </p>
+            <div class="roster-actions">
+              <a
+                class="button secondary"
+                id="soz-sync-bookmarklet"
+                href="#"
+                title="Przeciągnij na pasek zakładek, potem uruchom na liście SOZ"
+              >
+                Skrypt synchronizacji SOZ
+              </a>
+              <a
+                class="button secondary"
+                href="https://soz.pzss.org.pl/Club/Persons/List"
+                target="_blank"
+                rel="noopener"
+              >
+                Otwórz listę w SOZ
+              </a>
+            </div>
+            <p class="roster-hint">
+              Skrypt wymaga klucza <code>ROSTER_SYNC_SECRET</code> z Netlify (podajesz raz przy pierwszym uruchomieniu).
+              Harmonogram serwera: codziennie o 5:00 z ostatniego eksportu lub loginu SOZ (jeśli skonfigurowany).
             </p>
             <div id="roster-export-drop" class="strefa-dropzone" tabindex="0" role="button" aria-label="Upuść plik eksportu PZSS">
               <p>Upuść plik eksportu PZSS (.txt, .tsv, .csv) lub kliknij, aby wybrać</p>
