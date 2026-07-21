@@ -102,28 +102,50 @@ export const matchPaymentToMember = (paymentName, members, lookup = null) => {
   return null;
 };
 
-export const findMemberInPaymentText = (text, members = []) => {
-  const norm = normalizeText(text);
-  if (!norm || norm.length < 8) return null;
-
+export const buildMemberTextPatternIndex = (members = []) => {
   const active = (members || []).filter((member) => member.active !== false);
-  const candidates = [];
+  const bySurname = new Map();
+  const all = [];
 
   for (const member of active) {
     const last = normalizeText(member.lastName);
     const first = normalizeText(member.firstName).split(" ").filter(Boolean)[0] || "";
     if (!last || !first) continue;
 
-    const patterns = new Set(
+    const unique = new Set(
       [`${last} ${first}`, `${first} ${last}`, ...buildPaymentNameKeys(member)].filter(
         (value) => value.length >= 8,
       ),
     );
 
-    for (const pattern of patterns) {
-      if (norm.includes(pattern)) {
-        candidates.push({ member, pattern, length: pattern.length });
-      }
+    for (const pattern of unique) {
+      const entry = { pattern, member, length: pattern.length };
+      all.push(entry);
+      const bucket = bySurname.get(last) || [];
+      bucket.push(entry);
+      bySurname.set(last, bucket);
+    }
+  }
+
+  for (const bucket of bySurname.values()) {
+    bucket.sort((a, b) => b.length - a.length);
+  }
+
+  all.sort((a, b) => b.length - a.length);
+  return { bySurname, all };
+};
+
+export const findMemberInPaymentText = (text, members = [], patternIndex = null) => {
+  const norm = normalizeText(text);
+  if (!norm || norm.length < 8) return null;
+
+  const index = patternIndex || buildMemberTextPatternIndex(members);
+  const candidates = [];
+
+  for (const [surname, patterns] of index.bySurname) {
+    if (!norm.includes(surname)) continue;
+    for (const entry of patterns) {
+      if (norm.includes(entry.pattern)) candidates.push(entry);
     }
   }
 

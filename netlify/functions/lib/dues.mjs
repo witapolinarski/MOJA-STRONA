@@ -1,6 +1,6 @@
 import XLSX from "xlsx";
 import { ENTRY_FEE, LICENSE_FEE_ANNUAL, MONTHLY_FEE } from "./fees.mjs";
-import { buildRosterNameIndex, findMemberInPaymentText, matchPaymentToMember, normalizeText } from "./names.mjs";
+import { buildRosterNameIndex, buildMemberTextPatternIndex, findMemberInPaymentText, matchPaymentToMember, normalizeText } from "./names.mjs";
 
 const MONTH_HEADER =
   /^(sty|cze|lip|sie|wrz|paź|paz|lis|gru|stycze|luty|lut|marzec|mar|kwie|maj|czerw|lipiec|sierp|wrze|październik|listopad|grudzie|\d{1,2})$/i;
@@ -423,7 +423,7 @@ const indexPayments = (records) => {
   return { byPesel, unmatched };
 };
 
-const resolvePaymentMember = (record, members, lookup) => {
+const resolvePaymentMember = (record, members, lookup, textPatterns) => {
   if (record.pesel) {
     const byPesel = members.find((item) => item.pesel === record.pesel);
     if (byPesel) return byPesel;
@@ -435,7 +435,8 @@ const resolvePaymentMember = (record, members, lookup) => {
   const paymentText = [senderRaw, senderName, title].filter(Boolean).join(" ");
 
   const titleMember =
-    findMemberInPaymentText(title, members) || matchPaymentToMember(title, members, lookup);
+    findMemberInPaymentText(title, members, textPatterns) ||
+    matchPaymentToMember(title, members, lookup);
 
   const senderMember =
     matchPaymentToMember(senderName, members, lookup) ||
@@ -445,16 +446,21 @@ const resolvePaymentMember = (record, members, lookup) => {
     return titleMember;
   }
 
-  return titleMember || senderMember || findMemberInPaymentText(paymentText, members);
+  if (titleMember || senderMember) {
+    return titleMember || senderMember;
+  }
+
+  return findMemberInPaymentText(paymentText, members, textPatterns);
 };
 
 const indexPaymentsByMember = (paymentRecords = [], members = []) => {
   const lookup = buildRosterNameIndex(members);
+  const textPatterns = buildMemberTextPatternIndex(members);
   const byMemberId = new Map();
   let unmatchedCount = 0;
 
   for (const record of paymentRecords) {
-    const member = resolvePaymentMember(record, members, lookup);
+    const member = resolvePaymentMember(record, members, lookup, textPatterns);
 
     if (!member) {
       unmatchedCount += 1;
