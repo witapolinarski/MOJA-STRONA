@@ -12,10 +12,12 @@ import {
   buildHouseholdObligationSchedule,
   buildMemberObligationSchedule,
   isDuesExempt,
+  isStruckOffFromClub,
   listDueMembershipYears,
   listLicenseDueYears,
   membershipAnnualRate,
   buildExemptFromDuesList,
+  buildStruckOffFromClubList,
   summarizeMemberScheduleSlice,
   summarizeObligationSchedule,
 } from "./fees.mjs";
@@ -939,7 +941,7 @@ const buildMemberDuesRow = (member, expected, memberSlice, allocation, paymentNa
 export const reconcileDues = (members = [], paymentRecords = [], options = {}) => {
   const asOf = options.asOf instanceof Date ? options.asOf : new Date();
   const activeMembers = members.filter((member) => member.active !== false);
-  const duesMembers = activeMembers.filter((member) => !isDuesExempt(member));
+  const duesMembers = activeMembers.filter((member) => !isDuesExempt(member) && !isStruckOffFromClub(member));
   const { households, householdByMemberId } = buildHouseholdGroups(duesMembers);
   const { byMemberId, byHouseholdId, unmatchedCount } = indexPaymentsByMember(
     paymentRecords,
@@ -1044,6 +1046,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
   });
 
   const exemptFromDues = buildExemptFromDuesList(activeMembers);
+  const struckOffFromClub = buildStruckOffFromClubList(members);
   const voucherReport = buildVoucherPaymentsReport(paymentRecords, activeMembers);
 
   return {
@@ -1051,6 +1054,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
     summary: {
       activeMembers: duesMembers.length,
       exemptMembers: exemptFromDues.length,
+      struckOffMembers: struckOffFromClub.length,
       rowsInFile: paymentRecords.length,
       withArrears: arrears.length,
       paidUp: paid.length,
@@ -1068,6 +1072,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
     },
     members: allMembers,
     exemptFromDues,
+    struckOffFromClub,
     voucherReport,
     arrears,
     paid,

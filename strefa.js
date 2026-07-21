@@ -37,6 +37,7 @@ const duesDownloadButton = document.querySelector("#dues-download-button");
 const duesRefreshButton = document.querySelector("#dues-refresh-button");
 const duesTableWrap = document.querySelector("#dues-table-wrap");
 const duesExemptWrap = document.querySelector("#dues-exempt-wrap");
+const duesStruckOffWrap = document.querySelector("#dues-struckoff-wrap");
 const duesVoucherWrap = document.querySelector("#dues-voucher-wrap");
 const duesSearch = document.querySelector("#dues-search");
 const duesNote = document.querySelector("#dues-note");
@@ -77,6 +78,7 @@ let applicationsCache = [];
 let rosterCache = null;
 let duesMembers = [];
 let duesExemptMembers = [];
+let duesStruckOffMembers = [];
 let duesVoucherReport = null;
 let duesMeta = null;
 
@@ -600,6 +602,41 @@ const renderDuesExemptTable = () => {
   `;
 };
 
+const renderDuesStruckOffTable = () => {
+  if (!duesStruckOffWrap) return;
+
+  if (!duesStruckOffMembers.length) {
+    duesStruckOffWrap.innerHTML = `<p class="roster-empty">Brak wykreślonych zawodników w bieżącym zestawieniu.</p>`;
+    return;
+  }
+
+  duesStruckOffWrap.innerHTML = `
+    <table class="roster-table dues-struckoff-table">
+      <thead>
+        <tr>
+          <th>Zawodnik</th>
+          <th>Przyjęty</th>
+          <th>Wykreślenie</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${duesStruckOffMembers
+          .map(
+            (row) => `
+          <tr>
+            <td>${escapeHtml(row.displayName || "—")}</td>
+            <td>${escapeHtml(row.memberSince || "—")}</td>
+            <td>${escapeHtml(row.memberUntil || "—")}</td>
+            <td>${escapeHtml(row.reason || (row.missingFromRoster ? "Poza bieżącą bazą PZSS" : "Wykreśleni"))}</td>
+          </tr>`,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+};
+
 const renderDuesVoucherTable = () => {
   if (!duesVoucherWrap) return;
 
@@ -727,10 +764,12 @@ const applyDuesData = (data) => {
   const reconciliation = data?.reconciliation;
   duesMembers = reconciliation?.members || [];
   duesExemptMembers = reconciliation?.exemptFromDues || [];
+  duesStruckOffMembers = reconciliation?.struckOffFromClub || [];
   duesVoucherReport = reconciliation?.voucherReport || null;
   duesMeta = reconciliation;
   renderDuesFileInfo(data?.file);
   renderDuesExemptTable();
+  renderDuesStruckOffTable();
   renderDuesVoucherTable();
   renderDuesTable();
 
@@ -739,8 +778,8 @@ const applyDuesData = (data) => {
     const paymentsInfo = summary?.rowsInFile
       ? ` · ${summary.rowsInFile} wpłat z banku`
       : " · bez pliku bankowego";
-    const exemptInfo = summary?.exemptMembers
-      ? ` · zwolnieni ze składek: ${summary.exemptMembers}`
+    const struckOffInfo = summary?.struckOffMembers
+      ? ` · wykreśleni: ${summary.struckOffMembers}`
       : "";
     const voucherInfo = summary?.voucherPayments
       ? ` · bony: ${summary.voucherPayments} wpłat (${formatMoney(summary.voucherTotalPln || 0)})`
@@ -748,7 +787,10 @@ const applyDuesData = (data) => {
     const rosterInfo = data?.rosterUpdatedAt
       ? ` · baza PZSS: ${formatDate(data.rosterUpdatedAt)} (${data.rosterMemberCount || summary?.activeMembers || duesMembers.length} aktywnych)`
       : "";
-    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${exemptInfo}${voucherInfo}${rosterInfo}${paymentsInfo}`;
+    const exemptInfo = summary?.exemptMembers
+      ? ` · zwolnieni ze składek: ${summary.exemptMembers}`
+      : "";
+    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${exemptInfo}${struckOffInfo}${voucherInfo}${rosterInfo}${paymentsInfo}`;
   }
 };
 

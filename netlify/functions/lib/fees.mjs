@@ -1,3 +1,4 @@
+import { normalizeText } from "./names.mjs";
 import { parseLicenseValidYear } from "./license-data.mjs";
 
 export const ENTRY_FEE = 350;
@@ -15,6 +16,28 @@ export const DUES_EXEMPT_MEMBERS = [
 ];
 
 export const DUES_EXEMPT_PESELS = new Set(DUES_EXEMPT_MEMBERS.map((item) => item.pesel));
+
+export const STRUCK_OFF_CLUB_MEMBERS = [
+  { lastName: "DOSKOCZ", firstName: "Krzysztof", label: "DOSKOCZ Krzysztof" },
+  { lastName: "JARKA-DOSKOCZ", firstName: "Elżbieta", label: "JARKA-DOSKOCZ Elżbieta" },
+];
+
+const matchesStruckOffEntry = (member, item) => {
+  const last = normalizeText(member?.lastName);
+  const first = normalizeText(member?.firstName || "").split(" ")[0];
+  const itemLast = normalizeText(item.lastName);
+  const itemFirst = normalizeText(item.firstName || "").split(" ")[0];
+  if (last === itemLast && first === itemFirst) return true;
+  if (itemLast === "jarka-doskocz" && last === "doskocz" && first === itemFirst) return true;
+  return false;
+};
+
+export const isInactiveInPzss = (member) => member?.active === false || Boolean(member?.memberUntil);
+
+export const isStruckOffByClubDecision = (member) =>
+  STRUCK_OFF_CLUB_MEMBERS.some((item) => matchesStruckOffEntry(member, item));
+
+export const isStruckOffFromClub = (member) => isInactiveInPzss(member) || isStruckOffByClubDecision(member);
 
 export const isDuesExempt = (member) => {
   const pesel = String(member?.pesel || "").replace(/\D/g, "");
@@ -47,6 +70,54 @@ export const buildExemptFromDuesList = (members = []) => {
       missingFromRoster: false,
     };
   });
+};
+
+export const buildStruckOffFromClubList = (members = []) => {
+  const active = (members || []).filter((member) => isStruckOffFromClub(member));
+  const byKey = new Map(
+    active.map((member) => [
+      `${normalizeText(member.lastName)}|${normalizeText(member.firstName).split(" ")[0]}`,
+      member,
+    ]),
+  );
+
+  const rows = STRUCK_OFF_CLUB_MEMBERS.map((item) => {
+    const member = [...byKey.values()].find((entry) => matchesStruckOffEntry(entry, item));
+    if (!member) {
+      return {
+        displayName: item.label,
+        memberSince: "",
+        memberUntil: "",
+        reason: "Wykreśleni z PZSS (brak płatności)",
+        missingFromRoster: true,
+      };
+    }
+
+    return {
+      id: member.id,
+      displayName: member.displayName || member.fullName || item.label,
+      pesel: member.pesel || "",
+      memberSince: member.memberSince || "",
+      memberUntil: member.memberUntil || "",
+      reason: isInactiveInPzss(member) ? "Wykreśleni w eksporcie PZSS" : "Wykreśleni z PZSS (brak płatności)",
+      missingFromRoster: false,
+    };
+  });
+
+  for (const member of active) {
+    if (STRUCK_OFF_CLUB_MEMBERS.some((item) => matchesStruckOffEntry(member, item))) continue;
+    rows.push({
+      id: member.id,
+      displayName: member.displayName || member.fullName,
+      pesel: member.pesel || "",
+      memberSince: member.memberSince || "",
+      memberUntil: member.memberUntil || "",
+      reason: "Wykreśleni w eksporcie PZSS",
+      missingFromRoster: false,
+    });
+  }
+
+  return rows;
 };
 
 const parseMemberSince = (memberSince) => {
