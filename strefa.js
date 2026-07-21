@@ -42,6 +42,8 @@ const duesRefreshButton = document.querySelector("#dues-refresh-button");
 const duesUploadNote = document.querySelector("#dues-upload-note");
 const duesSummaryGrid = document.querySelector("#dues-summary-grid");
 const duesArrearsWrap = document.querySelector("#dues-arrears-wrap");
+const duesSearch = document.querySelector("#dues-search");
+const duesFilterButtons = document.querySelectorAll("[data-dues-filter]");
 const licenseFileInfo = document.querySelector("#license-file-info");
 const licenseFileInput = document.querySelector("#license-file-input");
 const licensePickButton = document.querySelector("#license-pick-button");
@@ -77,6 +79,8 @@ const honorificLabels = {
 let currentMember = null;
 let applicationsCache = [];
 let rosterCache = null;
+let duesCache = null;
+let duesFilter = "all";
 
 const isLocalPreview =
   window.location.protocol === "file:" ||
@@ -542,6 +546,22 @@ const renderLicenseSummary = (summary) => {
   `;
 };
 
+const duesStatusLabels = {
+  paid: "Rozliczony",
+  arrears: "Zaległość",
+  no_payment: "Brak wpłaty",
+  unknown: "Brak daty przyjęcia",
+  overpaid: "Nadpłata",
+};
+
+const duesStatusClass = {
+  paid: "dues-status--paid",
+  arrears: "dues-status--arrears",
+  no_payment: "dues-status--missing",
+  unknown: "dues-status--unknown",
+  overpaid: "dues-status--overpaid",
+};
+
 const renderDuesFileInfo = (file) => {
   if (!duesFileInfo) return;
 
@@ -557,41 +577,106 @@ const renderDuesFileInfo = (file) => {
   duesDownloadButton?.classList.remove("hidden");
 };
 
+const filterDuesRows = (rows = []) => {
+  const query = duesSearch?.value.trim().toLowerCase() || "";
+  return rows.filter((row) => {
+    if (duesFilter !== "all" && row.status !== duesFilter) return false;
+    if (!query) return true;
+    const haystack = [row.displayName, row.pesel, row.memberSince, row.paymentName]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(query);
+  });
+};
+
+const renderDuesTable = (rows, reconciliation, parseNotes = []) => {
+  if (!duesArrearsWrap) return;
+
+  const notes = (parseNotes || []).filter(Boolean);
+  const filtered = filterDuesRows(rows);
+  const totalMembers = reconciliation?.membersTotal ?? rows.length;
+
+  if (!rows.length) {
+    duesArrearsWrap.innerHTML = `
+      ${notes.length ? `<p class="roster-hint">${notes.map((note) => escapeHtml(note)).join(" ")}</p>` : ""}
+      <p class="roster-empty">Brak danych zawodników do zestawienia.</p>
+    `;
+    return;
+  }
+
+  if (!filtered.length) {
+    duesArrearsWrap.innerHTML = `
+      <p class="roster-empty">Brak wyników dla wybranego filtra lub wyszukiwania.</p>
+    `;
+    return;
+  }
+
+  duesArrearsWrap.innerHTML = `
+    ${notes.length ? `<p class="roster-hint">${notes.map((note) => escapeHtml(note)).join(" ")}</p>` : ""}
+    <table class="roster-table">
+      <thead>
+        <tr>
+          <th>Zawodnik</th>
+          <th>PESEL</th>
+          <th>Przyjęty</th>
+          <th>Miesiące</th>
+          <th>Należność</th>
+          <th>Wpłacono</th>
+          <th>Saldo</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered
+          .map(
+            (row) => `
+          <tr>
+            <td>${escapeHtml(row.displayName || "—")}</td>
+            <td>${escapeHtml(row.pesel || "—")}</td>
+            <td>${escapeHtml(row.memberSince || "—")}</td>
+            <td>${row.expected?.unknown ? "—" : row.expected?.months ?? "—"}</td>
+            <td>${row.expected?.unknown ? "—" : formatMoney(row.expected?.total || 0)}</td>
+            <td>${formatMoney(row.paidAmount || 0)}</td>
+            <td><strong>${row.expected?.unknown ? "—" : formatMoney(row.balance || 0)}</strong></td>
+            <td><span class="dues-status ${duesStatusClass[row.status] || ""}">${escapeHtml(duesStatusLabels[row.status] || row.status || "—")}</span></td>
+          </tr>`,
+          )
+          .join("")}
+      </tbody>
+    </table>
+    <p class="roster-hint">
+      Pokazano ${filtered.length} z ${totalMembers} zawodników.
+      Należność = wpisowe 350 zł + miesiące × 30 zł od daty przyjęcia do dnia ${escapeHtml(reconciliation?.asOf || "—")}.
+    </p>
+  `;
+};
+
 const renderDuesSummary = (reconciliation, parseNotes = []) => {
+  duesCache = reconciliation;
+
   if (!reconciliation) {
-    if (duesSummary) duesSummary.textContent = "Wgraj plik rozliczeń, aby sprawdzić zaległości składek.";
+    if (duesSummary) duesSummary.textContent = "Wgraj plik rozliczeń, aby sprawdzić stan składek zawodników.";
     if (duesSummaryGrid) duesSummaryGrid.innerHTML = `<p class="roster-empty">Brak danych do analizy.</p>`;
     if (duesArrearsWrap) duesArrearsWrap.replaceChildren();
     return;
   }
 
-  const { summary, year, throughMonth } = reconciliation;
-  const monthNames = [
-    "stycznia",
-    "lutego",
-    "marca",
-    "kwietnia",
-    "maja",
-    "czerwca",
-    "lipca",
-    "sierpnia",
-    "września",
-    "października",
-    "listopada",
-    "grudnia",
-  ];
+  const { summary } = reconciliation;
 
   if (duesSummary) {
-    duesSummary.textContent = `Analiza za ${year} r. (do końca ${monthNames[throughMonth - 1]}) · ${summary.activeMembers} aktywnych zawodników · ${summary.rowsInFile} wierszy w pliku`;
+    duesSummary.textContent = `Stan składek na dzień ${reconciliation.asOf || "—"} · ${summary.activeMembers} aktywnych zawodników · ${summary.rowsInFile} wpłat w pliku`;
   }
 
   if (duesSummaryGrid) {
     const cards = [
       ["Zaległości", summary.withArrears],
       ["Rozliczeni", summary.paidUp],
-      ["Brak w pliku", summary.missingFromFile],
+      ["Brak wpłaty w pliku", summary.missingFromFile],
       ["Suma zaległości", formatMoney(summary.totalArrearsPln)],
-      ["Wpłaty bez PESEL w bazie", summary.extraPayments],
+      ["Należność łącznie", formatMoney(summary.totalExpectedPln)],
+      ["Wpłacono łącznie", formatMoney(summary.totalPaidPln)],
+      ["Wpłaty bez dopasowania", summary.extraPayments],
       ["Brak daty przyjęcia", summary.unknownExpectation],
     ];
 
@@ -607,51 +692,7 @@ const renderDuesSummary = (reconciliation, parseNotes = []) => {
       .join("");
   }
 
-  if (!duesArrearsWrap) return;
-
-  const notes = (parseNotes || []).filter(Boolean);
-  const rows = reconciliation.arrears || [];
-  const totalArrears = reconciliation.arrearsTotal ?? rows.length;
-
-  if (!rows.length) {
-    duesArrearsWrap.innerHTML = `
-      ${notes.length ? `<p class="roster-hint">${notes.map((note) => escapeHtml(note)).join(" ")}</p>` : ""}
-      <p class="roster-empty">Brak zaległości składek względem wgranego pliku.</p>
-    `;
-    return;
-  }
-
-  duesArrearsWrap.innerHTML = `
-    ${notes.length ? `<p class="roster-hint">${notes.map((note) => escapeHtml(note)).join(" ")}</p>` : ""}
-    <table class="roster-table">
-      <thead>
-        <tr>
-          <th>Zawodnik</th>
-          <th>PESEL</th>
-          <th>Przyjęty</th>
-          <th>Należność</th>
-          <th>Wpłacono</th>
-          <th>Zaległość</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows
-          .map(
-            (row) => `
-          <tr>
-            <td>${escapeHtml(row.displayName || "—")}</td>
-            <td>${escapeHtml(row.pesel || "—")}</td>
-            <td>${escapeHtml(row.memberSince || "—")}</td>
-            <td>${formatMoney(row.expected?.total || 0)}</td>
-            <td>${formatMoney(row.paidAmount || 0)}</td>
-            <td><strong>${formatMoney(row.balance || 0)}</strong></td>
-          </tr>`,
-          )
-          .join("")}
-      </tbody>
-    </table>
-    <p class="roster-hint">Należność = wpisowe 350 zł (jeśli przyjęcie w ${year}) + miesiące × 30 zł. Pokazano ${rows.length}${totalArrears > rows.length ? ` z ${totalArrears}` : ""} osób z zaległością.</p>
-  `;
+  renderDuesTable(reconciliation.members || [], reconciliation, parseNotes);
 };
 
 const loadDues = async () => {
@@ -811,6 +852,18 @@ rosterImportButton?.addEventListener("click", async () => {
 });
 
 duesRefreshButton?.addEventListener("click", () => loadDues());
+
+duesSearch?.addEventListener("input", () => {
+  if (duesCache) renderDuesTable(duesCache.members || [], duesCache);
+});
+
+duesFilterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    duesFilter = button.dataset.duesFilter || "all";
+    duesFilterButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+    if (duesCache) renderDuesTable(duesCache.members || [], duesCache);
+  });
+});
 
 duesDownloadButton?.addEventListener("click", async () => {
   try {

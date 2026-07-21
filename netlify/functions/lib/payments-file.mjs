@@ -4,8 +4,10 @@ export const PAYMENTS_META_KEY = "meta:club-payments";
 export const PAYMENTS_FILE_KEY = "club/payments-register";
 export const PAYMENTS_ANALYSIS_KEY = "meta:club-payments-analysis";
 
+const ANALYSIS_VERSION = 2;
+
 const analysisStamp = (meta = {}) =>
-  `${meta.uploadedAt || ""}:${meta.size || 0}:${meta.fileName || ""}`;
+  `v${ANALYSIS_VERSION}:${meta.uploadedAt || ""}:${meta.size || 0}:${meta.fileName || ""}`;
 
 export const clearPaymentsAnalysis = async () => {
   const store = getApplicationsStore();

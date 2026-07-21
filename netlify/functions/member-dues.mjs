@@ -15,8 +15,11 @@ const trimReconciliation = (reconciliation) => {
   if (!reconciliation) return null;
 
   const arrears = reconciliation.arrears || [];
+  const members = reconciliation.members || [];
   return {
     ...reconciliation,
+    members,
+    membersTotal: members.length,
     arrears: arrears.slice(0, 400),
     arrearsTotal: arrears.length,
   };

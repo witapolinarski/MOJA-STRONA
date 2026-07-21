@@ -192,6 +192,38 @@ export const countDueMonths = (memberSince, year, throughMonth) => {
   return throughMonth - startMonth + 1;
 };
 
+export const countLifetimeDueMonths = (memberSince, asOf = new Date()) => {
+  const since = memberSince ? new Date(`${String(memberSince).slice(0, 10)}T12:00:00`) : null;
+  if (!since || Number.isNaN(since.getTime())) return null;
+
+  let year = since.getFullYear();
+  let month = since.getMonth() + 2;
+  if (month > 12) {
+    month = 1;
+    year += 1;
+  }
+
+  const endYear = asOf.getFullYear();
+  const endMonth = asOf.getMonth() + 1;
+
+  if (year > endYear || (year === endYear && month > endMonth)) return 0;
+
+  let count = 0;
+  let currentYear = year;
+  let currentMonth = month;
+
+  while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
+    count += 1;
+    currentMonth += 1;
+    if (currentMonth > 12) {
+      currentMonth = 1;
+      currentYear += 1;
+    }
+  }
+
+  return count;
+};
+
 export const calculateExpectedDues = (member, options = {}) => {
   const year = Number(options.year) || new Date().getFullYear();
   const throughMonth = Number(options.throughMonth) || new Date().getMonth() + 1;
@@ -217,6 +249,37 @@ export const calculateExpectedDues = (member, options = {}) => {
   return {
     year,
     throughMonth,
+    months,
+    entryFee,
+    monthlyTotal,
+    total: entryFee + monthlyTotal,
+    unknown: false,
+  };
+};
+
+export const calculateLifetimeExpectedDues = (member, options = {}) => {
+  const asOf = options.asOf instanceof Date ? options.asOf : new Date();
+  const since = member.memberSince ? String(member.memberSince).slice(0, 10) : null;
+  const months = countLifetimeDueMonths(since, asOf);
+
+  if (months == null) {
+    return {
+      asOf: asOf.toISOString().slice(0, 10),
+      memberSince: since,
+      months: null,
+      entryFee: 0,
+      monthlyTotal: 0,
+      total: 0,
+      unknown: true,
+    };
+  }
+
+  const entryFee = ENTRY_FEE;
+  const monthlyTotal = months * MONTHLY_FEE;
+
+  return {
+    asOf: asOf.toISOString().slice(0, 10),
+    memberSince: since,
     months,
     entryFee,
     monthlyTotal,
@@ -299,8 +362,7 @@ const indexPaymentsByMember = (paymentRecords = [], members = []) => {
 };
 
 export const reconcileDues = (members = [], paymentRecords = [], options = {}) => {
-  const year = Number(options.year) || new Date().getFullYear();
-  const throughMonth = Number(options.throughMonth) || new Date().getMonth() + 1;
+  const asOf = options.asOf instanceof Date ? options.asOf : new Date();
   const activeMembers = members.filter((member) => member.active !== false);
   const { byMemberId, unmatchedCount } = indexPaymentsByMember(paymentRecords, activeMembers);
 
@@ -308,12 +370,18 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
   const paid = [];
   const missingFromFile = [];
   const unknownExpectation = [];
+  const allMembers = [];
 
   for (const member of activeMembers) {
-    const expected = calculateExpectedDues(member, { year, throughMonth });
+    const expected = calculateLifetimeExpectedDues(member, { asOf });
     const payment = byMemberId.get(member.id);
     const paidAmount = payment?.amount || 0;
     const balance = (expected.total || 0) - paidAmount;
+
+    let status = "paid";
+    if (expected.unknown) status = "unknown";
+    else if (balance > 0.5) status = payment ? "arrears" : "no_payment";
+    else if (balance < -0.5) status = "overpaid";
 
     const row = {
       id: member.id,
@@ -323,8 +391,11 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
       expected,
       paidAmount,
       balance,
+      status,
       paymentName: payment ? [...payment.names].join(" · ") : null,
     };
+
+    allMembers.push(row);
 
     if (expected.unknown) {
       unknownExpectation.push(row);
@@ -342,10 +413,15 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
   }
 
   arrears.sort((a, b) => b.balance - a.balance);
+  allMembers.sort((a, b) => {
+    const statusOrder = { arrears: 0, no_payment: 1, unknown: 2, overpaid: 3, paid: 4 };
+    const byStatus = (statusOrder[a.status] ?? 5) - (statusOrder[b.status] ?? 5);
+    if (byStatus !== 0) return byStatus;
+    return b.balance - a.balance;
+  });
 
   return {
-    year,
-    throughMonth,
+    asOf: asOf.toISOString().slice(0, 10),
     summary: {
       activeMembers: activeMembers.length,
       rowsInFile: paymentRecords.length,
@@ -355,7 +431,12 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
       unknownExpectation: unknownExpectation.length,
       extraPayments: unmatchedCount,
       totalArrearsPln: Math.round(arrears.reduce((sum, row) => sum + row.balance, 0) * 100) / 100,
+      totalExpectedPln: Math.round(
+        allMembers.reduce((sum, row) => sum + (row.expected?.total || 0), 0) * 100,
+      ) / 100,
+      totalPaidPln: Math.round(allMembers.reduce((sum, row) => sum + row.paidAmount, 0) * 100) / 100,
     },
+    members: allMembers,
     arrears,
     paid,
     missingFromFile,

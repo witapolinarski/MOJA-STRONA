@@ -221,8 +221,8 @@
           <div class="strefa-roster-intro">
             <p>
               Wgraj bieżący plik rozliczeń składek (Excel lub CSV). System porówna wpłaty z bazą
-              zawodników PZSS i wyliczy zaległości według zasad klubu: wpisowe 350 zł przy przyjęciu
-              oraz 30 zł za każdy miesiąc składki (od miesiąca następującego po przyjęciu).
+              zawodników PZSS i wyliczy stan składek każdego zawodnika od daty przyjęcia:
+              wpisowe 350 zł oraz 30 zł za każdy miesiąc składki (od miesiąca następującego po przyjęciu).
             </p>
             <p id="dues-summary" class="roster-summary" role="status"></p>
           </div>
@@ -263,7 +263,24 @@
           </section>
 
           <section class="roster-panel">
-            <h3>Zaległości składek</h3>
+            <h3>Zestawienie składek zawodników</h3>
+            <p class="roster-hint">
+              Pełna lista aktywnych zawodników z bazy PZSS. Należność liczona od daty przyjęcia:
+              wpisowe 350 zł + 30 zł za każdy miesiąc składki (od miesiąca następującego po przyjęciu).
+            </p>
+            <div class="dues-filters">
+              <label class="roster-search-label">
+                Szukaj zawodnika
+                <input type="search" id="dues-search" placeholder="np. Kowalski">
+              </label>
+              <div class="dues-filter-buttons" role="group" aria-label="Filtr statusu składek">
+                <button type="button" class="button secondary is-active" data-dues-filter="all">Wszyscy</button>
+                <button type="button" class="button secondary" data-dues-filter="arrears">Zaległości</button>
+                <button type="button" class="button secondary" data-dues-filter="no_payment">Brak wpłaty</button>
+                <button type="button" class="button secondary" data-dues-filter="paid">Rozliczeni</button>
+                <button type="button" class="button secondary" data-dues-filter="unknown">Brak daty przyjęcia</button>
+              </div>
+            </div>
             <div id="dues-summary-grid" class="license-summary-grid" role="status"></div>
             <div id="dues-arrears-wrap" class="roster-table-wrap"></div>
           </section>
@@ -271,6 +288,6 @@
       </section>
     </div>
 
-    <script src="strefa.js?v=11" type="module"></script>
+    <script src="strefa.js?v=12" type="module"></script>
   </body>
 </html>
