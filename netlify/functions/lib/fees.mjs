@@ -126,6 +126,19 @@ export const membershipAnnualRate = (year, referenceDate = new Date()) => {
   return refMonth === 1 ? ANNUAL_FEE_EARLY : ANNUAL_FEE_LATE;
 };
 
+export const membershipAnnualRateForPayment = (targetYear, paymentDate = new Date()) => {
+  const ref = paymentDate instanceof Date ? paymentDate : new Date(paymentDate);
+  if (Number.isNaN(ref.getTime())) return membershipAnnualRate(targetYear, paymentDate);
+
+  const refYear = ref.getFullYear();
+  const refMonth = ref.getMonth() + 1;
+
+  if (targetYear === refYear + 1 && refMonth === 12) return ANNUAL_FEE_EARLY;
+  if (targetYear > refYear) return ANNUAL_FEE_EARLY;
+  if (targetYear < refYear) return ANNUAL_FEE_LATE;
+  return refMonth === 1 ? ANNUAL_FEE_EARLY : ANNUAL_FEE_LATE;
+};
+
 export const annualMembershipFee = (year, asOf = new Date()) => membershipAnnualRate(year, asOf);
 
 export const annualMembershipFeeForMemberYear = (memberSince, year, asOf = new Date()) => {

@@ -15,6 +15,7 @@ import {
   listDueMembershipYears,
   listLicenseDueYears,
   membershipAnnualRate,
+  membershipAnnualRateForPayment,
   buildExemptFromDuesList,
   buildStruckOffFromClubList,
   summarizeMemberScheduleSlice,
@@ -332,7 +333,12 @@ export const classifyPaymentPurpose = (record) => {
   }
   if (isVoucherPayment(record)) return "voucher";
   if (/wpisow/.test(title)) return "entry";
-  if (/licencj/.test(title) && !/(skladk|składk|czlonkostw|członkostw)/.test(title)) return "license";
+  if (
+    (/licencj/.test(title) && !/(skladk|składk|czlonkostw|członkostw)/.test(title)) ||
+    /\bpzss\b/.test(title)
+  ) {
+    return "license";
+  }
   if (
     /skladk|składk|czlonkostw|członkostw|membership|sagittarius|oplata za czlonk|opłata za członk|czlonkowsk/.test(
       title,
@@ -461,22 +467,141 @@ export const splitPaymentAmounts = (record, options = {}) => {
   return buckets;
 };
 
-const lockMembershipSlotAmount = (slot, paymentDate) => {
+const lockMembershipSlotAmount = (slot, paymentDate, options = {}) => {
   if (slot.type !== "membership" || slot.joinYear) return;
-  if (slot.rateLocked && slot.amount > 0) return;
+  if (slot.rateLocked && slot.amount > 0 && !options.force) return;
 
   const referenceDate = paymentDate instanceof Date ? paymentDate : new Date(paymentDate || Date.now());
   if (Number.isNaN(referenceDate.getTime())) return;
 
   const paymentYear = referenceDate.getFullYear();
-  if (paymentYear < slot.year) return;
+  const amount =
+    options.targetYear === slot.year
+      ? membershipAnnualRateForPayment(slot.year, referenceDate)
+      : paymentYear < slot.year
+        ? 0
+        : membershipAnnualRate(slot.year, referenceDate);
 
-  const amount = membershipAnnualRate(slot.year, referenceDate);
   if (amount <= 0) return;
 
   slot.amount = amount;
   slot.balance = Math.max(0, amount - (slot.paid || 0));
   slot.rateLocked = true;
+};
+
+const parseMembershipYearFromTitle = (title) => {
+  const norm = normalizeText(title);
+  const match =
+    norm.match(/skladk(?:a|i|e)?\s+za\s+(\d{4})/) ||
+    norm.match(/skladk(?:a|i|e)?\s+(\d{4})/) ||
+    norm.match(/(?:oplat[ao]|oplata)\s+za\s+(\d{4})/);
+  return match ? Number(match[1]) : null;
+};
+
+const parseMembershipThroughYear = (title) => {
+  const norm = normalizeText(title);
+  const match = norm.match(/skladk(?:a|i|e)?.*?\bdo\s*(\d{4})/);
+  return match ? Number(match[1]) : null;
+};
+
+const applyAmountToSlot = (slot, amount, counters) => {
+  if (!slot || amount <= 0 || slot.balance <= 0) return amount;
+
+  const applied = Math.min(amount, slot.balance);
+  slot.paid += applied;
+  slot.balance -= applied;
+
+  if (slot.type === "entry") counters.paidEntry += applied;
+  else if (slot.type === "membership") counters.paidMonthly += applied;
+  else if (slot.type === "license") counters.paidLicense += applied;
+
+  return amount - applied;
+};
+
+const applyPaymentToMembershipYear = (schedule, year, amount, paymentDate, counters) => {
+  const slot = schedule.find((item) => item.type === "membership" && item.year === year);
+  if (!slot) return amount;
+
+  lockMembershipSlotAmount(slot, paymentDate, { targetYear: year, force: true });
+  return applyAmountToSlot(slot, amount, counters);
+};
+
+const applyPaymentThroughMembershipYear = (schedule, throughYear, amount, paymentDate, counters) => {
+  let remaining = amount;
+
+  for (const slot of schedule) {
+    if (remaining <= 0) break;
+    if (slot.type !== "membership") continue;
+    if (slot.year != null && slot.year > throughYear) break;
+
+    lockMembershipSlotAmount(slot, paymentDate, {
+      targetYear: slot.year ?? undefined,
+      force: slot.year != null,
+    });
+    remaining = applyAmountToSlot(slot, remaining, counters);
+  }
+
+  return remaining;
+};
+
+const applyPaymentToLicenses = (schedule, amount, counters) => {
+  let remaining = amount;
+
+  for (const slot of schedule) {
+    if (remaining <= 0) break;
+    if (slot.type !== "license") continue;
+    remaining = applyAmountToSlot(slot, remaining, counters);
+  }
+
+  return remaining;
+};
+
+const applyPaymentChronologically = (schedule, amount, paymentDate, counters) => {
+  let remaining = amount;
+
+  for (const slot of schedule) {
+    if (remaining <= 0) break;
+
+    lockMembershipSlotAmount(slot, paymentDate);
+    remaining = applyAmountToSlot(slot, remaining, counters);
+  }
+
+  return remaining;
+};
+
+const allocateSinglePayment = (schedule, record, counters) => {
+  let amount = record.amount || 0;
+  const insurance = insuranceDeduction(record.title, amount);
+  if (insurance > 0) {
+    counters.excluded += insurance;
+    amount -= insurance;
+  }
+  if (!amount) return;
+
+  counters.totalPaid += amount;
+
+  const purpose = classifyPaymentPurpose(record);
+  const membershipYear = parseMembershipYearFromTitle(record.title);
+  const throughYear = parseMembershipThroughYear(record.title);
+  let remaining = amount;
+
+  if (membershipYear) {
+    remaining = applyPaymentToMembershipYear(schedule, membershipYear, remaining, record.date, counters);
+  } else if (throughYear) {
+    remaining = applyPaymentThroughMembershipYear(schedule, throughYear, remaining, record.date, counters);
+  } else if (purpose === "license") {
+    remaining = applyPaymentToLicenses(schedule, remaining, counters);
+  } else if (purpose === "entry") {
+    const entrySlot = schedule.find((item) => item.type === "entry");
+    remaining = applyAmountToSlot(entrySlot, remaining, counters);
+    remaining = applyPaymentChronologically(schedule, remaining, record.date, counters);
+  } else if (purpose === "membership") {
+    remaining = applyPaymentChronologically(schedule, remaining, record.date, counters);
+  } else {
+    remaining = applyPaymentChronologically(schedule, remaining, record.date, counters);
+  }
+
+  counters.overpaid += remaining;
 };
 
 const finalizeMembershipSlotAmounts = (schedule = [], asOf = new Date()) => {
@@ -506,51 +631,24 @@ export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = []
     rateLocked: item.joinYear === true,
   }));
 
-  let paidEntry = 0;
-  let paidLicense = 0;
-  let paidMonthly = 0;
-  let excluded = 0;
-  let overpaid = 0;
-  let totalPaid = 0;
+  const counters = {
+    paidEntry: 0,
+    paidLicense: 0,
+    paidMonthly: 0,
+    excluded: 0,
+    overpaid: 0,
+    totalPaid: 0,
+  };
 
   const sorted = [...paymentRecords].sort(comparePaymentDates);
 
   for (const record of sorted) {
     if (classifyPaymentPurpose(record) === "exclude" || classifyPaymentPurpose(record) === "voucher") {
-      excluded += record.amount || 0;
+      counters.excluded += record.amount || 0;
       continue;
     }
 
-    let amount = record.amount || 0;
-    const insurance = insuranceDeduction(record.title, amount);
-    if (insurance > 0) {
-      excluded += insurance;
-      amount -= insurance;
-    }
-
-    if (!amount) continue;
-
-    totalPaid += amount;
-
-    let remaining = amount;
-    for (const slot of schedule) {
-      if (remaining <= 0) break;
-
-      lockMembershipSlotAmount(slot, record.date);
-
-      if (slot.balance <= 0) continue;
-
-      const applied = Math.min(remaining, slot.balance);
-      slot.paid += applied;
-      slot.balance -= applied;
-      remaining -= applied;
-
-      if (slot.type === "entry") paidEntry += applied;
-      else if (slot.type === "membership") paidMonthly += applied;
-      else if (slot.type === "license") paidLicense += applied;
-    }
-
-    overpaid += remaining;
+    allocateSinglePayment(schedule, record, counters);
   }
 
   finalizeMembershipSlotAmounts(schedule, asOf);
@@ -566,15 +664,15 @@ export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = []
     .reduce((sum, item) => sum + (item.amount || 0), 0);
 
   return {
-    paidEntry,
-    paidLicense,
-    paidMonthly,
-    balanceEntry: Math.max(0, expectedEntry - paidEntry),
-    balanceLicense: Math.max(0, expectedLicense - paidLicense),
-    balanceMonthly: Math.max(0, expectedMonthly - paidMonthly),
-    overpaid,
-    excluded,
-    totalPaid,
+    paidEntry: counters.paidEntry,
+    paidLicense: counters.paidLicense,
+    paidMonthly: counters.paidMonthly,
+    balanceEntry: Math.max(0, expectedEntry - counters.paidEntry),
+    balanceLicense: Math.max(0, expectedLicense - counters.paidLicense),
+    balanceMonthly: Math.max(0, expectedMonthly - counters.paidMonthly),
+    overpaid: counters.overpaid,
+    excluded: counters.excluded,
+    totalPaid: counters.totalPaid,
     schedule,
   };
 };
