@@ -9,13 +9,25 @@ import {
   MONTHLY_FEE,
   annualMembershipFee,
   annualMembershipFeeForMemberYear,
+  buildHouseholdObligationSchedule,
   buildMemberObligationSchedule,
   isDuesExempt,
   listDueMembershipYears,
+  listLicenseDueYears,
+  membershipAnnualRate,
   buildExemptFromDuesList,
+  summarizeMemberScheduleSlice,
   summarizeObligationSchedule,
 } from "./fees.mjs";
-import { buildRosterNameIndex, buildMemberTextPatternIndex, findMemberInPaymentText, matchPaymentToMember, normalizeText } from "./names.mjs";
+import { buildHouseholdGroups } from "./households.mjs";
+import {
+  buildRosterNameIndex,
+  buildMemberTextPatternIndex,
+  findAllMembersInPaymentText,
+  findMemberInPaymentText,
+  matchPaymentToMember,
+  normalizeText,
+} from "./names.mjs";
 
 const MONTH_HEADER =
   /^(sty|cze|lip|sie|wrz|paź|paz|lis|gru|stycze|luty|lut|marzec|mar|kwie|maj|czerw|lipiec|sierp|wrze|październik|listopad|grudzie|\d{1,2})$/i;
@@ -303,38 +315,7 @@ export const countLifetimeDueMonths = (memberSince, asOf = new Date()) => {
   return count;
 };
 
-export const countLicenseYearsDue = (member, asOf = new Date()) => {
-  const since = member.memberSince ? String(member.memberSince).slice(0, 10) : null;
-  if (!since) return 0;
-
-  const joinYear = Number(since.slice(0, 4));
-  const asOfYear = asOf.getFullYear();
-  if (!joinYear || joinYear > asOfYear) return 0;
-
-  const hasLicenseData =
-    member.licenseActive === true ||
-    member.licenseActive === false ||
-    member.licenseStatus ||
-    member.licenseValidYear ||
-    member.licenseLastValidYear;
-
-  if (!hasLicenseData) return 0;
-
-  const dueYears = listDueMembershipYears(since, asOf) || [];
-  if (!dueYears.length) return 0;
-
-  if (member.licenseActive === true) {
-    return dueYears.length;
-  }
-
-  if (member.licenseActive === false) {
-    const lastValid = Number(member.licenseLastValidYear) || joinYear;
-    const lastValidIndex = dueYears.filter((year) => year <= lastValid).length;
-    return Math.max(lastValidIndex, 1);
-  }
-
-  return dueYears.length;
-};
+export const countLicenseYearsDue = (member, asOf = new Date()) => listLicenseDueYears(member, asOf).length;
 
 export const classifyPaymentPurpose = (record) => {
   const title = normalizeText(record.title || "");
@@ -363,6 +344,12 @@ export const classifyPaymentPurpose = (record) => {
 const insuranceDeduction = (title, amount) => {
   const normalized = normalizeText(title);
   if (amount === ENTRY_STANDARD_PAYMENT && /wpisow/.test(normalized)) return ENTRY_INSURANCE;
+  if (/wpisow/.test(normalized) && amount >= ENTRY_STANDARD_PAYMENT) {
+    const bundles = Math.round(amount / ENTRY_STANDARD_PAYMENT);
+    if (bundles > 0 && Math.abs(amount - bundles * ENTRY_STANDARD_PAYMENT) < 0.01) {
+      return bundles * ENTRY_INSURANCE;
+    }
+  }
   if (!/ubezp|ubezpieczen/.test(normalized)) return 0;
 
   const explicit = normalized.match(/(\d+)\s*zl?\s*ubezp|ubezp[^0-9]*(\d+)/);
@@ -471,11 +458,22 @@ export const splitPaymentAmounts = (record, options = {}) => {
   return buckets;
 };
 
+const lockMembershipSlotAmount = (slot, paymentDate) => {
+  if (slot.type !== "membership" || slot.joinYear) return;
+  if (slot.rateLocked) return;
+
+  const amount = membershipAnnualRate(slot.year, paymentDate || new Date());
+  slot.amount = amount;
+  slot.balance = Math.max(0, amount - (slot.paid || 0));
+  slot.rateLocked = true;
+};
+
 export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = []) => {
   const schedule = (obligations || []).map((item) => ({
     ...item,
     paid: 0,
     balance: item.amount,
+    rateLocked: item.joinYear === true,
   }));
 
   let paidEntry = 0;
@@ -507,6 +505,9 @@ export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = []
     let remaining = amount;
     for (const slot of schedule) {
       if (remaining <= 0) break;
+
+      lockMembershipSlotAmount(slot, record.date);
+
       if (slot.balance <= 0) continue;
 
       const applied = Math.min(remaining, slot.balance);
@@ -522,15 +523,20 @@ export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = []
     overpaid += remaining;
   }
 
+  for (const slot of schedule) {
+    if (slot.type !== "membership" || slot.joinYear || slot.rateLocked) continue;
+    lockMembershipSlotAmount(slot, new Date());
+  }
+
   const expectedEntry = schedule
     .filter((item) => item.type === "entry")
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + (item.amount || 0), 0);
   const expectedMonthly = schedule
     .filter((item) => item.type === "membership")
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + (item.amount || 0), 0);
   const expectedLicense = schedule
     .filter((item) => item.type === "license")
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + (item.amount || 0), 0);
 
   return {
     paidEntry,
@@ -737,83 +743,248 @@ const comparePaymentDates = (left, right) => {
   return (left?.amount || 0) - (right?.amount || 0);
 };
 
-const indexPaymentsByMember = (paymentRecords = [], members = []) => {
+const matchHouseholdBySender = (record, households, textPatterns) => {
+  const senderRaw = record.sender || record.name || "";
+  const senderName = extractBankPartyName(senderRaw) || senderRaw;
+  const norm = normalizeText(senderName);
+  const title = record.title || "";
+
+  if (!norm) return null;
+
+  for (const household of households) {
+    const surname = normalizeText(household.members[0]?.lastName);
+    if (!surname || !norm.includes(surname)) continue;
+
+    const specificInTitle = findMemberInPaymentText(title, household.members, textPatterns);
+    if (specificInTitle) continue;
+
+    return household;
+  }
+
+  return null;
+};
+
+const assignPaymentTarget = (record, members, lookup, textPatterns, householdByMemberId, households) => {
+  const title = record.title || "";
+  const titleMatches = findAllMembersInPaymentText(title, members, textPatterns);
+
+  if (titleMatches.length === 1) {
+    return { kind: "member", memberId: titleMatches[0].id };
+  }
+
+  if (titleMatches.length > 1) {
+    const householdIds = new Set(
+      titleMatches.map((member) => householdByMemberId.get(member.id)?.id).filter(Boolean),
+    );
+    if (householdIds.size === 1) {
+      return { kind: "household", householdId: [...householdIds][0] };
+    }
+  }
+
+  const member = resolvePaymentMember(record, members, lookup, textPatterns);
+  if (!member) {
+    const household = matchHouseholdBySender(record, households, textPatterns);
+    if (household) return { kind: "household", householdId: household.id };
+    return { kind: "unmatched" };
+  }
+
+  const household = householdByMemberId.get(member.id);
+  if (!household) return { kind: "member", memberId: member.id };
+
+  const specific = findMemberInPaymentText(title, household.members, textPatterns);
+  if (specific) return { kind: "member", memberId: specific.id };
+
+  return { kind: "household", householdId: household.id };
+};
+
+const collectHouseholdPayments = (household, byHouseholdId, byMemberId) => {
+  const records = [...(byHouseholdId.get(household.id)?.records || [])];
+
+  for (const member of household.members) {
+    const bucket = byMemberId.get(member.id);
+    if (bucket?.records?.length) records.push(...bucket.records);
+  }
+
+  const unique = new Map();
+  for (const record of records) {
+    const key = `${record.date instanceof Date ? record.date.getTime() : ""}|${record.amount}|${record.title}|${record.name}|${record.sender}`;
+    unique.set(key, record);
+  }
+
+  return [...unique.values()].sort(comparePaymentDates);
+};
+
+const indexPaymentsByMember = (
+  paymentRecords = [],
+  members = [],
+  householdByMemberId = new Map(),
+  households = [],
+) => {
   const lookup = buildRosterNameIndex(members);
   const textPatterns = buildMemberTextPatternIndex(members);
   const byMemberId = new Map();
-  const grouped = new Map();
+  const byHouseholdId = new Map();
   let unmatchedCount = 0;
 
   for (const record of paymentRecords) {
-    const member = resolvePaymentMember(record, members, lookup, textPatterns);
+    const target = assignPaymentTarget(
+      record,
+      members,
+      lookup,
+      textPatterns,
+      householdByMemberId,
+      households,
+    );
 
-    if (!member) {
+    if (target.kind === "unmatched") {
       unmatchedCount += 1;
       continue;
     }
 
-    const bucket = grouped.get(member.id) || { member, records: [] };
+    if (target.kind === "household") {
+      const bucket = byHouseholdId.get(target.householdId) || { records: [], names: new Set() };
+      bucket.records.push(record);
+      if (record.name) bucket.names.add(record.name);
+      if (record.title) bucket.names.add(record.title);
+      if (record.sender) bucket.names.add(record.sender);
+      byHouseholdId.set(target.householdId, bucket);
+      continue;
+    }
+
+    const bucket = byMemberId.get(target.memberId) || { records: [], names: new Set() };
     bucket.records.push(record);
-    grouped.set(member.id, bucket);
+    if (record.name) bucket.names.add(record.name);
+    if (record.title) bucket.names.add(record.title);
+    if (record.sender) bucket.names.add(record.sender);
+    byMemberId.set(target.memberId, bucket);
   }
 
-  for (const { member, records } of grouped.values()) {
-    const sorted = [...records].sort(comparePaymentDates);
-    const names = new Set();
-
-    sorted.forEach((record) => {
-      if (record.name) names.add(record.name);
-      if (record.title) names.add(record.title);
-    });
-
-    byMemberId.set(member.id, { records: sorted, names });
+  for (const bucket of byMemberId.values()) {
+    bucket.records.sort(comparePaymentDates);
   }
 
-  return { byMemberId, unmatchedCount };
+  for (const bucket of byHouseholdId.values()) {
+    bucket.records.sort(comparePaymentDates);
+  }
+
+  return { byMemberId, byHouseholdId, unmatchedCount };
+};
+
+const buildMemberDuesRow = (member, expected, memberSlice, allocation, paymentNames = [], options = {}) => {
+  const rowAllocation = {
+    paidEntry: memberSlice.paidEntry,
+    paidLicense: memberSlice.paidLicense,
+    paidMonthly: memberSlice.paidMonthly,
+    balanceEntry: memberSlice.balanceEntry,
+    balanceLicense: memberSlice.balanceLicense,
+    balanceMonthly: memberSlice.balanceMonthly,
+    overpaid: options.householdMember ? 0 : allocation.overpaid || 0,
+    excluded: options.householdMember ? 0 : allocation.excluded || 0,
+    totalPaid: memberSlice.totalPaid,
+  };
+  const balance = rowAllocation.balanceEntry + rowAllocation.balanceLicense + rowAllocation.balanceMonthly;
+  const arrearsReason = buildArrearsReason(rowAllocation);
+  const hasPayment = memberSlice.totalPaid > 0 || paymentNames.length > 0;
+
+  let status = "paid";
+  if (expected.unknown) status = "unknown";
+  else if (balance > 0.5) status = hasPayment ? "arrears" : "no_payment";
+  else if (balance < -0.5 || rowAllocation.overpaid > 0.5) status = "overpaid";
+
+  return {
+    id: member.id,
+    displayName: member.displayName || member.fullName,
+    pesel: member.pesel || "",
+    memberSince: member.memberSince || "",
+    licenseActive: member.licenseActive ?? null,
+    expected,
+    allocation: rowAllocation,
+    paidAmount: memberSlice.totalPaid,
+    balance,
+    arrearsReason,
+    status,
+    paymentName: paymentNames.length ? paymentNames.join(" · ") : null,
+    householdKey: member.householdKey || null,
+  };
 };
 
 export const reconcileDues = (members = [], paymentRecords = [], options = {}) => {
   const asOf = options.asOf instanceof Date ? options.asOf : new Date();
   const activeMembers = members.filter((member) => member.active !== false);
   const duesMembers = activeMembers.filter((member) => !isDuesExempt(member));
-  const { byMemberId, unmatchedCount } = indexPaymentsByMember(paymentRecords, activeMembers);
+  const { households, householdByMemberId } = buildHouseholdGroups(duesMembers);
+  const { byMemberId, byHouseholdId, unmatchedCount } = indexPaymentsByMember(
+    paymentRecords,
+    activeMembers,
+    householdByMemberId,
+    households,
+  );
 
   const arrears = [];
   const paid = [];
   const missingFromFile = [];
   const unknownExpectation = [];
   const allMembers = [];
+  const processedHouseholds = new Set();
 
   for (const member of duesMembers) {
+    const household = householdByMemberId.get(member.id);
+
+    if (household) {
+      if (processedHouseholds.has(household.id)) continue;
+      processedHouseholds.add(household.id);
+
+      const schedule = buildHouseholdObligationSchedule(household.members, asOf);
+      const records = collectHouseholdPayments(household, byHouseholdId, byMemberId);
+      const allocation = allocatePaymentsToSchedule(schedule || [], records);
+      const paymentNames = [
+        ...(byHouseholdId.get(household.id)?.names || []),
+        ...household.members.flatMap((item) => [...(byMemberId.get(item.id)?.names || [])]),
+      ];
+
+      for (const householdMember of household.members) {
+        const expected = calculateLifetimeExpectedDues(householdMember, { asOf });
+        const memberSlice = summarizeMemberScheduleSlice(allocation.schedule, householdMember.id);
+        const row = buildMemberDuesRow(
+          { ...householdMember, householdKey: household.key },
+          expected,
+          memberSlice,
+          allocation,
+          [...new Set(paymentNames)],
+          { householdMember: true },
+        );
+
+        allMembers.push(row);
+
+        if (expected.unknown) {
+          unknownExpectation.push(row);
+          continue;
+        }
+
+        if (!row.paidAmount) {
+          missingFromFile.push(row);
+          if (row.balance > 0.5) arrears.push(row);
+          continue;
+        }
+
+        if (row.balance > 0.5) arrears.push(row);
+        else paid.push(row);
+      }
+
+      continue;
+    }
+
     const expected = calculateLifetimeExpectedDues(member, { asOf });
     const payment = byMemberId.get(member.id);
-    const allocation = payment?.records?.length
-      ? allocatePaymentsToSchedule(expected.schedule || [], payment.records)
-      : allocatePaymentsToSchedule(expected.schedule || [], []);
-    const paidAmount = allocation.totalPaid || 0;
-    const balance =
-      allocation.balanceEntry + allocation.balanceLicense + allocation.balanceMonthly;
-    const arrearsReason = buildArrearsReason(allocation);
-
-    let status = "paid";
-    if (expected.unknown) status = "unknown";
-    else if (balance > 0.5) status = payment ? "arrears" : "no_payment";
-    else if (balance < -0.5 || allocation.overpaid > 0.5) status = "overpaid";
-
-    const row = {
-      id: member.id,
-      displayName: member.displayName || member.fullName,
-      pesel: member.pesel || "",
-      memberSince: member.memberSince || "",
-      licenseActive: member.licenseActive ?? null,
+    const allocation = allocatePaymentsToSchedule(expected.schedule || [], payment?.records || []);
+    const memberSlice = summarizeMemberScheduleSlice(allocation.schedule, member.id);
+    const row = buildMemberDuesRow(
+      member,
       expected,
+      memberSlice,
       allocation,
-      paidAmount,
-      balance,
-      arrearsReason,
-      status,
-      paymentName: payment ? [...payment.names].join(" · ") : null,
-    };
+      payment ? [...payment.names] : [],
+    );
 
     allMembers.push(row);
 
@@ -824,11 +995,11 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
 
     if (!payment) {
       missingFromFile.push(row);
-      if (balance > 0.5) arrears.push(row);
+      if (row.balance > 0.5) arrears.push(row);
       continue;
     }
 
-    if (balance > 0.5) arrears.push(row);
+    if (row.balance > 0.5) arrears.push(row);
     else paid.push(row);
   }
 

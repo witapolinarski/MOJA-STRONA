@@ -655,7 +655,7 @@ const renderDuesTable = () => {
           .join("")}
       </tbody>
     </table>
-    <p class="roster-hint">Pokazano ${rows.length} z ${duesMembers.length} zawodników · stan na ${escapeHtml(duesMeta?.asOf || "—")}. Kolejność rozliczenia wpłat: wpisowe → składka → licencja (gdy ma bieżącą licencję).</p>
+    <p class="roster-hint">Pokazano ${rows.length} z ${duesMembers.length} zawodników · stan na ${escapeHtml(duesMeta?.asOf || "—")}. Kolejność: wpisowe → składka (30 zł/mies. w roku przyjęcia, potem 300/360 zł) → licencja wg PZSS. Wpłaty rodzinne z jednego konta dzielone między rodzeństwo.</p>
   `;
 };
 

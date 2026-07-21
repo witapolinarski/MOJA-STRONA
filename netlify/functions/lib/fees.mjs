@@ -1,3 +1,5 @@
+import { parseLicenseValidYear } from "./license-data.mjs";
+
 export const ENTRY_FEE = 350;
 export const ENTRY_INSURANCE = 8;
 export const ENTRY_STANDARD_PAYMENT = ENTRY_FEE + ENTRY_INSURANCE;
@@ -53,6 +55,11 @@ const parseMemberSince = (memberSince) => {
   return Number.isNaN(since.getTime()) ? null : since;
 };
 
+export const getJoinYear = (memberSince) => {
+  const since = parseMemberSince(memberSince);
+  return since ? since.getFullYear() : null;
+};
+
 export const getFirstMembershipFeeYear = (memberSince) => {
   const since = parseMemberSince(memberSince);
   if (!since) return null;
@@ -82,36 +89,37 @@ export const listDueMembershipYears = (memberSince, asOf = new Date()) => {
   return years;
 };
 
-export const annualMembershipFee = (year, asOf = new Date()) => {
-  const asOfYear = asOf.getFullYear();
-  const asOfMonth = asOf.getMonth() + 1;
+export const joinYearMembershipFee = (memberSince) => {
+  const since = parseMemberSince(memberSince);
+  if (!since) return 0;
 
-  if (year > asOfYear) return 0;
-  if (year < asOfYear) return ANNUAL_FEE_LATE;
-  return asOfMonth === 1 ? ANNUAL_FEE_EARLY : ANNUAL_FEE_LATE;
+  const joinMonth = since.getMonth() + 1;
+  if (joinMonth === 12) return 0;
+
+  const monthsInJoinYear = 12 - joinMonth;
+  return monthsInJoinYear * MONTHLY_FEE;
 };
+
+export const membershipAnnualRate = (year, referenceDate = new Date()) => {
+  const ref = referenceDate instanceof Date ? referenceDate : new Date(referenceDate);
+  const refYear = ref.getFullYear();
+  const refMonth = ref.getMonth() + 1;
+
+  if (year > refYear) return 0;
+  if (year < refYear) return ANNUAL_FEE_LATE;
+  return refMonth === 1 ? ANNUAL_FEE_EARLY : ANNUAL_FEE_LATE;
+};
+
+export const annualMembershipFee = (year, asOf = new Date()) => membershipAnnualRate(year, asOf);
 
 export const annualMembershipFeeForMemberYear = (memberSince, year, asOf = new Date()) => {
   const since = parseMemberSince(memberSince);
   if (!since) return 0;
 
   const joinYear = since.getFullYear();
-  const joinMonth = since.getMonth() + 1;
-  const rate = annualMembershipFee(year, asOf);
-  if (!rate) return 0;
+  if (year === joinYear) return joinYearMembershipFee(memberSince);
 
-  if (year !== joinYear) return rate;
-  if (joinMonth === 12) return 0;
-
-  const firstFeeMonth = joinMonth + 1;
-  const monthsInJoinYear = 12 - firstFeeMonth + 1;
-  return Math.round((rate * monthsInJoinYear) / 12);
-};
-
-export const memberHasCurrentLicense = (member) => {
-  if (member?.licenseActive === true) return true;
-  const status = String(member?.licenseStatus || "").toLowerCase();
-  return /wazn|ważn|active|aktualn/.test(status);
+  return membershipAnnualRate(year, asOf);
 };
 
 export const memberHasLicenseHistory = (member) =>
@@ -119,7 +127,39 @@ export const memberHasLicenseHistory = (member) =>
   member?.licenseActive === false ||
   member?.licenseStatus ||
   member?.licenseValidYear ||
-  member?.licenseLastValidYear;
+  member?.licenseLastValidYear ||
+  member?.licenseValidUntil ||
+  member?.licenseIssuedAt;
+
+export const listLicenseDueYears = (member, asOf = new Date()) => {
+  const since = member?.memberSince ? String(member.memberSince).slice(0, 10) : null;
+  if (!since || !memberHasLicenseHistory(member)) return [];
+
+  const membershipYears = listDueMembershipYears(since, asOf) || [];
+  if (!membershipYears.length) return [];
+
+  const joinYear = Number(since.slice(0, 4));
+  let firstLicenseYear = joinYear;
+  if (member.licenseIssuedAt) {
+    firstLicenseYear = Math.max(joinYear, Number(String(member.licenseIssuedAt).slice(0, 4)) || joinYear);
+  }
+
+  let lastLicenseYear = null;
+  if (member.licenseActive === true) {
+    lastLicenseYear =
+      Number(member.licenseValidYear) ||
+      parseLicenseValidYear(member.licenseValidUntil) ||
+      asOf.getFullYear();
+  } else if (member.licenseLastValidYear) {
+    lastLicenseYear = Number(member.licenseLastValidYear);
+  } else if (member.licenseValidUntil) {
+    lastLicenseYear = parseLicenseValidYear(member.licenseValidUntil);
+  }
+
+  if (!lastLicenseYear) return [];
+
+  return membershipYears.filter((year) => year >= firstLicenseYear && year <= lastLicenseYear);
+};
 
 export const buildMemberObligationSchedule = (member, asOf = new Date()) => {
   const since = member?.memberSince ? String(member.memberSince).slice(0, 10) : null;
@@ -128,26 +168,42 @@ export const buildMemberObligationSchedule = (member, asOf = new Date()) => {
   const dueYears = listDueMembershipYears(since, asOf);
   if (dueYears == null) return null;
 
-  const obligations = [{ type: "entry", year: null, amount: ENTRY_FEE, label: "wpisowe" }];
-  const includeLicense = memberHasCurrentLicense(member) && memberHasLicenseHistory(member);
+  const joinYear = getJoinYear(since);
+  const licenseYears = new Set(listLicenseDueYears(member, asOf));
+  const obligations = [
+    {
+      type: "entry",
+      year: null,
+      amount: ENTRY_FEE,
+      label: "wpisowe",
+      memberId: member.id || null,
+    },
+  ];
 
   for (const year of dueYears) {
-    const membershipAmount = annualMembershipFeeForMemberYear(since, year, asOf);
+    const isJoinYear = year === joinYear;
+    const membershipAmount = isJoinYear
+      ? joinYearMembershipFee(since)
+      : membershipAnnualRate(year, asOf);
+
     if (membershipAmount > 0) {
       obligations.push({
         type: "membership",
         year,
         amount: membershipAmount,
-        label: `składka ${year}`,
+        label: isJoinYear ? `składka ${year} (${membershipAmount / MONTHLY_FEE} mies.)` : `składka ${year}`,
+        memberId: member.id || null,
+        joinYear: isJoinYear,
       });
     }
 
-    if (includeLicense) {
+    if (licenseYears.has(year)) {
       obligations.push({
         type: "license",
         year,
         amount: LICENSE_FEE_ANNUAL,
         label: `licencja ${year}`,
+        memberId: member.id || null,
       });
     }
   }
@@ -155,16 +211,30 @@ export const buildMemberObligationSchedule = (member, asOf = new Date()) => {
   return obligations;
 };
 
+export const buildHouseholdObligationSchedule = (members = [], asOf = new Date()) => {
+  const sorted = [...members].sort((left, right) =>
+    String(left.firstName || left.displayName).localeCompare(String(right.firstName || right.displayName), "pl"),
+  );
+
+  const obligations = [];
+  for (const member of sorted) {
+    const memberSchedule = buildMemberObligationSchedule(member, asOf) || [];
+    obligations.push(...memberSchedule);
+  }
+
+  return obligations.length ? obligations : null;
+};
+
 export const summarizeObligationSchedule = (obligations = []) => {
   const entryFee = obligations
     .filter((item) => item.type === "entry")
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + (item.amount || 0), 0);
   const annualTotal = obligations
     .filter((item) => item.type === "membership")
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + (item.amount || 0), 0);
   const licenseTotal = obligations
     .filter((item) => item.type === "license")
-    .reduce((sum, item) => sum + item.amount, 0);
+    .reduce((sum, item) => sum + (item.amount || 0), 0);
   const licenseYears = obligations.filter((item) => item.type === "license").length;
   const annualYears = obligations.filter((item) => item.type === "membership").length;
 
@@ -176,6 +246,33 @@ export const summarizeObligationSchedule = (obligations = []) => {
     licenseYears,
     annualYears,
     total: entryFee + annualTotal + licenseTotal,
+  };
+};
+
+export const summarizeMemberScheduleSlice = (schedule = [], memberId = null) => {
+  const slice = memberId ? schedule.filter((item) => item.memberId === memberId) : schedule;
+  const summary = summarizeObligationSchedule(slice);
+
+  let paidEntry = 0;
+  let paidMonthly = 0;
+  let paidLicense = 0;
+
+  for (const item of slice) {
+    const paid = item.paid || 0;
+    if (item.type === "entry") paidEntry += paid;
+    else if (item.type === "membership") paidMonthly += paid;
+    else if (item.type === "license") paidLicense += paid;
+  }
+
+  return {
+    ...summary,
+    paidEntry,
+    paidMonthly,
+    paidLicense,
+    balanceEntry: Math.max(0, summary.entryFee - paidEntry),
+    balanceMonthly: Math.max(0, summary.annualTotal - paidMonthly),
+    balanceLicense: Math.max(0, summary.licenseTotal - paidLicense),
+    totalPaid: paidEntry + paidMonthly + paidLicense,
   };
 };
 

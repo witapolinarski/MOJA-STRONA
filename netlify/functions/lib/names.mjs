@@ -136,8 +136,13 @@ export const buildMemberTextPatternIndex = (members = []) => {
 };
 
 export const findMemberInPaymentText = (text, members = [], patternIndex = null) => {
+  const all = findAllMembersInPaymentText(text, members, patternIndex);
+  return all.length ? all[0] : null;
+};
+
+export const findAllMembersInPaymentText = (text, members = [], patternIndex = null) => {
   const norm = normalizeText(text);
-  if (!norm || norm.length < 5) return null;
+  if (!norm || norm.length < 5) return [];
 
   const index = patternIndex || buildMemberTextPatternIndex(members);
   const candidates = [];
@@ -149,12 +154,17 @@ export const findMemberInPaymentText = (text, members = [], patternIndex = null)
     }
   }
 
+  const unique = new Map();
   if (candidates.length) {
     candidates.sort((a, b) => b.length - a.length);
-    return candidates[0].member;
+    for (const entry of candidates) {
+      unique.set(entry.member.id, entry.member);
+    }
+    return [...unique.values()];
   }
 
-  return findMemberByLooseNameInText(norm, members);
+  const loose = findMemberByLooseNameInText(norm, members);
+  return loose ? [loose] : [];
 };
 
 const firstNameMatchesToken = (firstName, token) => {
