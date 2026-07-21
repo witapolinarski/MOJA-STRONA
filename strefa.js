@@ -37,6 +37,7 @@ const duesDownloadButton = document.querySelector("#dues-download-button");
 const duesRefreshButton = document.querySelector("#dues-refresh-button");
 const duesTableWrap = document.querySelector("#dues-table-wrap");
 const duesExemptWrap = document.querySelector("#dues-exempt-wrap");
+const duesVoucherWrap = document.querySelector("#dues-voucher-wrap");
 const duesSearch = document.querySelector("#dues-search");
 const duesNote = document.querySelector("#dues-note");
 const licenseFileInfo = document.querySelector("#license-file-info");
@@ -76,6 +77,7 @@ let applicationsCache = [];
 let rosterCache = null;
 let duesMembers = [];
 let duesExemptMembers = [];
+let duesVoucherReport = null;
 let duesMeta = null;
 
 const isLocalPreview =
@@ -598,6 +600,68 @@ const renderDuesExemptTable = () => {
   `;
 };
 
+const renderDuesVoucherTable = () => {
+  if (!duesVoucherWrap) return;
+
+  const report = duesVoucherReport;
+  const people = report?.people || [];
+
+  if (!report) {
+    duesVoucherWrap.innerHTML = `<p class="roster-empty">Brak danych o bonach — wgraj plik bankowy.</p>`;
+    return;
+  }
+
+  if (!people.length) {
+    duesVoucherWrap.innerHTML = `<p class="roster-empty">Nie wykryto wpłat za bony podarunkowe (Stripe / bon / strzelam.com).</p>`;
+    return;
+  }
+
+  const summary = report.summary || {};
+
+  duesVoucherWrap.innerHTML = `
+    <p class="roster-summary">${summary.paymentCount || 0} wpłat · ${summary.payerCount || people.length} płatników · łącznie ${formatMoney(summary.totalPln || 0)} · dopasowane do bazy PZSS: ${summary.matchedToRoster || 0}</p>
+    <table class="roster-table dues-voucher-table">
+      <thead>
+        <tr>
+          <th>Płatnik (bank)</th>
+          <th>Dopasowany zawodnik</th>
+          <th>Wskazówka odbiorcy</th>
+          <th>Kwoty bonów</th>
+          <th>Wpłat</th>
+          <th>Suma</th>
+          <th>Szczegóły wpłat</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${people
+          .map(
+            (row) => `
+          <tr>
+            <td>${escapeHtml(row.payerName || "—")}</td>
+            <td>${escapeHtml(row.matchedMembers?.length ? row.matchedMembers.join(", ") : "—")}</td>
+            <td>${escapeHtml(row.recipientHints?.length ? row.recipientHints.join(" · ") : "—")}</td>
+            <td>${escapeHtml(row.tiers?.length ? row.tiers.map((tier) => `${tier} zł`).join(", ") : "—")}</td>
+            <td>${row.paymentCount || 0}</td>
+            <td><strong>${formatMoney(row.totalPln || 0)}</strong></td>
+            <td>${escapeHtml(
+              (row.payments || [])
+                .map((payment) => {
+                  const date = payment.date || "—";
+                  const amount = formatMoney(payment.amount || 0);
+                  const title = payment.title ? ` · ${payment.title}` : "";
+                  return `${date} ${amount}${title}`;
+                })
+                .join(" | "),
+            )}</td>
+          </tr>`,
+          )
+          .join("")}
+      </tbody>
+    </table>
+    <p class="roster-hint">Kwoty bonów na strzelam.com: ${(report.tiersPln || [300, 400, 500, 600, 800]).join(" / ")} zł. Wykrywanie: Stripe, słowo „bon”, „voucher”, „strzelam”.</p>
+  `;
+};
+
 const renderDuesTable = () => {
   if (!duesTableWrap) return;
 
@@ -663,9 +727,11 @@ const applyDuesData = (data) => {
   const reconciliation = data?.reconciliation;
   duesMembers = reconciliation?.members || [];
   duesExemptMembers = reconciliation?.exemptFromDues || [];
+  duesVoucherReport = reconciliation?.voucherReport || null;
   duesMeta = reconciliation;
   renderDuesFileInfo(data?.file);
   renderDuesExemptTable();
+  renderDuesVoucherTable();
   renderDuesTable();
 
   if (duesSummary) {
@@ -676,7 +742,10 @@ const applyDuesData = (data) => {
     const exemptInfo = summary?.exemptMembers
       ? ` · zwolnieni ze składek: ${summary.exemptMembers}`
       : "";
-    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${exemptInfo}${paymentsInfo}`;
+    const voucherInfo = summary?.voucherPayments
+      ? ` · bony: ${summary.voucherPayments} wpłat (${formatMoney(summary.voucherTotalPln || 0)})`
+      : "";
+    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${exemptInfo}${voucherInfo}${paymentsInfo}`;
   }
 };
 

@@ -20,6 +20,7 @@ import {
   summarizeObligationSchedule,
 } from "./fees.mjs";
 import { buildHouseholdGroups } from "./households.mjs";
+import { isVoucherPayment, buildVoucherPaymentsReport } from "./vouchers.mjs";
 import {
   buildRosterNameIndex,
   buildMemberTextPatternIndex,
@@ -328,6 +329,7 @@ export const classifyPaymentPurpose = (record) => {
   ) {
     return "exclude";
   }
+  if (isVoucherPayment(record)) return "voucher";
   if (/wpisow/.test(title)) return "entry";
   if (/licencj/.test(title) && !/(skladk|składk|czlonkostw|członkostw)/.test(title)) return "license";
   if (
@@ -486,7 +488,7 @@ export const allocatePaymentsToSchedule = (obligations = [], paymentRecords = []
   const sorted = [...paymentRecords].sort(comparePaymentDates);
 
   for (const record of sorted) {
-    if (classifyPaymentPurpose(record) === "exclude") {
+    if (classifyPaymentPurpose(record) === "exclude" || classifyPaymentPurpose(record) === "voucher") {
       excluded += record.amount || 0;
       continue;
     }
@@ -827,6 +829,8 @@ const indexPaymentsByMember = (
   let unmatchedCount = 0;
 
   for (const record of paymentRecords) {
+    if (isVoucherPayment(record)) continue;
+
     const target = assignPaymentTarget(
       record,
       members,
@@ -1012,6 +1016,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
   });
 
   const exemptFromDues = buildExemptFromDuesList(activeMembers);
+  const voucherReport = buildVoucherPaymentsReport(paymentRecords, activeMembers);
 
   return {
     asOf: asOf.toISOString().slice(0, 10),
@@ -1024,6 +1029,9 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
       missingFromFile: missingFromFile.length,
       unknownExpectation: unknownExpectation.length,
       extraPayments: unmatchedCount,
+      voucherPayments: voucherReport.summary.paymentCount,
+      voucherPayers: voucherReport.summary.payerCount,
+      voucherTotalPln: voucherReport.summary.totalPln,
       totalArrearsPln: Math.round(arrears.reduce((sum, row) => sum + row.balance, 0) * 100) / 100,
       totalExpectedPln: Math.round(
         allMembers.reduce((sum, row) => sum + (row.expected?.total || 0), 0) * 100,
@@ -1032,6 +1040,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
     },
     members: allMembers,
     exemptFromDues,
+    voucherReport,
     arrears,
     paid,
     missingFromFile,
