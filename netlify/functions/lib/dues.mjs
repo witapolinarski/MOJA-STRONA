@@ -298,30 +298,110 @@ export const countLicenseYearsDue = (member, asOf = new Date()) => {
 
   if (!hasLicenseData) return 0;
 
+  const dueYears = listDueMembershipYears(since, asOf) || [];
+  if (!dueYears.length) return 0;
+
   if (member.licenseActive === true) {
-    return asOfYear - joinYear + 1;
+    return dueYears.length;
   }
 
   if (member.licenseActive === false) {
     const lastValid = Number(member.licenseLastValidYear) || joinYear;
-    return Math.max(asOfYear - joinYear + 1, lastValid - joinYear + 1);
+    const lastValidIndex = dueYears.filter((year) => year <= lastValid).length;
+    return Math.max(lastValidIndex, 1);
   }
 
-  return asOfYear - joinYear + 1;
+  return dueYears.length;
 };
 
 export const classifyPaymentPurpose = (record) => {
   const title = normalizeText(record.title || "");
   if (!title) return "unknown";
 
-  if (/impreza|turniej|kolacja|bankiet|darowizn|bilet|zawody|startowe|trening otwarty/.test(title)) {
+  if (
+    /impreza|turniej|kolacja|bankiet|darowizn|bilet|zawody|startowe|trening otwarty|zwrot|faktur|dotacj|przekazanie dotacji|przekazanie srodk|dopłata do faktury|patent strzel|egzaminu na patent|rachunek \d|zaplata za rk|zapłata za rk|zapl\.za rachunek/.test(
+      title,
+    )
+  ) {
     return "exclude";
   }
   if (/wpisow/.test(title)) return "entry";
-  if (/licencj/.test(title)) return "license";
-  if (/skladk|składk|czlonkostw|członkostw|membership|sagittarius/.test(title)) return "membership";
+  if (/licencj/.test(title) && !/(skladk|składk|czlonkostw|członkostw)/.test(title)) return "license";
+  if (
+    /skladk|składk|czlonkostw|członkostw|membership|sagittarius|oplata za czlonk|opłata za członk|czlonkowsk/.test(
+      title,
+    )
+  ) {
+    return "membership";
+  }
 
   return "unknown";
+};
+
+const insuranceDeduction = (title, amount) => {
+  const normalized = normalizeText(title);
+  if (!/ubezp|ubezpieczen/.test(normalized)) return 0;
+
+  const explicit = normalized.match(/(\d+)\s*zl?\s*ubezp|ubezp[^0-9]*(\d+)/);
+  if (explicit) return Math.min(amount, Number(explicit[1] || explicit[2]) || 0);
+
+  if (normalized.includes("wpisowe") && amount > ENTRY_FEE) return Math.max(0, amount - ENTRY_FEE);
+  if (amount % 10 === 8 && amount > 8) return 8;
+
+  return Math.min(amount, 50);
+};
+
+export const splitPaymentAmounts = (record) => {
+  const title = record.title || "";
+  const normalized = normalizeText(title);
+  const amount = record.amount || 0;
+  const excluded = insuranceDeduction(title, amount);
+  let remaining = Math.max(0, amount - excluded);
+
+  const hasLicense = /licencj/.test(normalized);
+  const hasMembership = /(skladk|składk|czlonkostw|członkostw|membership|sagittarius|czlonkowsk)/.test(
+    normalized,
+  );
+  const hasEntry = /wpisow/.test(normalized);
+
+  const buckets = { entry: 0, license: 0, membership: 0, excluded, unknown: 0 };
+
+  if (classifyPaymentPurpose(record) === "exclude") {
+    return { entry: 0, license: 0, membership: 0, excluded: amount, unknown: 0 };
+  }
+
+  if (hasEntry) {
+    const entryPart = Math.min(ENTRY_FEE, remaining);
+    buckets.entry += entryPart;
+    remaining -= entryPart;
+  }
+
+  if (hasLicense && hasMembership) {
+    if (remaining <= LICENSE_FEE_ANNUAL) {
+      buckets.license += remaining;
+      return buckets;
+    }
+    buckets.license += LICENSE_FEE_ANNUAL;
+    buckets.membership += remaining - LICENSE_FEE_ANNUAL;
+    return buckets;
+  }
+
+  const purpose = classifyPaymentPurpose(record);
+  if (purpose === "entry") {
+    buckets.entry += remaining;
+    return buckets;
+  }
+  if (purpose === "license") {
+    buckets.license += remaining;
+    return buckets;
+  }
+  if (purpose === "membership") {
+    buckets.membership += remaining;
+    return buckets;
+  }
+
+  buckets.unknown += remaining;
+  return buckets;
 };
 
 const emptyPaymentBuckets = () => ({
@@ -567,23 +647,14 @@ const indexPaymentsByMember = (paymentRecords = [], members = []) => {
     }
 
     const current = byMemberId.get(member.id) || emptyPaymentBuckets();
-    const purpose = classifyPaymentPurpose(record);
+    const split = splitPaymentAmounts(record);
 
-    if (purpose === "exclude") {
-      current.excluded += record.amount;
-    } else if (purpose === "entry") {
-      current.entry += record.amount;
-      current.amount += record.amount;
-    } else if (purpose === "license") {
-      current.license += record.amount;
-      current.amount += record.amount;
-    } else if (purpose === "membership") {
-      current.membership += record.amount;
-      current.amount += record.amount;
-    } else {
-      current.unknown += record.amount;
-      current.amount += record.amount;
-    }
+    current.entry += split.entry;
+    current.license += split.license;
+    current.membership += split.membership;
+    current.unknown += split.unknown;
+    current.excluded += split.excluded;
+    current.amount += split.entry + split.license + split.membership + split.unknown;
 
     if (record.name) current.names.add(record.name);
     if (record.title) current.names.add(record.title);

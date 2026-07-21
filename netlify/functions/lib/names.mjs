@@ -137,7 +137,7 @@ export const buildMemberTextPatternIndex = (members = []) => {
 
 export const findMemberInPaymentText = (text, members = [], patternIndex = null) => {
   const norm = normalizeText(text);
-  if (!norm || norm.length < 8) return null;
+  if (!norm || norm.length < 5) return null;
 
   const index = patternIndex || buildMemberTextPatternIndex(members);
   const candidates = [];
@@ -149,9 +149,54 @@ export const findMemberInPaymentText = (text, members = [], patternIndex = null)
     }
   }
 
-  if (!candidates.length) return null;
+  if (candidates.length) {
+    candidates.sort((a, b) => b.length - a.length);
+    return candidates[0].member;
+  }
 
-  candidates.sort((a, b) => b.length - a.length);
+  return findMemberByLooseNameInText(norm, members);
+};
+
+const firstNameMatchesToken = (firstName, token) => {
+  if (!firstName || !token || token.length < 3) return false;
+  if (firstName === token) return true;
+  if (firstName.startsWith(token) || token.startsWith(firstName)) return true;
+  const prefix = firstName.slice(0, 3);
+  return prefix.length === 3 && token.startsWith(prefix);
+};
+
+export const findMemberByLooseNameInText = (norm, members = []) => {
+  const active = (members || []).filter((member) => member.active !== false);
+  const tokens = norm.split(" ").filter((token) => token.length >= 3);
+  if (!tokens.length) return null;
+
+  const candidates = [];
+
+  for (const member of active) {
+    const last = normalizeText(member.lastName);
+    if (!last || last.length < 3 || !norm.includes(last)) continue;
+
+    const firstParts = normalizeText(member.firstName).split(" ").filter(Boolean);
+    for (const part of firstParts) {
+      if (norm.includes(`${part} ${last}`) || norm.includes(`${last} ${part}`)) {
+        candidates.push({ member, score: part.length + last.length });
+        continue;
+      }
+
+      for (const token of tokens) {
+        if (token === last && firstNameMatchesToken(part, token)) {
+          candidates.push({ member, score: 5 });
+          continue;
+        }
+        if (firstNameMatchesToken(part, token) && tokens.includes(last)) {
+          candidates.push({ member, score: part.length + last.length });
+        }
+      }
+    }
+  }
+
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => b.score - a.score);
   return candidates[0].member;
 };
 
