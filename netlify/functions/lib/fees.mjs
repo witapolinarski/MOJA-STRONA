@@ -2,6 +2,59 @@ export const ENTRY_FEE = 350;
 export const MONTHLY_FEE = 30;
 export const LICENSE_FEE_ANNUAL = 100;
 
+export const ANNUAL_FEE_EARLY = 300;
+export const ANNUAL_FEE_LATE = 360;
+
+const parseMemberSince = (memberSince) => {
+  if (!memberSince) return null;
+  const since = new Date(`${String(memberSince).slice(0, 10)}T12:00:00`);
+  return Number.isNaN(since.getTime()) ? null : since;
+};
+
+export const getFirstMembershipFeeYear = (memberSince) => {
+  const since = parseMemberSince(memberSince);
+  if (!since) return null;
+
+  const joinYear = since.getFullYear();
+  const joinMonth = since.getMonth() + 1;
+
+  if (joinMonth === 12) return joinYear + 1;
+
+  const firstFeeMonth = joinMonth + 1;
+  if (firstFeeMonth > 12) return joinYear + 1;
+
+  return joinYear;
+};
+
+export const listDueMembershipYears = (memberSince, asOf = new Date()) => {
+  const startYear = getFirstMembershipFeeYear(memberSince);
+  if (startYear == null) return null;
+
+  const endYear = asOf.getFullYear();
+  if (startYear > endYear) return [];
+
+  const years = [];
+  for (let year = startYear; year <= endYear; year += 1) {
+    years.push(year);
+  }
+  return years;
+};
+
+export const annualMembershipFee = (year, asOf = new Date()) => {
+  const asOfYear = asOf.getFullYear();
+  const asOfMonth = asOf.getMonth() + 1;
+
+  if (year > asOfYear) return 0;
+  if (year < asOfYear) return ANNUAL_FEE_LATE;
+  return asOfMonth === 1 ? ANNUAL_FEE_EARLY : ANNUAL_FEE_LATE;
+};
+
+export const calculateAnnualMembershipTotal = (memberSince, asOf = new Date()) => {
+  const years = listDueMembershipYears(memberSince, asOf);
+  if (years == null) return null;
+  return years.reduce((sum, year) => sum + annualMembershipFee(year, asOf), 0);
+};
+
 export const countFeeMonths = (acceptanceDate) => {
   const date = acceptanceDate instanceof Date ? acceptanceDate : new Date(acceptanceDate);
   const nextMonthIndex = date.getMonth() + 1;
@@ -13,17 +66,18 @@ export const calculateMembershipFees = (acceptanceDateInput) => {
   const acceptanceDate = acceptanceDateInput
     ? new Date(`${acceptanceDateInput}T12:00:00`)
     : new Date();
-  const months = countFeeMonths(acceptanceDate);
-  const annualFee = months * MONTHLY_FEE;
-  const total = ENTRY_FEE + annualFee;
+  const asOf = new Date();
+  const memberSince = acceptanceDate.toISOString().slice(0, 10);
+  const annualTotal = calculateAnnualMembershipTotal(memberSince, asOf) || 0;
+  const total = ENTRY_FEE + annualTotal;
 
   return {
     entryFee: ENTRY_FEE,
-    monthlyFee: MONTHLY_FEE,
-    months,
-    annualFee,
+    annualFeeEarly: ANNUAL_FEE_EARLY,
+    annualFeeLate: ANNUAL_FEE_LATE,
+    annualTotal,
     total,
     totalGrosze: Math.round(total * 100),
-    acceptanceDate: acceptanceDate.toISOString().slice(0, 10),
+    acceptanceDate: memberSince,
   };
 };

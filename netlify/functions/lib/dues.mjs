@@ -1,5 +1,13 @@
 import XLSX from "xlsx";
-import { ENTRY_FEE, LICENSE_FEE_ANNUAL, MONTHLY_FEE } from "./fees.mjs";
+import {
+  ANNUAL_FEE_EARLY,
+  ANNUAL_FEE_LATE,
+  ENTRY_FEE,
+  LICENSE_FEE_ANNUAL,
+  annualMembershipFee,
+  calculateAnnualMembershipTotal,
+  listDueMembershipYears,
+} from "./fees.mjs";
 import { buildRosterNameIndex, buildMemberTextPatternIndex, findMemberInPaymentText, matchPaymentToMember, normalizeText } from "./names.mjs";
 
 const MONTH_HEADER =
@@ -355,15 +363,22 @@ export const calculateExpectedDues = (member, options = {}) => {
   }
 
   const entryFee = joinYear === year ? ENTRY_FEE : 0;
-  const monthlyTotal = months * MONTHLY_FEE;
+  const dueYears = listDueMembershipYears(since, new Date(year, throughMonth - 1, 28)) || [];
+  const annualYears = dueYears.filter((dueYear) => dueYear <= year);
+  const annualTotal = annualYears.reduce(
+    (sum, dueYear) => sum + annualMembershipFee(dueYear, new Date(year, throughMonth - 1, 28)),
+    0,
+  );
 
   return {
     year,
     throughMonth,
     months,
+    annualYears: annualYears.length,
     entryFee,
-    monthlyTotal,
-    total: entryFee + monthlyTotal,
+    annualTotal,
+    monthlyTotal: annualTotal,
+    total: entryFee + annualTotal,
     unknown: false,
   };
 };
@@ -388,7 +403,8 @@ export const calculateLifetimeExpectedDues = (member, options = {}) => {
   }
 
   const entryFee = ENTRY_FEE;
-  const monthlyTotal = months * MONTHLY_FEE;
+  const dueYears = listDueMembershipYears(since, asOf) || [];
+  const annualTotal = calculateAnnualMembershipTotal(since, asOf) || 0;
   const licenseYears = countLicenseYearsDue(member, asOf);
   const licenseTotal = licenseYears * LICENSE_FEE_ANNUAL;
 
@@ -396,11 +412,15 @@ export const calculateLifetimeExpectedDues = (member, options = {}) => {
     asOf: asOf.toISOString().slice(0, 10),
     memberSince: since,
     months,
+    annualYears: dueYears.length,
+    annualFeeEarly: ANNUAL_FEE_EARLY,
+    annualFeeLate: ANNUAL_FEE_LATE,
     entryFee,
-    monthlyTotal,
+    annualTotal,
+    monthlyTotal: annualTotal,
     licenseYears,
     licenseTotal,
-    total: entryFee + monthlyTotal + licenseTotal,
+    total: entryFee + annualTotal + licenseTotal,
     unknown: false,
   };
 };
