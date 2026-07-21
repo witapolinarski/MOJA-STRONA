@@ -3,6 +3,7 @@ import { requireApprover } from "./lib/approvers.mjs";
 import { buildReferralLeaderboard, getReferralLedger } from "./lib/referrals.mjs";
 import { buildLicenseRenewalSummary } from "./lib/license-stats.mjs";
 import { saveRosterExportBuffer } from "./lib/roster-file.mjs";
+import { runPzssRosterSync } from "./lib/roster-sync.mjs";
 import {
   ensureRosterSeeded,
   getRosterRecord,
@@ -41,6 +42,22 @@ export default async (request) => {
 
     if (request.method === "POST") {
       const body = await request.json();
+
+      if (body.sync) {
+        const saved = await runPzssRosterSync({
+          importedBy: auth.member.name,
+          source: body.source || "soz-persons-list",
+        });
+
+        return jsonResponse({
+          ok: true,
+          memberCount: saved.memberCount,
+          removedCount: saved.removedCount || 0,
+          updatedAt: saved.updatedAt,
+          source: saved.source,
+        });
+      }
+
       const text = String(body.text || "").trim();
       const members = Array.isArray(body.members) ? body.members : parsePzssRosterText(text);
 
@@ -73,7 +90,9 @@ export default async (request) => {
       return jsonResponse({
         ok: true,
         memberCount: saved.memberCount,
+        removedCount: saved.removedCount || 0,
         updatedAt: saved.updatedAt,
+        source: saved.source,
       });
     }
 
