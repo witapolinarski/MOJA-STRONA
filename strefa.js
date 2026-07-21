@@ -655,7 +655,7 @@ const renderDuesTable = () => {
           .join("")}
       </tbody>
     </table>
-    <p class="roster-hint">Pokazano ${rows.length} z ${duesMembers.length} zawodników · stan na ${escapeHtml(duesMeta?.asOf || "—")}. Kolejność rozliczenia wpłat: wpisowe → licencja → składki.</p>
+    <p class="roster-hint">Pokazano ${rows.length} z ${duesMembers.length} zawodników · stan na ${escapeHtml(duesMeta?.asOf || "—")}. Kolejność rozliczenia wpłat: wpisowe → składka → licencja (gdy ma bieżącą licencję).</p>
   `;
 };
 

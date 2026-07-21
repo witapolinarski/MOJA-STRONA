@@ -108,6 +108,77 @@ export const annualMembershipFeeForMemberYear = (memberSince, year, asOf = new D
   return Math.round((rate * monthsInJoinYear) / 12);
 };
 
+export const memberHasCurrentLicense = (member) => {
+  if (member?.licenseActive === true) return true;
+  const status = String(member?.licenseStatus || "").toLowerCase();
+  return /wazn|ważn|active|aktualn/.test(status);
+};
+
+export const memberHasLicenseHistory = (member) =>
+  member?.licenseActive === true ||
+  member?.licenseActive === false ||
+  member?.licenseStatus ||
+  member?.licenseValidYear ||
+  member?.licenseLastValidYear;
+
+export const buildMemberObligationSchedule = (member, asOf = new Date()) => {
+  const since = member?.memberSince ? String(member.memberSince).slice(0, 10) : null;
+  if (!since) return null;
+
+  const dueYears = listDueMembershipYears(since, asOf);
+  if (dueYears == null) return null;
+
+  const obligations = [{ type: "entry", year: null, amount: ENTRY_FEE, label: "wpisowe" }];
+  const includeLicense = memberHasCurrentLicense(member) && memberHasLicenseHistory(member);
+
+  for (const year of dueYears) {
+    const membershipAmount = annualMembershipFeeForMemberYear(since, year, asOf);
+    if (membershipAmount > 0) {
+      obligations.push({
+        type: "membership",
+        year,
+        amount: membershipAmount,
+        label: `składka ${year}`,
+      });
+    }
+
+    if (includeLicense) {
+      obligations.push({
+        type: "license",
+        year,
+        amount: LICENSE_FEE_ANNUAL,
+        label: `licencja ${year}`,
+      });
+    }
+  }
+
+  return obligations;
+};
+
+export const summarizeObligationSchedule = (obligations = []) => {
+  const entryFee = obligations
+    .filter((item) => item.type === "entry")
+    .reduce((sum, item) => sum + item.amount, 0);
+  const annualTotal = obligations
+    .filter((item) => item.type === "membership")
+    .reduce((sum, item) => sum + item.amount, 0);
+  const licenseTotal = obligations
+    .filter((item) => item.type === "license")
+    .reduce((sum, item) => sum + item.amount, 0);
+  const licenseYears = obligations.filter((item) => item.type === "license").length;
+  const annualYears = obligations.filter((item) => item.type === "membership").length;
+
+  return {
+    entryFee,
+    annualTotal,
+    monthlyTotal: annualTotal,
+    licenseTotal,
+    licenseYears,
+    annualYears,
+    total: entryFee + annualTotal + licenseTotal,
+  };
+};
+
 export const calculateAnnualMembershipTotal = (memberSince, asOf = new Date()) => {
   const years = listDueMembershipYears(memberSince, asOf);
   if (years == null) return null;
