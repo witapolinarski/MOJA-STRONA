@@ -489,19 +489,83 @@ const lockMembershipSlotAmount = (slot, paymentDate, options = {}) => {
   slot.rateLocked = true;
 };
 
+const parseYearFromText = (norm) => {
+  const matches = [...String(norm || "").matchAll(/\b(20\d{2})\b/g)];
+  return matches.length ? Number(matches[matches.length - 1][1]) : null;
+};
+
 const parseMembershipYearFromTitle = (title) => {
   const norm = normalizeText(title);
-  const match =
+  if (!/(skladk|czlonkowsk)/.test(norm)) return null;
+  if (/\bdo\s*\d{4}/.test(norm)) return null;
+
+  const explicit =
     norm.match(/skladk(?:a|i|e)?\s+za\s+(\d{4})/) ||
+    norm.match(/skladk(?:a|i|e)?\s+czlonkowsk\w*\s+(\d{4})/) ||
     norm.match(/skladk(?:a|i|e)?\s+(\d{4})/) ||
-    norm.match(/(?:oplat[ao]|oplata)\s+za\s+(\d{4})/);
-  return match ? Number(match[1]) : null;
+    norm.match(/(?:oplat[ao]|oplata)\s+za\s+(\d{4})/) ||
+    norm.match(/roczn\w*\s+za\s+(\d{4})/);
+
+  if (explicit) return Number(explicit[1]);
+
+  const monthYear = norm.match(
+    /(?:m-c|miesiac|miesiaca|styczen|luty|marzec|kwiecien|maj|czerwiec|lipiec|sierpien|wrzesien|pazdziernik|listopad|grudzien)\s*\.?\s*(20\d{2})/,
+  );
+  if (monthYear) return Number(monthYear[1]);
+
+  if (/skladk(?:a|i|e)?\s+czlonkowsk/.test(norm)) {
+    return parseYearFromText(norm);
+  }
+
+  return null;
 };
 
 const parseMembershipThroughYear = (title) => {
   const norm = normalizeText(title);
   const match = norm.match(/skladk(?:a|i|e)?.*?\bdo\s*(\d{4})/);
   return match ? Number(match[1]) : null;
+};
+
+const parseLicenseYearFromTitle = (title) => {
+  const norm = normalizeText(title);
+  if (!/(licencj|\bpzss\b)/.test(norm)) return null;
+  if (/(skladk|czlonkowsk)/.test(norm) && !/licencj/.test(norm)) return null;
+  return parseYearFromText(norm);
+};
+
+const isEntryMembershipCombo = (title) => {
+  const norm = normalizeText(title);
+  return /wpisow/.test(norm) && /(skladk|czlonkowsk)/.test(norm);
+};
+
+const applyPaymentToLicenseYear = (schedule, year, amount, counters) => {
+  const slot = schedule.find((item) => item.type === "license" && item.year === year);
+  if (!slot) return applyPaymentToLicenses(schedule, amount, counters);
+  return applyAmountToSlot(slot, amount, counters);
+};
+
+const allocateComboEntryMembership = (schedule, record, amount, counters) => {
+  let remaining = amount;
+  const membershipYear = parseMembershipYearFromTitle(record.title);
+
+  const entrySlot = schedule.find((item) => item.type === "entry");
+  if (entrySlot) {
+    remaining = applyAmountToSlot(entrySlot, remaining, counters);
+  }
+
+  if (membershipYear) {
+    remaining = applyPaymentToMembershipYear(schedule, membershipYear, remaining, record.date, counters);
+  } else if (remaining > 0) {
+    remaining = applyPaymentThroughMembershipYear(
+      schedule,
+      record.date?.getFullYear?.() || new Date(record.date).getFullYear(),
+      remaining,
+      record.date,
+      counters,
+    );
+  }
+
+  return remaining;
 };
 
 const applyAmountToSlot = (slot, amount, counters) => {
@@ -583,18 +647,31 @@ const allocateSinglePayment = (schedule, record, counters) => {
   const purpose = classifyPaymentPurpose(record);
   const membershipYear = parseMembershipYearFromTitle(record.title);
   const throughYear = parseMembershipThroughYear(record.title);
+  const licenseYear = parseLicenseYearFromTitle(record.title);
   let remaining = amount;
 
-  if (membershipYear) {
+  if (isEntryMembershipCombo(record.title)) {
+    remaining = allocateComboEntryMembership(schedule, record, remaining, counters);
+  } else if (membershipYear) {
     remaining = applyPaymentToMembershipYear(schedule, membershipYear, remaining, record.date, counters);
   } else if (throughYear) {
     remaining = applyPaymentThroughMembershipYear(schedule, throughYear, remaining, record.date, counters);
+  } else if (licenseYear) {
+    remaining = applyPaymentToLicenseYear(schedule, licenseYear, remaining, counters);
   } else if (purpose === "license") {
-    remaining = applyPaymentToLicenses(schedule, remaining, counters);
+    const paymentYear = record.date instanceof Date ? record.date.getFullYear() : new Date(record.date).getFullYear();
+    const slot = schedule.find((item) => item.type === "license" && item.year === paymentYear);
+    if (slot && slot.balance > 0) {
+      remaining = applyAmountToSlot(slot, remaining, counters);
+    } else {
+      remaining = applyPaymentToLicenses(schedule, remaining, counters);
+    }
   } else if (purpose === "entry") {
     const entrySlot = schedule.find((item) => item.type === "entry");
     remaining = applyAmountToSlot(entrySlot, remaining, counters);
-    remaining = applyPaymentChronologically(schedule, remaining, record.date, counters);
+    if (remaining > 0) {
+      remaining = applyPaymentChronologically(schedule, remaining, record.date, counters);
+    }
   } else if (purpose === "membership") {
     remaining = applyPaymentChronologically(schedule, remaining, record.date, counters);
   } else {
