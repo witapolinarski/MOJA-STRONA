@@ -9,6 +9,12 @@
 [functions."member-dues"]
   timeout = 26
 
+[functions."member-roster-sync"]
+  timeout = 26
+
+[functions."sync-pzss-roster"]
+  schedule = "0 5 * * *"
+
 [[redirects]]
   from = "/deklaracja"
   to = "/assets/deklaracja-rodo.pdf"

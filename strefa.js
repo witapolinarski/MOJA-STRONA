@@ -904,11 +904,22 @@ const syncRosterAutomatically = async () => {
   if (rosterImportNote) rosterImportNote.textContent = "Synchronizacja bazy PZSS…";
 
   try {
-    const data = await apiFetch("/.netlify/functions/member-roster-sync", { method: "POST" });
+    let data;
+    try {
+      data = await apiFetch("/.netlify/functions/member-roster-sync", { method: "POST" });
+    } catch (syncError) {
+      data = await apiFetch("/.netlify/functions/member-roster", {
+        method: "POST",
+        body: JSON.stringify({ sync: true, source: "soz-persons-list" }),
+      });
+    }
+
+    const removedInfo = data.removedCount ? ` · wykreślonych: ${data.removedCount}` : "";
     if (rosterImportNote) {
-      rosterImportNote.textContent = `Zsynchronizowano ${data.memberCount} członków · ${formatDate(data.updatedAt)}`;
+      rosterImportNote.textContent = `Zsynchronizowano ${data.memberCount} członków · ${formatDate(data.updatedAt)}${removedInfo}`;
     }
     await loadRosterSyncMeta();
+    await loadRoster();
     await loadDues();
   } catch (error) {
     if (rosterImportNote) rosterImportNote.textContent = error.message;
