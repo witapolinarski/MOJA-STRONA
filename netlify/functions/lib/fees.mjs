@@ -1,5 +1,6 @@
 export const ENTRY_FEE = 350;
 export const MONTHLY_FEE = 30;
+export const LICENSE_FEE_ANNUAL = 100;
 
 export const countFeeMonths = (acceptanceDate) => {
   const date = acceptanceDate instanceof Date ? acceptanceDate : new Date(acceptanceDate);

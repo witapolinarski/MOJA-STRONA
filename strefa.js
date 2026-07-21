@@ -591,13 +591,14 @@ const renderDuesTable = () => {
       <thead>
         <tr>
           <th>Zawodnik</th>
-          <th>PESEL</th>
           <th>Przyjęty</th>
-          <th>Miesiące</th>
-          <th>Należność</th>
+          <th>Wpisowe</th>
+          <th>Składki</th>
+          <th>Licencja</th>
+          <th>Razem</th>
           <th>Wpłacono</th>
           <th>Saldo</th>
-          <th>Status</th>
+          <th>Powód zaległości</th>
         </tr>
       </thead>
       <tbody>
@@ -606,19 +607,20 @@ const renderDuesTable = () => {
             (row) => `
           <tr>
             <td>${escapeHtml(row.displayName || "—")}</td>
-            <td>${escapeHtml(row.pesel || "—")}</td>
             <td>${escapeHtml(row.memberSince || "—")}</td>
-            <td>${row.expected?.unknown ? "—" : row.expected?.months ?? "—"}</td>
+            <td>${row.expected?.unknown ? "—" : formatMoney(row.expected?.entryFee || 0)}</td>
+            <td>${row.expected?.unknown ? "—" : formatMoney(row.expected?.monthlyTotal || 0)}</td>
+            <td>${row.expected?.unknown ? "—" : formatMoney(row.expected?.licenseTotal || 0)}</td>
             <td>${row.expected?.unknown ? "—" : formatMoney(row.expected?.total || 0)}</td>
             <td>${formatMoney(row.paidAmount || 0)}</td>
             <td><strong>${row.expected?.unknown ? "—" : formatMoney(row.balance || 0)}</strong></td>
-            <td>${escapeHtml(duesStatusLabels[row.status] || row.status || "—")}</td>
+            <td>${row.balance > 0.5 ? escapeHtml(row.arrearsReason || "—") : "—"}</td>
           </tr>`,
           )
           .join("")}
       </tbody>
     </table>
-    <p class="roster-hint">Pokazano ${rows.length} z ${duesMembers.length} zawodników · stan na ${escapeHtml(duesMeta?.asOf || "—")}.</p>
+    <p class="roster-hint">Pokazano ${rows.length} z ${duesMembers.length} zawodników · stan na ${escapeHtml(duesMeta?.asOf || "—")}. Kolejność rozliczenia wpłat: wpisowe → licencja → składki.</p>
   `;
 };
 
@@ -632,9 +634,9 @@ const applyDuesData = (data) => {
   if (duesSummary) {
     const summary = reconciliation?.summary;
     const paymentsInfo = summary?.rowsInFile
-      ? ` · ${summary.rowsInFile} wpłat z pliku bankowego`
-      : " · bez pliku bankowego (tylko należności)";
-    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników${paymentsInfo}`;
+      ? ` · ${summary.rowsInFile} wpłat z banku`
+      : " · bez pliku bankowego";
+    duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${paymentsInfo}`;
   }
 };
 

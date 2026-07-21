@@ -1,5 +1,5 @@
 import XLSX from "xlsx";
-import { ENTRY_FEE, MONTHLY_FEE } from "./fees.mjs";
+import { ENTRY_FEE, LICENSE_FEE_ANNUAL, MONTHLY_FEE } from "./fees.mjs";
 import { buildRosterNameIndex, matchPaymentToMember, normalizeText } from "./names.mjs";
 
 const MONTH_HEADER =
@@ -260,6 +260,79 @@ export const countLifetimeDueMonths = (memberSince, asOf = new Date()) => {
   return count;
 };
 
+export const countLicenseYearsDue = (member, asOf = new Date()) => {
+  const since = member.memberSince ? String(member.memberSince).slice(0, 10) : null;
+  if (!since) return 0;
+
+  const joinYear = Number(since.slice(0, 4));
+  const asOfYear = asOf.getFullYear();
+  if (!joinYear || joinYear > asOfYear) return 0;
+
+  const hasLicenseData =
+    member.licenseActive === true ||
+    member.licenseActive === false ||
+    member.licenseStatus ||
+    member.licenseValidYear ||
+    member.licenseLastValidYear;
+
+  if (!hasLicenseData) return 0;
+
+  if (member.licenseActive === true) {
+    return asOfYear - joinYear + 1;
+  }
+
+  if (member.licenseActive === false) {
+    const lastValid = Number(member.licenseLastValidYear) || joinYear;
+    return Math.max(asOfYear - joinYear + 1, lastValid - joinYear + 1);
+  }
+
+  return asOfYear - joinYear + 1;
+};
+
+export const allocatePaymentToDues = (expected, paidAmount = 0) => {
+  let remaining = paidAmount;
+
+  const paidEntry = Math.min(remaining, expected.entryFee || 0);
+  remaining -= paidEntry;
+
+  const paidLicense = Math.min(remaining, expected.licenseTotal || 0);
+  remaining -= paidLicense;
+
+  const paidMonthly = Math.min(remaining, expected.monthlyTotal || 0);
+  remaining -= paidMonthly;
+
+  const balanceEntry = (expected.entryFee || 0) - paidEntry;
+  const balanceLicense = (expected.licenseTotal || 0) - paidLicense;
+  const balanceMonthly = (expected.monthlyTotal || 0) - paidMonthly;
+
+  return {
+    paidEntry,
+    paidLicense,
+    paidMonthly,
+    balanceEntry,
+    balanceLicense,
+    balanceMonthly,
+    overpaid: Math.max(0, remaining),
+  };
+};
+
+export const buildArrearsReason = (allocation) => {
+  const parts = [];
+
+  if (allocation.balanceEntry > 0.5) {
+    parts.push(`wpisowe ${allocation.balanceEntry.toFixed(0)} zł`);
+  }
+  if (allocation.balanceMonthly > 0.5) {
+    parts.push(`składki ${allocation.balanceMonthly.toFixed(0)} zł`);
+  }
+  if (allocation.balanceLicense > 0.5) {
+    parts.push(`licencja ${allocation.balanceLicense.toFixed(0)} zł`);
+  }
+
+  if (!parts.length) return "";
+  return parts.join(", ");
+};
+
 export const calculateExpectedDues = (member, options = {}) => {
   const year = Number(options.year) || new Date().getFullYear();
   const throughMonth = Number(options.throughMonth) || new Date().getMonth() + 1;
@@ -305,6 +378,8 @@ export const calculateLifetimeExpectedDues = (member, options = {}) => {
       months: null,
       entryFee: 0,
       monthlyTotal: 0,
+      licenseYears: 0,
+      licenseTotal: 0,
       total: 0,
       unknown: true,
     };
@@ -312,6 +387,8 @@ export const calculateLifetimeExpectedDues = (member, options = {}) => {
 
   const entryFee = ENTRY_FEE;
   const monthlyTotal = months * MONTHLY_FEE;
+  const licenseYears = countLicenseYearsDue(member, asOf);
+  const licenseTotal = licenseYears * LICENSE_FEE_ANNUAL;
 
   return {
     asOf: asOf.toISOString().slice(0, 10),
@@ -319,7 +396,9 @@ export const calculateLifetimeExpectedDues = (member, options = {}) => {
     months,
     entryFee,
     monthlyTotal,
-    total: entryFee + monthlyTotal,
+    licenseYears,
+    licenseTotal,
+    total: entryFee + monthlyTotal + licenseTotal,
     unknown: false,
   };
 };
@@ -390,21 +469,27 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
     const expected = calculateLifetimeExpectedDues(member, { asOf });
     const payment = byMemberId.get(member.id);
     const paidAmount = payment?.amount || 0;
-    const balance = (expected.total || 0) - paidAmount;
+    const allocation = allocatePaymentToDues(expected, paidAmount);
+    const balance =
+      allocation.balanceEntry + allocation.balanceLicense + allocation.balanceMonthly;
+    const arrearsReason = buildArrearsReason(allocation);
 
     let status = "paid";
     if (expected.unknown) status = "unknown";
     else if (balance > 0.5) status = payment ? "arrears" : "no_payment";
-    else if (balance < -0.5) status = "overpaid";
+    else if (balance < -0.5 || allocation.overpaid > 0.5) status = "overpaid";
 
     const row = {
       id: member.id,
       displayName: member.displayName || member.fullName,
       pesel: member.pesel || "",
       memberSince: member.memberSince || "",
+      licenseActive: member.licenseActive ?? null,
       expected,
+      allocation,
       paidAmount,
       balance,
+      arrearsReason,
       status,
       paymentName: payment ? [...payment.names].join(" · ") : null,
     };
