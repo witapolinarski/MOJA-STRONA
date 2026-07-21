@@ -12,6 +12,7 @@ import {
   calculateAnnualMembershipTotal,
   isDuesExempt,
   listDueMembershipYears,
+  buildExemptFromDuesList,
 } from "./fees.mjs";
 import { buildRosterNameIndex, buildMemberTextPatternIndex, findMemberInPaymentText, matchPaymentToMember, normalizeText } from "./names.mjs";
 
@@ -752,7 +753,6 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
   const asOf = options.asOf instanceof Date ? options.asOf : new Date();
   const activeMembers = members.filter((member) => member.active !== false);
   const duesMembers = activeMembers.filter((member) => !isDuesExempt(member));
-  const exemptCount = activeMembers.length - duesMembers.length;
   const { byMemberId, unmatchedCount } = indexPaymentsByMember(paymentRecords, activeMembers);
 
   const arrears = [];
@@ -815,11 +815,13 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
     return b.balance - a.balance;
   });
 
+  const exemptFromDues = buildExemptFromDuesList(activeMembers);
+
   return {
     asOf: asOf.toISOString().slice(0, 10),
     summary: {
       activeMembers: duesMembers.length,
-      exemptMembers: exemptCount,
+      exemptMembers: exemptFromDues.length,
       rowsInFile: paymentRecords.length,
       withArrears: arrears.length,
       paidUp: paid.length,
@@ -833,6 +835,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
       totalPaidPln: Math.round(allMembers.reduce((sum, row) => sum + row.paidAmount, 0) * 100) / 100,
     },
     members: allMembers,
+    exemptFromDues,
     arrears,
     paid,
     missingFromFile,

@@ -36,6 +36,7 @@ const duesPickButton = document.querySelector("#dues-pick-button");
 const duesDownloadButton = document.querySelector("#dues-download-button");
 const duesRefreshButton = document.querySelector("#dues-refresh-button");
 const duesTableWrap = document.querySelector("#dues-table-wrap");
+const duesExemptWrap = document.querySelector("#dues-exempt-wrap");
 const duesSearch = document.querySelector("#dues-search");
 const duesNote = document.querySelector("#dues-note");
 const licenseFileInfo = document.querySelector("#license-file-info");
@@ -74,6 +75,7 @@ let currentMember = null;
 let applicationsCache = [];
 let rosterCache = null;
 let duesMembers = [];
+let duesExemptMembers = [];
 let duesMeta = null;
 
 const isLocalPreview =
@@ -563,6 +565,39 @@ const renderDuesFileInfo = (file) => {
   duesDownloadButton?.classList.remove("hidden");
 };
 
+const renderDuesExemptTable = () => {
+  if (!duesExemptWrap) return;
+
+  if (!duesExemptMembers.length) {
+    duesExemptWrap.innerHTML = `<p class="roster-empty">Brak osób na liście zwolnionych ze składek.</p>`;
+    return;
+  }
+
+  duesExemptWrap.innerHTML = `
+    <table class="roster-table dues-exempt-table">
+      <thead>
+        <tr>
+          <th>Zawodnik</th>
+          <th>Przyjęty</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${duesExemptMembers
+          .map(
+            (row) => `
+          <tr>
+            <td>${escapeHtml(row.displayName || "—")}</td>
+            <td>${escapeHtml(row.memberSince || "—")}</td>
+            <td>${row.missingFromRoster ? "Brak w bazie PZSS" : "Zwolniony ze składek"}</td>
+          </tr>`,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+};
+
 const renderDuesTable = () => {
   if (!duesTableWrap) return;
 
@@ -627,8 +662,10 @@ const renderDuesTable = () => {
 const applyDuesData = (data) => {
   const reconciliation = data?.reconciliation;
   duesMembers = reconciliation?.members || [];
+  duesExemptMembers = reconciliation?.exemptFromDues || [];
   duesMeta = reconciliation;
   renderDuesFileInfo(data?.file);
+  renderDuesExemptTable();
   renderDuesTable();
 
   if (duesSummary) {
@@ -637,7 +674,7 @@ const applyDuesData = (data) => {
       ? ` · ${summary.rowsInFile} wpłat z banku`
       : " · bez pliku bankowego";
     const exemptInfo = summary?.exemptMembers
-      ? ` · poza zestawieniem (VIP): ${summary.exemptMembers}`
+      ? ` · zwolnieni ze składek: ${summary.exemptMembers}`
       : "";
     duesSummary.textContent = `${summary?.activeMembers || duesMembers.length} zawodników · zaległości: ${summary?.withArrears || 0} · rozliczeni: ${summary?.paidUp || 0}${exemptInfo}${paymentsInfo}`;
   }

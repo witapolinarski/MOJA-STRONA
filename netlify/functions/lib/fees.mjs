@@ -7,13 +7,44 @@ export const LICENSE_FEE_ANNUAL = 100;
 export const ANNUAL_FEE_EARLY = 300;
 export const ANNUAL_FEE_LATE = 360;
 
-export const DUES_EXEMPT_PESELS = new Set([
-  "80073102937", // PIETRUSZKA Marek (Kostuś) — VIP, poza zestawieniem składek
-]);
+export const DUES_EXEMPT_MEMBERS = [
+  { pesel: "80073102937", label: "PIETRUSZKA Marek" },
+  { pesel: "74030712718", label: "KOSTUŚ Tomasz" },
+];
+
+export const DUES_EXEMPT_PESELS = new Set(DUES_EXEMPT_MEMBERS.map((item) => item.pesel));
 
 export const isDuesExempt = (member) => {
   const pesel = String(member?.pesel || "").replace(/\D/g, "");
   return DUES_EXEMPT_PESELS.has(pesel);
+};
+
+export const buildExemptFromDuesList = (members = []) => {
+  const active = (members || []).filter((member) => member.active !== false);
+  const byPesel = new Map(
+    active.filter(isDuesExempt).map((member) => [String(member.pesel || "").replace(/\D/g, ""), member]),
+  );
+
+  return DUES_EXEMPT_MEMBERS.map((item) => {
+    const member = byPesel.get(item.pesel);
+    if (!member) {
+      return {
+        pesel: item.pesel,
+        displayName: item.label,
+        memberSince: "",
+        missingFromRoster: true,
+      };
+    }
+
+    return {
+      id: member.id,
+      displayName: member.displayName || member.fullName || item.label,
+      pesel: member.pesel || item.pesel,
+      memberSince: member.memberSince || "",
+      licenseActive: member.licenseActive ?? null,
+      missingFromRoster: false,
+    };
+  });
 };
 
 const parseMemberSince = (memberSince) => {
