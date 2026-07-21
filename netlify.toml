@@ -19,6 +19,22 @@
   to = "/assets/deklaracja-rodo.pdf"
   status = 302
 
+# Stare ścieżki WordPress (strzelamy.org.pl) — zachowane po przełączeniu DNS na Netlify
+[[redirects]]
+  from = "/wp-content/uploads/2024/04/STATUT-SAGITTARIUS.pdf"
+  to = "/assets/statut-sagittarius.pdf"
+  status = 301
+
+[[redirects]]
+  from = "/statut"
+  to = "/assets/statut-sagittarius.pdf"
+  status = 302
+
+[[redirects]]
+  from = "/statut-sagittarius.pdf"
+  to = "/assets/statut-sagittarius.pdf"
+  status = 302
+
 [[headers]]
   for = "/admin.html"
   [headers.values]

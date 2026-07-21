@@ -54,6 +54,31 @@ Opcjonalnie:
 4. Ustaw `ADMIN_PASSWORD`
 5. **Deploy site**
 
+## Domeny
+
+| Domena | Rola | Status |
+|---|---|---|
+| **strzelam.com** | Strzelnica Powszechna Kamień Śląski (oferta komercyjna) | Już na Netlify (`ubiquitous-arithmetic-c6ed77.netlify.app`) — A `75.2.60.5`, www → Netlify, HTTPS OK |
+| **strzelamy.org.pl** | Klub TMS „Sagittarius” (ta witryna) | Nowa strona na Netlify (`relaxed-sawine-3b870a.netlify.app`); DNS nadal wskazuje stary hosting WordPress (microhost) |
+| **strzelaj.com** | Osobna domena | Parking Afternic — nie używana przez ten projekt |
+
+### Podłączenie `strzelamy.org.pl` (wzorzec jak przy strzelam.com)
+
+1. W Netlify: site **relaxed-sawine-3b870a** → **Domain management** → **Add domain** → `strzelamy.org.pl`
+2. Ustaw domenę jako primary (apex); Netlify doda też `www`
+3. U rejestratora / DNS (microhost) ustaw:
+
+| Typ | Nazwa | Wartość |
+|---|---|---|
+| **A** | `@` | `75.2.60.5` |
+| **CNAME** | `www` | `relaxed-sawine-3b870a.netlify.app` |
+
+4. Usuń stare rekordy A/AAAA wskazujące na WordPress (`188.210.221.84`)
+5. Poczekaj na propagację DNS i automatyczny certyfikat HTTPS w Netlify
+6. Sprawdź: `https://strzelamy.org.pl`, `/strefa`, `/rodo`, `/assets/statut-sagittarius.pdf`
+
+**Uwaga:** `strzelam.com` zostaje na osobnej witrynie Netlify — nie podłączaj jej do tego repozytorium.
+
 ## Formularz członkostwa
 
 Kandydat musi podać m.in. **PESEL** i formę zwracania się (Pan/Pani) — dane trafiają na zaświadczenie o członkostwie.
@@ -74,7 +99,8 @@ Wniosek trafia do **Netlify Blobs** przez funkcję `submit-application`.
 | `strefa.html` | Strefa klubowa + zaświadczenie |
 | `admin.html` | Panel administratora |
 | `netlify/functions/` | API: zgłoszenia, logowanie, pliki |
-| `assets/` | Zdjęcia klubu |
+| `assets/` | Zdjęcia klubu, deklaracja RODO, statut PDF |
+| `robots.txt` / `sitemap.xml` | SEO pod domenę `strzelamy.org.pl` |
 
 ## Lokalnie
 
