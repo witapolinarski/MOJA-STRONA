@@ -2,6 +2,7 @@ import { jsonResponse } from "./lib/auth.mjs";
 import { requireApprover } from "./lib/approvers.mjs";
 import { buildReferralLeaderboard, getReferralLedger } from "./lib/referrals.mjs";
 import { buildLicenseRenewalSummary } from "./lib/license-stats.mjs";
+import { saveRosterExportBuffer } from "./lib/roster-file.mjs";
 import {
   ensureRosterSeeded,
   getRosterRecord,
@@ -53,6 +54,10 @@ export default async (request) => {
       await ensureRosterSeeded();
       const current = await getRosterRecord();
       const mergedMembers = mergePzssRosterImport(current.members || [], members);
+
+      if (text) {
+        await saveRosterExportBuffer(Buffer.from(text, "utf8"), "pzss-paste.txt", auth.member.name);
+      }
 
       const saved = await saveRosterMembers(mergedMembers, {
         source: body.source || "pzss-import",

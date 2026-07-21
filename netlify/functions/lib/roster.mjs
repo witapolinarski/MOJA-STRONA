@@ -1,3 +1,4 @@
+import { applyStruckOffFlags } from "./fees.mjs";
 import { findRosterMember } from "./names.mjs";
 import { getApplicationsStore } from "./store.mjs";
 import { clearPaymentsAnalysis } from "./payments-file.mjs";
@@ -63,7 +64,7 @@ export const mergePzssRosterImport = (currentMembers = [], importedMembers = [])
   });
 
   merged.sort((a, b) => String(a.lastName).localeCompare(String(b.lastName), "pl"));
-  return merged;
+  return applyStruckOffFlags(merged);
 };
 
 export const getRosterRecord = async () => {

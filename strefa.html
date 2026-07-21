@@ -196,14 +196,26 @@
             <h3>Import z PZSS</h3>
             <p class="roster-hint">
               W SOZ przejdź do <strong>Zawodnicy → Lista</strong>, zaznacz 100 wpisów na stronę,
-              skopiuj tabelę (Ctrl+A na liście) i wklej poniżej. Możesz powtórzyć dla kolejnych stron —
-              import nadpisuje bazę według PESEL.
+              skopiuj tabelę (Ctrl+A na liście) i wklej poniżej albo wgraj plik eksportu.
+              System może też synchronizować bazę automatycznie z ostatniego pliku lub adresu URL
+              (harmonogram: codziennie o 5:00).
             </p>
+            <div id="roster-export-drop" class="strefa-dropzone" tabindex="0" role="button" aria-label="Upuść plik eksportu PZSS">
+              <p>Upuść plik eksportu PZSS (.txt, .tsv, .csv) lub kliknij, aby wybrać</p>
+              <input
+                type="file"
+                id="roster-export-input"
+                class="strefa-file-input"
+                accept=".txt,.tsv,.csv,text/plain,text/csv"
+              >
+            </div>
             <textarea id="roster-import-text" class="roster-import-text" rows="8" placeholder="Wklej skopiowaną listę członków z PZSS…"></textarea>
             <div class="roster-actions">
               <button type="button" class="button primary" id="roster-import-button">Zaimportuj do bazy</button>
+              <button type="button" class="button secondary" id="roster-sync-button">Synchronizuj automatycznie</button>
               <button type="button" class="button secondary" id="roster-refresh-button">Odśwież</button>
             </div>
+            <p id="roster-export-info" class="form-note" role="status"></p>
             <p id="roster-import-note" class="form-note" role="status"></p>
           </section>
 

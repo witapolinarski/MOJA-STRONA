@@ -20,6 +20,7 @@ export const DUES_EXEMPT_PESELS = new Set(DUES_EXEMPT_MEMBERS.map((item) => item
 export const STRUCK_OFF_CLUB_MEMBERS = [
   { lastName: "DOSKOCZ", firstName: "Krzysztof", label: "DOSKOCZ Krzysztof" },
   { lastName: "JARKA-DOSKOCZ", firstName: "Elżbieta", label: "JARKA-DOSKOCZ Elżbieta" },
+  { lastName: "JELEŃ", firstName: "Mateusz", label: "JELEŃ Mateusz" },
 ];
 
 const matchesStruckOffEntry = (member, item) => {
@@ -38,6 +39,20 @@ export const isStruckOffByClubDecision = (member) =>
   STRUCK_OFF_CLUB_MEMBERS.some((item) => matchesStruckOffEntry(member, item));
 
 export const isStruckOffFromClub = (member) => isInactiveInPzss(member) || isStruckOffByClubDecision(member);
+
+export const applyStruckOffFlags = (members = []) => {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return (members || []).map((member) => {
+    if (!isStruckOffByClubDecision(member)) return member;
+
+    return {
+      ...member,
+      active: false,
+      memberUntil: member.memberUntil || today,
+    };
+  });
+};
 
 export const isDuesExempt = (member) => {
   const pesel = String(member?.pesel || "").replace(/\D/g, "");

@@ -24,8 +24,12 @@ const rosterTableWrap = document.querySelector("#roster-table-wrap");
 const rosterSearch = document.querySelector("#roster-search");
 const rosterImportText = document.querySelector("#roster-import-text");
 const rosterImportButton = document.querySelector("#roster-import-button");
+const rosterSyncButton = document.querySelector("#roster-sync-button");
 const rosterRefreshButton = document.querySelector("#roster-refresh-button");
 const rosterImportNote = document.querySelector("#roster-import-note");
+const rosterExportDrop = document.querySelector("#roster-export-drop");
+const rosterExportInput = document.querySelector("#roster-export-input");
+const rosterExportInfo = document.querySelector("#roster-export-info");
 const licenseRenewalYear = document.querySelector("#license-renewal-year");
 const licenseSummaryGrid = document.querySelector("#license-summary-grid");
 const licenseSummaryYears = document.querySelector("#license-summary-years");
@@ -826,6 +830,72 @@ const renderRoster = (data) => {
   renderRosterTable(roster.members || []);
 };
 
+const loadRosterSyncMeta = async () => {
+  if (!currentMember?.isApprover || isLocalPreview) return;
+
+  try {
+    const data = await apiFetch("/.netlify/functions/member-roster-sync");
+    renderRosterExportInfo(data.exportFile, data.autoSyncUrl);
+  } catch (error) {
+    if (rosterExportInfo) rosterExportInfo.textContent = error.message;
+  }
+};
+
+const renderRosterExportInfo = (file, autoSyncUrl = false) => {
+  if (!rosterExportInfo) return;
+
+  if (!file?.fileName) {
+    rosterExportInfo.textContent = autoSyncUrl
+      ? "Automatyczna synchronizacja z adresu URL (PZSS_ROSTER_URL) jest włączona."
+      : "Brak wgranego pliku eksportu PZSS — użyj synchronizacji po pierwszym imporcie pliku lub wklejeniu listy.";
+    return;
+  }
+
+  const uploadedAt = file.uploadedAt ? formatDate(file.uploadedAt) : "—";
+  const sizeKb = file.size ? `${Math.round(file.size / 1024)} KB` : "";
+  rosterExportInfo.textContent = `Ostatni eksport: ${file.fileName} · ${sizeKb} · wgrany ${uploadedAt}${autoSyncUrl ? " · URL auto-sync włączony" : ""}`;
+};
+
+const uploadRosterExportFile = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const token = getToken();
+  const response = await fetch("/.netlify/functions/member-roster-sync", {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Nie udało się zsynchronizować bazy PZSS.");
+
+  renderRosterExportInfo(data.file, false);
+  if (rosterImportNote) {
+    rosterImportNote.textContent = `Zsynchronizowano ${data.memberCount} członków z pliku eksportu.`;
+  }
+  await loadRoster();
+  await loadDues();
+  return data;
+};
+
+const syncRosterAutomatically = async () => {
+  if (rosterSyncButton) rosterSyncButton.disabled = true;
+  if (rosterImportNote) rosterImportNote.textContent = "Synchronizacja bazy PZSS…";
+
+  try {
+    const data = await apiFetch("/.netlify/functions/member-roster-sync", { method: "POST" });
+    if (rosterImportNote) {
+      rosterImportNote.textContent = `Zsynchronizowano ${data.memberCount} członków · ${formatDate(data.updatedAt)}`;
+    }
+    await loadRosterSyncMeta();
+    await loadDues();
+  } catch (error) {
+    if (rosterImportNote) rosterImportNote.textContent = error.message;
+  } finally {
+    if (rosterSyncButton) rosterSyncButton.disabled = false;
+  }
+};
+
 const loadRoster = async () => {
   if (!currentMember?.isApprover || isLocalPreview) return;
 
@@ -836,6 +906,7 @@ const loadRoster = async () => {
     renderRoster(data);
     if (rosterImportNote) rosterImportNote.textContent = "";
     await loadLicenseFileMeta();
+    await loadRosterSyncMeta();
   } catch (error) {
     if (rosterSummary) rosterSummary.textContent = error.message;
     referralLeaderboard?.replaceChildren();
@@ -919,6 +990,25 @@ rosterSearch?.addEventListener("input", () => {
 });
 
 rosterRefreshButton?.addEventListener("click", () => loadRoster());
+
+rosterSyncButton?.addEventListener("click", () => syncRosterAutomatically());
+
+rosterExportDrop?.addEventListener("click", () => rosterExportInput?.click());
+
+bindDropTarget(rosterExportDrop, rosterImportNote);
+
+rosterExportInput?.addEventListener("change", async () => {
+  const file = rosterExportInput.files?.[0];
+  if (!file) return;
+
+  try {
+    await uploadRosterExportFile(file);
+  } catch (error) {
+    if (rosterImportNote) rosterImportNote.textContent = error.message;
+  } finally {
+    rosterExportInput.value = "";
+  }
+});
 
 rosterImportButton?.addEventListener("click", async () => {
   const text = rosterImportText?.value.trim() || "";
@@ -1010,6 +1100,11 @@ const openNativeFilePicker = (onFile) => {
 const isLikelyLicenseFile = (fileName = "") =>
   /licencj|license|rejestr/i.test(fileName) && !/operacj|zestawienie|składk|skladk|wpłat|wplat/i.test(fileName);
 
+const isLikelyRosterFile = (fileName = "") =>
+  /pzss|zawodnik|roster|soz|czlonk|członk|lista/i.test(fileName) &&
+  /\.(txt|tsv|csv)$/i.test(fileName) &&
+  !isLikelyLicenseFile(fileName);
+
 const uploadLicenseFile = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
@@ -1032,6 +1127,16 @@ const uploadLicenseFile = async (file) => {
 };
 
 const uploadClubFile = async (file, statusEl = duesNote) => {
+  if (isLikelyRosterFile(file.name)) {
+    if (statusEl) statusEl.textContent = `Synchronizacja bazy PZSS: ${file.name}…`;
+    const data = await uploadRosterExportFile(file);
+    switchTab("roster");
+    if (statusEl) {
+      statusEl.textContent = `Zsynchronizowano bazę PZSS: ${file.name} · ${data.memberCount} członków.`;
+    }
+    return { type: "roster", data };
+  }
+
   if (isLikelyLicenseFile(file.name)) {
     if (statusEl) statusEl.textContent = `Import rejestru licencji: ${file.name}…`;
     const data = await uploadLicenseFile(file);
