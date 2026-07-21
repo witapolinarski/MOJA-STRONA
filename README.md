@@ -36,6 +36,8 @@ W **Site configuration → Environment variables** dodaj:
 | Zmienna | Opis |
 |---|---|
 | `ADMIN_PASSWORD` | Hasło do panelu `/admin.html` |
+| `PZSS_SOZ_LOGIN` | Login do SOZ (https://soz.pzss.org.pl) — do automatycznej synchronizacji bazy |
+| `PZSS_SOZ_PASSWORD` | Hasło do SOZ |
 
 Opcjonalnie:
 
@@ -44,7 +46,8 @@ Opcjonalnie:
 | `ADMIN_TOKEN_SECRET` | Osobny sekret do tokenów (jeśli puste, używane jest `ADMIN_PASSWORD`) |
 | `ADMIN_NAME` | Nazwa administratora (domyślnie: Witold Apolinarski) |
 | `ADMIN_EMAIL` | E-mail administratora (domyślnie: apolinarski@yahoo.com) |
-| `APPROVER_EMAILS` | E-maile członków z prawem akceptacji wniosków w strefie (domyślnie: `apolinarski@yahoo.com`) |
+| `ROSTER_SYNC_SECRET` | Klucz dla bookmarkletu synchronizacji SOZ (opcjonalnie, domyślnie `ADMIN_PASSWORD`) |
+| `PZSS_ROSTER_URL` | Adres URL z eksportem listy członków (fallback, gdy SOZ blokuje serwer) |
 
 ## Wdrożenie
 

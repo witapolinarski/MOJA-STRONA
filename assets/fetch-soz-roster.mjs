@@ -104,6 +104,12 @@ try {
   await page.goto(SOZ_LOGIN_URL, { waitUntil: "domcontentloaded", timeout: 120000 });
   await waitForSozPage(page);
 
+  const hasLoginForm = await page.$('input[name="UserName"]');
+  if (!hasLoginForm) {
+    const body = await page.evaluate(() => document.body.innerText.slice(0, 500));
+    throw new Error(`Brak formularza logowania SOZ: ${body.replace(/\s+/g, " ").trim()}`);
+  }
+
   await page.waitForSelector('input[name="UserName"]', { timeout: 30000 });
   await page.type('input[name="UserName"]', login, { delay: 15 });
   await page.type('input[name="Password"]', password, { delay: 15 });
