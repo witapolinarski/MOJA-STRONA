@@ -97,9 +97,6 @@ export const matchPaymentToMember = (paymentName, members, lookup = null) => {
         if (refined.length === 1) return refined[0];
       }
     }
-
-    const fuzzy = findRosterMember(candidate, active);
-    if (fuzzy) return fuzzy;
   }
 
   return null;

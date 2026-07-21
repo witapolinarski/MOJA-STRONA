@@ -1,8 +1,45 @@
 import { jsonResponse } from "./lib/auth.mjs";
 import { requireApprover } from "./lib/approvers.mjs";
 import { parsePaymentsSpreadsheet, reconcileDues } from "./lib/dues.mjs";
-import { getPaymentsFile, getPaymentsMeta, savePaymentsFile } from "./lib/payments-file.mjs";
+import {
+  getPaymentsAnalysis,
+  getPaymentsFile,
+  getPaymentsMeta,
+  getPaymentsParsed,
+  savePaymentsAnalysis,
+  savePaymentsFile,
+  savePaymentsParsed,
+} from "./lib/payments-file.mjs";
 import { ensureRosterSeeded, getRosterRecord } from "./lib/roster.mjs";
+
+const loadPaymentRecords = async (meta, file) => {
+  if (!file) return { records: [], parse: null };
+
+  const cachedParsed = await getPaymentsParsed(meta);
+  if (cachedParsed) {
+    return {
+      records: cachedParsed.records || [],
+      parse: {
+        rowCount: cachedParsed.rowCount,
+        notes: cachedParsed.notes || [],
+        cached: true,
+      },
+    };
+  }
+
+  const buffer = Buffer.from(await file.data.arrayBuffer());
+  const parsed = parsePaymentsSpreadsheet(buffer, file.fileName);
+  await savePaymentsParsed(meta, parsed);
+
+  return {
+    records: parsed.records,
+    parse: {
+      rowCount: parsed.rowCount,
+      notes: parsed.notes || [],
+      cached: false,
+    },
+  };
+};
 
 const buildReport = async () => {
   await ensureRosterSeeded();
@@ -11,26 +48,31 @@ const buildReport = async () => {
   const meta = await getPaymentsMeta();
   const file = await getPaymentsFile();
 
-  let paymentRecords = [];
-  let parse = null;
-
-  if (file) {
-    const buffer = Buffer.from(await file.data.arrayBuffer());
-    const parsed = parsePaymentsSpreadsheet(buffer, file.fileName);
-    paymentRecords = parsed.records;
-    parse = {
-      rowCount: parsed.rowCount,
-      notes: parsed.notes,
+  const cached = meta ? await getPaymentsAnalysis(meta) : null;
+  if (cached?.reconciliation?.members?.length) {
+    return {
+      rosterUpdatedAt: roster.updatedAt,
+      file: meta,
+      parse: cached.parse,
+      reconciliation: cached.reconciliation,
+      cached: true,
+      cachedAt: cached.cachedAt,
     };
   }
 
-  const reconciliation = reconcileDues(members, paymentRecords);
+  const { records, parse } = await loadPaymentRecords(meta, file);
+  const reconciliation = reconcileDues(members, records);
+
+  if (meta) {
+    await savePaymentsAnalysis(meta, { parse, reconciliation });
+  }
 
   return {
     rosterUpdatedAt: roster.updatedAt,
     file: meta,
     parse,
     reconciliation,
+    cached: false,
   };
 };
 
@@ -53,6 +95,14 @@ export default async (request) => {
             "Cache-Control": "no-store",
           },
         });
+      }
+
+      if (url.searchParams.get("refresh") === "1") {
+        const meta = await getPaymentsMeta();
+        if (meta) {
+          const { clearPaymentsAnalysis } = await import("./lib/payments-file.mjs");
+          await clearPaymentsAnalysis();
+        }
       }
 
       return jsonResponse(await buildReport());
