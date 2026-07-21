@@ -47,7 +47,9 @@ const buildReport = async () => {
   const file = await getPaymentsFile();
 
   const { records, parse } = await loadPaymentRecords(meta, file);
-  const reconciliation = reconcileDues(members, records);
+  const reconciliation = reconcileDues(members, records, {
+    removedMembers: roster.removedMembers || [],
+  });
 
   return {
     rosterUpdatedAt: roster.updatedAt,

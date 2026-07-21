@@ -53,13 +53,19 @@ export default async (request) => {
 
       await ensureRosterSeeded();
       const current = await getRosterRecord();
-      const mergedMembers = mergePzssRosterImport(current.members || [], members);
+      const { members: mergedMembers, removedMembers } = mergePzssRosterImport(
+        current.members || [],
+        members,
+        current.removedMembers || [],
+      );
 
       if (text) {
-        await saveRosterExportBuffer(Buffer.from(text, "utf8"), "pzss-paste.txt", auth.member.name);
+        await saveRosterExportBuffer(Buffer.from(text, "utf8"), "soz-persons-list.txt", auth.member.name);
       }
 
-      const saved = await saveRosterMembers(mergedMembers, {
+      const saved = await saveRosterMembers(
+        { members: mergedMembers, removedMembers },
+        {
         source: body.source || "pzss-import",
         importedBy: auth.member.name,
       });

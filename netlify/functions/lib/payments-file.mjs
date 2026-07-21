@@ -6,7 +6,7 @@ export const PAYMENTS_ANALYSIS_KEY = "meta:club-payments-analysis";
 
 export const PAYMENTS_PARSED_KEY = "meta:club-payments-parsed";
 
-const ANALYSIS_VERSION = 21;
+const ANALYSIS_VERSION = 22;
 
 const analysisStamp = (meta = {}) =>
   `v${ANALYSIS_VERSION}:${meta.uploadedAt || ""}:${meta.size || 0}:${meta.fileName || ""}`;

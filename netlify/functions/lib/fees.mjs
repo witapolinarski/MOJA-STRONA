@@ -17,42 +17,20 @@ export const DUES_EXEMPT_MEMBERS = [
 
 export const DUES_EXEMPT_PESELS = new Set(DUES_EXEMPT_MEMBERS.map((item) => item.pesel));
 
-export const STRUCK_OFF_CLUB_MEMBERS = [
-  { lastName: "DOSKOCZ", firstName: "Krzysztof", label: "DOSKOCZ Krzysztof" },
-  { lastName: "JARKA-DOSKOCZ", firstName: "Elżbieta", label: "JARKA-DOSKOCZ Elżbieta" },
-  { lastName: "JELEŃ", firstName: "Mateusz", label: "JELEŃ Mateusz" },
-];
-
-const matchesStruckOffEntry = (member, item) => {
-  const last = normalizeText(member?.lastName);
-  const first = normalizeText(member?.firstName || "").split(" ")[0];
-  const itemLast = normalizeText(item.lastName);
-  const itemFirst = normalizeText(item.firstName || "").split(" ")[0];
-  if (last === itemLast && first === itemFirst) return true;
-  if (itemLast === "jarka-doskocz" && last === "doskocz" && first === itemFirst) return true;
-  return false;
-};
-
 export const isInactiveInPzss = (member) => member?.active === false || Boolean(member?.memberUntil);
 
-export const isStruckOffByClubDecision = (member) =>
-  STRUCK_OFF_CLUB_MEMBERS.some((item) => matchesStruckOffEntry(member, item));
-
-export const isStruckOffFromClub = (member) => isInactiveInPzss(member) || isStruckOffByClubDecision(member);
-
-export const applyStruckOffFlags = (members = []) => {
-  const today = new Date().toISOString().slice(0, 10);
-
-  return (members || []).map((member) => {
-    if (!isStruckOffByClubDecision(member)) return member;
-
-    return {
-      ...member,
-      active: false,
-      memberUntil: member.memberUntil || today,
-    };
-  });
-};
+export const buildStruckOffFromClubList = (removedMembers = []) =>
+  (removedMembers || [])
+    .map((member) => ({
+      id: member.id,
+      displayName: member.displayName || member.fullName,
+      pesel: member.pesel || "",
+      memberSince: member.memberSince || "",
+      memberUntil: member.removedAt?.slice(0, 10) || member.memberUntil || "",
+      reason: member.removedReason || "Brak na liście SOZ (Club/Persons/List)",
+      missingFromRoster: false,
+    }))
+    .sort((a, b) => String(a.displayName).localeCompare(String(b.displayName), "pl"));
 
 export const isDuesExempt = (member) => {
   const pesel = String(member?.pesel || "").replace(/\D/g, "");
@@ -85,54 +63,6 @@ export const buildExemptFromDuesList = (members = []) => {
       missingFromRoster: false,
     };
   });
-};
-
-export const buildStruckOffFromClubList = (members = []) => {
-  const active = (members || []).filter((member) => isStruckOffFromClub(member));
-  const byKey = new Map(
-    active.map((member) => [
-      `${normalizeText(member.lastName)}|${normalizeText(member.firstName).split(" ")[0]}`,
-      member,
-    ]),
-  );
-
-  const rows = STRUCK_OFF_CLUB_MEMBERS.map((item) => {
-    const member = [...byKey.values()].find((entry) => matchesStruckOffEntry(entry, item));
-    if (!member) {
-      return {
-        displayName: item.label,
-        memberSince: "",
-        memberUntil: "",
-        reason: "Wykreśleni z PZSS (brak płatności)",
-        missingFromRoster: true,
-      };
-    }
-
-    return {
-      id: member.id,
-      displayName: member.displayName || member.fullName || item.label,
-      pesel: member.pesel || "",
-      memberSince: member.memberSince || "",
-      memberUntil: member.memberUntil || "",
-      reason: isInactiveInPzss(member) ? "Wykreśleni w eksporcie PZSS" : "Wykreśleni z PZSS (brak płatności)",
-      missingFromRoster: false,
-    };
-  });
-
-  for (const member of active) {
-    if (STRUCK_OFF_CLUB_MEMBERS.some((item) => matchesStruckOffEntry(member, item))) continue;
-    rows.push({
-      id: member.id,
-      displayName: member.displayName || member.fullName,
-      pesel: member.pesel || "",
-      memberSince: member.memberSince || "",
-      memberUntil: member.memberUntil || "",
-      reason: "Wykreśleni w eksporcie PZSS",
-      missingFromRoster: false,
-    });
-  }
-
-  return rows;
 };
 
 const parseMemberSince = (memberSince) => {

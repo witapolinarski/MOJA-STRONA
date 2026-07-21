@@ -12,7 +12,6 @@ import {
   buildHouseholdObligationSchedule,
   buildMemberObligationSchedule,
   isDuesExempt,
-  isStruckOffFromClub,
   listDueMembershipYears,
   listLicenseDueYears,
   membershipAnnualRate,
@@ -941,7 +940,7 @@ const buildMemberDuesRow = (member, expected, memberSlice, allocation, paymentNa
 export const reconcileDues = (members = [], paymentRecords = [], options = {}) => {
   const asOf = options.asOf instanceof Date ? options.asOf : new Date();
   const activeMembers = members.filter((member) => member.active !== false);
-  const duesMembers = activeMembers.filter((member) => !isDuesExempt(member) && !isStruckOffFromClub(member));
+  const duesMembers = activeMembers.filter((member) => !isDuesExempt(member));
   const { households, householdByMemberId } = buildHouseholdGroups(duesMembers);
   const { byMemberId, byHouseholdId, unmatchedCount } = indexPaymentsByMember(
     paymentRecords,
@@ -1046,7 +1045,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
   });
 
   const exemptFromDues = buildExemptFromDuesList(activeMembers);
-  const struckOffFromClub = buildStruckOffFromClubList(members);
+  const struckOffFromClub = buildStruckOffFromClubList(options.removedMembers || []);
   const voucherReport = buildVoucherPaymentsReport(paymentRecords, activeMembers);
 
   return {

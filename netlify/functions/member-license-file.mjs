@@ -59,7 +59,12 @@ export default async (request) => {
       await ensureRosterSeeded();
       const roster = await getRosterRecord();
       const merged = mergeLicenseRegisterIntoRoster(roster.members || [], parsed.records);
-      const saved = await saveRosterMembers(merged.members, {
+      const saved = await saveRosterMembers(
+        {
+          members: merged.members,
+          removedMembers: roster.removedMembers || [],
+        },
+        {
         source: "pzss-license-register",
         importedBy: auth.member.name,
       });

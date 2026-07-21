@@ -195,12 +195,12 @@
           <section class="roster-panel">
             <h3>Import z PZSS (SOZ)</h3>
             <p class="roster-hint">
-              Lista zawodników w SOZ:
+              Lista w SOZ (
               <a href="https://soz.pzss.org.pl/Club/Persons/List" target="_blank" rel="noopener">
-                soz.pzss.org.pl/Club/Persons/List
-              </a>.
-              Ustaw 100 wpisów na stronę, skopiuj tabelę (Ctrl+A) i wklej poniżej — albo użyj
-              <strong>skryptu synchronizacji SOZ</strong> (zbiera wszystkie strony automatycznie).
+                Club/Persons/List
+              </a>)
+              zawiera tylko aktywnych zawodników — wykreśleni znikają z tej listy.
+              Ustaw 100 wpisów na stronę, skopiuj tabelę lub użyj skryptu synchronizacji SOZ.
             </p>
             <div class="roster-actions">
               <a
@@ -277,7 +277,8 @@
           <section class="roster-panel dues-struckoff-panel">
             <h3>Wykreśleni z PZSS</h3>
             <p class="roster-hint">
-              Osoby wykreślone z bazy PZSS (np. z powodu braku płatności) — nie wchodzą do tabeli składek.
+              Lista w SOZ zawiera wyłącznie <strong>aktywnych</strong> zawodników — bez wykreślonych.
+              Po synchronizacji osoby znikające z listy SOZ trafiają tutaj automatycznie.
             </p>
             <div id="dues-struckoff-wrap" class="roster-table-wrap"></div>
           </section>

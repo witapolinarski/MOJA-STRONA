@@ -1,4 +1,3 @@
-import { applyStruckOffFlags } from "./fees.mjs";
 import { fetchSozPersonsText } from "./pzss-soz.mjs";
 import { getRosterExportFile, saveRosterExportBuffer } from "./roster-file.mjs";
 import {
@@ -16,16 +15,20 @@ const decodeRosterText = (buffer) => {
 };
 
 export const importPzssRosterText = async (text, meta = {}) => {
-  const members = parsePzssRosterText(text);
-  if (!members.length) {
+  const importedMembers = parsePzssRosterText(text);
+  if (!importedMembers.length) {
     throw new Error("Nie udało się odczytać listy członków z eksportu PZSS.");
   }
 
   await ensureRosterSeeded();
   const current = await getRosterRecord();
-  const merged = applyStruckOffFlags(mergePzssRosterImport(current.members || [], members));
+  const { members, removedMembers } = mergePzssRosterImport(
+    current.members || [],
+    importedMembers,
+    current.removedMembers || [],
+  );
 
-  return saveRosterMembers(merged, {
+  return saveRosterMembers({ members, removedMembers }, {
     source: meta.source || "pzss-sync",
     importedBy: meta.importedBy || null,
   });
