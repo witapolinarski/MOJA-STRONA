@@ -28,6 +28,12 @@
   for = "/strefa.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/strefa.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
 [[redirects]]
   from = "/strefa"

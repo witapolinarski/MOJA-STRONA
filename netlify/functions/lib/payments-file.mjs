@@ -4,7 +4,7 @@ export const PAYMENTS_META_KEY = "meta:club-payments";
 export const PAYMENTS_FILE_KEY = "club/payments-register";
 export const PAYMENTS_ANALYSIS_KEY = "meta:club-payments-analysis";
 
-const ANALYSIS_VERSION = 2;
+const ANALYSIS_VERSION = 3;
 
 const analysisStamp = (meta = {}) =>
   `v${ANALYSIS_VERSION}:${meta.uploadedAt || ""}:${meta.size || 0}:${meta.fileName || ""}`;

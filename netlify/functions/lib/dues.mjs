@@ -1,11 +1,14 @@
 import XLSX from "xlsx";
 import { ENTRY_FEE, MONTHLY_FEE } from "./fees.mjs";
-import { findRosterMember, normalizeText } from "./names.mjs";
+import { buildRosterNameIndex, matchPaymentToMember, normalizeText } from "./names.mjs";
 
 const MONTH_HEADER =
   /^(sty|cze|lip|sie|wrz|paź|paz|lis|gru|stycze|luty|lut|marzec|mar|kwie|maj|czerw|lipiec|sierp|wrze|październik|listopad|grudzie|\d{1,2})$/i;
 
-const AMOUNT_HEADER = /(kwota|zapłac|zaplac|wpłat|wplat|suma|razem|paid|amount|należn|nalezn|wartość|wartosc|obciąż|obciaz|uznan)/i;
+const AMOUNT_HEADER = /(kwota|zapłac|zaplac|wpłat|wplat|suma|razem|paid|amount|należn|nalezn|wartość|wartosc)/i;
+const CREDIT_HEADER = /(uznan|wpływ|wplyw|przych)/i;
+const DEBIT_HEADER = /(obciąż|obciaz|rozch)/i;
+const TYPE_HEADER = /(typ|rodzaj)/i;
 const NAME_HEADER = /(nazw|imię|imie|name|zawodnik|członk|clonk|kontrahent|nadawca|odbiorca)/i;
 const PESEL_HEADER = /pesel/i;
 const TITLE_HEADER = /(tytuł|tytul|opis|treść|tresc|operac|szczegół|szczegol)/i;
@@ -64,7 +67,7 @@ const detectHeaderRow = (rows) => {
 };
 
 const buildColumnMap = (headers) => {
-  const map = { pesel: -1, name: -1, amount: -1, title: -1, monthColumns: [] };
+  const map = { pesel: -1, name: -1, amount: -1, credit: -1, debit: -1, title: -1, type: -1, monthColumns: [] };
 
   headers.forEach((header, index) => {
     const label = String(header || "").trim();
@@ -73,6 +76,9 @@ const buildColumnMap = (headers) => {
     if (map.name < 0 && NAME_HEADER.test(lower)) map.name = index;
     if (map.name < 0 && SENDER_HEADER.test(lower)) map.name = index;
     if (map.title < 0 && TITLE_HEADER.test(lower)) map.title = index;
+    if (map.type < 0 && TYPE_HEADER.test(lower)) map.type = index;
+    if (map.credit < 0 && CREDIT_HEADER.test(lower)) map.credit = index;
+    if (map.debit < 0 && DEBIT_HEADER.test(lower)) map.debit = index;
     if (map.amount < 0 && AMOUNT_HEADER.test(lower)) map.amount = index;
     if (MONTH_HEADER.test(lower.replace(/\./g, ""))) map.monthColumns.push(index);
   });
@@ -88,6 +94,41 @@ const buildColumnMap = (headers) => {
   }
 
   return map;
+};
+
+const INCOMING_TYPE = /(uznan|wpływ|wplyw|przych|wpłata|wplata)/i;
+
+const readIncomingAmount = (row, columns) => {
+  if (columns.credit >= 0) {
+    return Math.abs(parseAmount(row[columns.credit]));
+  }
+
+  if (columns.amount >= 0) {
+    const raw = String(row[columns.amount] ?? "").trim();
+    const parsed = parseAmount(raw);
+    if (!parsed) return 0;
+
+    if (columns.debit >= 0 && Math.abs(parseAmount(row[columns.debit])) > 0) {
+      return 0;
+    }
+
+    if (/^-/.test(raw) || /^\(.*\)$/.test(raw)) return 0;
+    return Math.abs(parsed);
+  }
+
+  if (columns.monthColumns.length) {
+    return columns.monthColumns.reduce((sum, index) => sum + Math.abs(parseAmount(row[index])), 0);
+  }
+
+  const numericCells = row.map((cell) => Math.abs(parseAmount(cell))).filter((value) => value > 0);
+  return numericCells.length ? Math.max(...numericCells) : 0;
+};
+
+const isIncomingTransaction = (row, columns) => {
+  if (columns.type < 0) return true;
+  const type = String(row[columns.type] || "").trim();
+  if (!type) return true;
+  return INCOMING_TYPE.test(type);
 };
 
 const peselFromText = (value) => {
@@ -146,15 +187,9 @@ export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
       peselFromText(name) ||
       normalizePesel(row.find((cell) => normalizePesel(cell)));
 
-    let amount = 0;
-    if (columns.amount >= 0) {
-      amount = Math.abs(parseAmount(row[columns.amount]));
-    } else if (columns.monthColumns.length) {
-      amount = columns.monthColumns.reduce((sum, index) => sum + Math.abs(parseAmount(row[index])), 0);
-    } else {
-      const numericCells = row.map((cell) => Math.abs(parseAmount(cell))).filter((value) => value > 0);
-      amount = numericCells.length ? Math.max(...numericCells) : 0;
-    }
+    if (!isIncomingTransaction(row, columns)) continue;
+
+    const amount = readIncomingAmount(row, columns);
 
     if (!pesel && !name) continue;
     if (!amount && !pesel) continue;
@@ -162,6 +197,7 @@ export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
     records.push({
       pesel,
       name,
+      title: titleText,
       amount,
     });
   }
@@ -306,47 +342,24 @@ const indexPayments = (records) => {
   return { byPesel, unmatched };
 };
 
-const buildRosterNameIndex = (members = []) => {
-  const index = new Map();
-
-  for (const member of members) {
-    const keys = [
-      normalizeText(member.displayName),
-      normalizeText(`${member.firstName} ${member.lastName}`),
-      normalizeText(`${member.lastName} ${member.firstName}`),
-      normalizeText(member.fullName),
-    ].filter(Boolean);
-
-    for (const key of keys) {
-      if (!index.has(key)) index.set(key, member);
-    }
-  }
-
-  return index;
-};
-
-const findMemberForPayment = (payment, members, nameIndex) => {
-  if (payment.pesel) {
-    const byPesel = members.find((member) => member.pesel === payment.pesel);
-    if (byPesel) return byPesel;
-  }
-
-  const candidates = [payment.name, extractBankPartyName(payment.name)].filter(Boolean);
-  for (const candidate of candidates) {
-    const normalized = normalizeText(candidate);
-    if (nameIndex.has(normalized)) return nameIndex.get(normalized);
-  }
-
-  return findRosterMember(payment.name, members);
-};
-
 const indexPaymentsByMember = (paymentRecords = [], members = []) => {
-  const nameIndex = buildRosterNameIndex(members);
+  const lookup = buildRosterNameIndex(members);
   const byMemberId = new Map();
   let unmatchedCount = 0;
 
   for (const record of paymentRecords) {
-    const member = findMemberForPayment(record, members, nameIndex);
+    let member = null;
+    if (record.pesel) {
+      member = members.find((item) => item.pesel === record.pesel) || null;
+    }
+
+    if (!member) {
+      member =
+        matchPaymentToMember(record.name, members, lookup) ||
+        matchPaymentToMember(extractBankPartyName(record.name), members, lookup) ||
+        matchPaymentToMember(record.title, members, lookup);
+    }
+
     if (!member) {
       unmatchedCount += 1;
       continue;
@@ -355,6 +368,7 @@ const indexPaymentsByMember = (paymentRecords = [], members = []) => {
     const current = byMemberId.get(member.id) || { amount: 0, names: new Set() };
     current.amount += record.amount;
     if (record.name) current.names.add(record.name);
+    if (record.title) current.names.add(record.title);
     byMemberId.set(member.id, current);
   }
 
