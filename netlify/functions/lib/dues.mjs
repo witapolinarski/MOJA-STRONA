@@ -5,6 +5,7 @@ import {
   ENTRY_FEE,
   LICENSE_FEE_ANNUAL,
   annualMembershipFee,
+  annualMembershipFeeForMemberYear,
   calculateAnnualMembershipTotal,
   listDueMembershipYears,
 } from "./fees.mjs";
@@ -144,6 +145,14 @@ const peselFromText = (value) => {
   return match ? match[0] : "";
 };
 
+const isAccountNumberPart = (value) => {
+  const compact = String(value || "").replace(/\s/g, "");
+  if (!compact) return false;
+  if (/^\d[\d\s]+$/.test(compact)) return true;
+  if (/^PL\d{10,}$/i.test(compact)) return true;
+  return false;
+};
+
 export const extractBankPartyName = (value) => {
   const parts = String(value || "")
     .split(/\r?\n/)
@@ -154,7 +163,7 @@ export const extractBankPartyName = (value) => {
   if (!parts.length) return "";
 
   for (const part of parts) {
-    if (/^\d[\d\s]+$/.test(part)) continue;
+    if (isAccountNumberPart(part)) continue;
     return part;
   }
 
@@ -167,7 +176,7 @@ const pickPaymentName = (row, columns) => {
   const senderName = extractBankPartyName(sender);
   const titleName = extractBankPartyName(title);
 
-  if (senderName && !/^\d[\d\s]+$/.test(senderName)) return senderName;
+  if (senderName && !isAccountNumberPart(senderName)) return senderName;
   if (titleName) return titleName;
   return sender || title || String(row[0] || "").trim();
 };
@@ -190,6 +199,7 @@ export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
 
     const peselFromColumn = columns.pesel >= 0 ? normalizePesel(row[columns.pesel]) : "";
     const titleText = columns.title >= 0 ? String(row[columns.title] || "").trim() : "";
+    const sender = columns.name >= 0 ? String(row[columns.name] || "").trim() : "";
     const name = pickPaymentName(row, columns);
     const pesel =
       peselFromColumn ||
@@ -207,6 +217,7 @@ export const parsePaymentsSpreadsheet = (buffer, fileName = "") => {
     records.push({
       pesel,
       name,
+      sender,
       title: titleText,
       amount,
     });
@@ -299,17 +310,78 @@ export const countLicenseYearsDue = (member, asOf = new Date()) => {
   return asOfYear - joinYear + 1;
 };
 
-export const allocatePaymentToDues = (expected, paidAmount = 0) => {
-  let remaining = paidAmount;
+export const classifyPaymentPurpose = (record) => {
+  const title = normalizeText(record.title || "");
+  if (!title) return "unknown";
 
-  const paidEntry = Math.min(remaining, expected.entryFee || 0);
-  remaining -= paidEntry;
+  if (/impreza|turniej|kolacja|bankiet|darowizn|bilet|zawody|startowe|trening otwarty/.test(title)) {
+    return "exclude";
+  }
+  if (/wpisow/.test(title)) return "entry";
+  if (/licencj/.test(title)) return "license";
+  if (/skladk|składk|czlonkostw|członkostw|membership|sagittarius/.test(title)) return "membership";
 
-  const paidLicense = Math.min(remaining, expected.licenseTotal || 0);
-  remaining -= paidLicense;
+  return "unknown";
+};
 
-  const paidMonthly = Math.min(remaining, expected.monthlyTotal || 0);
-  remaining -= paidMonthly;
+const emptyPaymentBuckets = () => ({
+  amount: 0,
+  entry: 0,
+  license: 0,
+  membership: 0,
+  unknown: 0,
+  excluded: 0,
+  names: new Set(),
+});
+
+export const allocatePaymentToDues = (expected, paidAmount = 0, buckets = null) => {
+  if (!buckets) {
+    let remaining = paidAmount;
+
+    const paidEntry = Math.min(remaining, expected.entryFee || 0);
+    remaining -= paidEntry;
+
+    const paidLicense = Math.min(remaining, expected.licenseTotal || 0);
+    remaining -= paidLicense;
+
+    const paidMonthly = Math.min(remaining, expected.monthlyTotal || 0);
+    remaining -= paidMonthly;
+
+    const balanceEntry = (expected.entryFee || 0) - paidEntry;
+    const balanceLicense = (expected.licenseTotal || 0) - paidLicense;
+    const balanceMonthly = (expected.monthlyTotal || 0) - paidMonthly;
+
+    return {
+      paidEntry,
+      paidLicense,
+      paidMonthly,
+      balanceEntry,
+      balanceLicense,
+      balanceMonthly,
+      overpaid: Math.max(0, remaining),
+    };
+  }
+
+  let paidEntry = Math.min(buckets.entry, expected.entryFee || 0);
+  let paidLicense = Math.min(buckets.license, expected.licenseTotal || 0);
+  let paidMonthly = Math.min(buckets.membership, expected.monthlyTotal || 0);
+
+  let remaining = buckets.unknown;
+
+  const entryGap = (expected.entryFee || 0) - paidEntry;
+  const toEntry = Math.min(remaining, entryGap);
+  paidEntry += toEntry;
+  remaining -= toEntry;
+
+  const licenseGap = (expected.licenseTotal || 0) - paidLicense;
+  const toLicense = Math.min(remaining, licenseGap);
+  paidLicense += toLicense;
+  remaining -= toLicense;
+
+  const monthlyGap = (expected.monthlyTotal || 0) - paidMonthly;
+  const toMonthly = Math.min(remaining, monthlyGap);
+  paidMonthly += toMonthly;
+  remaining -= toMonthly;
 
   const balanceEntry = (expected.entryFee || 0) - paidEntry;
   const balanceLicense = (expected.licenseTotal || 0) - paidLicense;
@@ -323,6 +395,7 @@ export const allocatePaymentToDues = (expected, paidAmount = 0) => {
     balanceLicense,
     balanceMonthly,
     overpaid: Math.max(0, remaining),
+    excluded: buckets.excluded || 0,
   };
 };
 
@@ -366,7 +439,13 @@ export const calculateExpectedDues = (member, options = {}) => {
   const dueYears = listDueMembershipYears(since, new Date(year, throughMonth - 1, 28)) || [];
   const annualYears = dueYears.filter((dueYear) => dueYear <= year);
   const annualTotal = annualYears.reduce(
-    (sum, dueYear) => sum + annualMembershipFee(dueYear, new Date(year, throughMonth - 1, 28)),
+    (sum, dueYear) =>
+      sum +
+      annualMembershipFeeForMemberYear(
+        since,
+        dueYear,
+        new Date(year, throughMonth - 1, 28),
+      ),
     0,
   );
 
@@ -449,8 +528,8 @@ const resolvePaymentMember = (record, members, lookup, textPatterns) => {
     if (byPesel) return byPesel;
   }
 
-  const senderRaw = record.name || "";
-  const senderName = extractBankPartyName(senderRaw) || senderRaw;
+  const senderRaw = record.sender || record.name || "";
+  const senderName = extractBankPartyName(senderRaw) || record.name || senderRaw;
   const title = record.title || "";
   const paymentText = [senderRaw, senderName, title].filter(Boolean).join(" ");
 
@@ -487,8 +566,25 @@ const indexPaymentsByMember = (paymentRecords = [], members = []) => {
       continue;
     }
 
-    const current = byMemberId.get(member.id) || { amount: 0, names: new Set() };
-    current.amount += record.amount;
+    const current = byMemberId.get(member.id) || emptyPaymentBuckets();
+    const purpose = classifyPaymentPurpose(record);
+
+    if (purpose === "exclude") {
+      current.excluded += record.amount;
+    } else if (purpose === "entry") {
+      current.entry += record.amount;
+      current.amount += record.amount;
+    } else if (purpose === "license") {
+      current.license += record.amount;
+      current.amount += record.amount;
+    } else if (purpose === "membership") {
+      current.membership += record.amount;
+      current.amount += record.amount;
+    } else {
+      current.unknown += record.amount;
+      current.amount += record.amount;
+    }
+
     if (record.name) current.names.add(record.name);
     if (record.title) current.names.add(record.title);
     byMemberId.set(member.id, current);
@@ -512,7 +608,7 @@ export const reconcileDues = (members = [], paymentRecords = [], options = {}) =
     const expected = calculateLifetimeExpectedDues(member, { asOf });
     const payment = byMemberId.get(member.id);
     const paidAmount = payment?.amount || 0;
-    const allocation = allocatePaymentToDues(expected, paidAmount);
+    const allocation = allocatePaymentToDues(expected, paidAmount, payment || null);
     const balance =
       allocation.balanceEntry + allocation.balanceLicense + allocation.balanceMonthly;
     const arrearsReason = buildArrearsReason(allocation);

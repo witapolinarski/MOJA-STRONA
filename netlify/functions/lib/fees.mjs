@@ -49,10 +49,27 @@ export const annualMembershipFee = (year, asOf = new Date()) => {
   return asOfMonth === 1 ? ANNUAL_FEE_EARLY : ANNUAL_FEE_LATE;
 };
 
+export const annualMembershipFeeForMemberYear = (memberSince, year, asOf = new Date()) => {
+  const since = parseMemberSince(memberSince);
+  if (!since) return 0;
+
+  const joinYear = since.getFullYear();
+  const joinMonth = since.getMonth() + 1;
+  const rate = annualMembershipFee(year, asOf);
+  if (!rate) return 0;
+
+  if (year !== joinYear) return rate;
+  if (joinMonth === 12) return 0;
+
+  const firstFeeMonth = joinMonth + 1;
+  const monthsInJoinYear = 12 - firstFeeMonth + 1;
+  return Math.round((rate * monthsInJoinYear) / 12);
+};
+
 export const calculateAnnualMembershipTotal = (memberSince, asOf = new Date()) => {
   const years = listDueMembershipYears(memberSince, asOf);
   if (years == null) return null;
-  return years.reduce((sum, year) => sum + annualMembershipFee(year, asOf), 0);
+  return years.reduce((sum, year) => sum + annualMembershipFeeForMemberYear(memberSince, year, asOf), 0);
 };
 
 export const countFeeMonths = (acceptanceDate) => {
