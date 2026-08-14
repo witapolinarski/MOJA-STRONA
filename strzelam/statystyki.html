@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Statystyki strony | Strzelam.com</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="analytics-page">
+    <header class="analytics-header">
+      <a aria-label='Strzelam.com' class='brand' href='/#start'>
+        <span class="brand-mark">S</span>
+        <span>
+          <strong>Strzelam.com</strong>
+          <small>Statystyki strony</small>
+        </span>
+      </a>
+      <a class='analytics-back' href='/'>Wróć na stronę</a>
+    </header>
+
+    <main class="analytics-shell">
+      <section class="analytics-hero">
+        <div>
+          <p class="eyebrow">Panel właściciela</p>
+          <h1>Statystyki odwiedzin</h1>
+          <p>Podgląd wejść, kliknięć, popularnych sekcji i zainteresowania bonami. Dane są zbierane bez cookies i bez zapisywania danych osobowych.</p>
+        </div>
+        <div class="analytics-controls" aria-label="Sterowanie statystykami">
+          <label>
+            Token panelu
+            <input id="analytics-token" type="password" autocomplete="off" placeholder="wpisz token">
+          </label>
+          <label>
+            Zakres
+            <select id="analytics-days">
+              <option value="7">7 dni</option>
+              <option value="30" selected>30 dni</option>
+              <option value="90">90 dni</option>
+            </select>
+          </label>
+          <button class="button primary" id="analytics-save-token" type="button">Zapisz</button>
+          <button class="button secondary dark" id="analytics-refresh" type="button">Odśwież</button>
+        </div>
+      </section>
+
+      <p class="analytics-status" id="analytics-status">Ładuję statystyki...</p>
+
+      <section class="analytics-cards" id="analytics-cards" aria-label="Najważniejsze liczby"></section>
+
+      <section class="analytics-panel">
+        <div class="analytics-panel-heading">
+          <h2>Odsłony według dni</h2>
+          <p>Każdy słupek pokazuje liczbę odsłon w danym dniu.</p>
+        </div>
+        <div class="analytics-chart" id="analytics-chart" aria-label="Wykres odsłon"></div>
+      </section>
+
+      <section class="analytics-grid">
+        <article class="analytics-panel">
+          <h2>Popularne sekcje</h2>
+          <div class="analytics-list" id="analytics-sections"></div>
+        </article>
+        <article class="analytics-panel">
+          <h2>Kliknięcia</h2>
+          <div class="analytics-list" id="analytics-clicks"></div>
+        </article>
+        <article class="analytics-panel">
+          <h2>Skąd przyszli</h2>
+          <div class="analytics-list" id="analytics-referrers"></div>
+        </article>
+        <article class="analytics-panel">
+          <h2>Urządzenia</h2>
+          <div class="analytics-list" id="analytics-devices"></div>
+        </article>
+        <article class="analytics-panel">
+          <h2>Strony</h2>
+          <div class="analytics-list" id="analytics-pages"></div>
+        </article>
+        <article class="analytics-panel">
+          <h2>FAQ</h2>
+          <div class="analytics-list" id="analytics-faq"></div>
+        </article>
+        <article class="analytics-panel">
+          <h2>Kwoty bonów</h2>
+          <div class="analytics-list" id="analytics-amounts"></div>
+        </article>
+        <article class="analytics-panel">
+          <h2>Godziny aktywności</h2>
+          <div class="analytics-list" id="analytics-hours"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="analytics-dashboard.js"></script>
+  </body>
+</html>
