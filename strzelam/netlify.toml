@@ -7,6 +7,11 @@
   node_bundler = "esbuild"
 
 [[headers]]
+  for = "/test-bon.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "SAMEORIGIN"

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Test bonu | Strzelam.com</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="analytics-page">
+    <header class="analytics-header">
+      <a aria-label="Strzelam.com" class="brand" href="/#start">
+        <span class="brand-mark">S</span>
+        <span>
+          <strong>Strzelam.com</strong>
+          <small>Test bonu podarunkowego</small>
+        </span>
+      </a>
+      <a class="analytics-back" href="/">Wróć na stronę</a>
+    </header>
+
+    <main class="analytics-shell">
+      <section class="analytics-hero">
+        <div>
+          <p class="eyebrow">Panel właściciela</p>
+          <h1>Testowy bon e-mailem</h1>
+          <p>
+            Wyślij przykładowy bon na swój adres bez płatności Stripe. Służy wyłącznie do sprawdzenia układu
+            pól w mailu po wdrożeniu zmian.
+          </p>
+        </div>
+      </section>
+
+      <form class="voucher-test-form" id="voucher-test-form">
+        <label>
+          Hasło administratora
+          <input id="test-password" name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <label>
+          E-mail odbiorcy (Twój adres testowy)
+          <input id="test-email" name="email" type="email" placeholder="adres@email.pl" autocomplete="email" required>
+        </label>
+        <label>
+          Imię i nazwisko na bonie
+          <input id="test-recipient" name="recipient" type="text" value="Sebastian Ocik" autocomplete="name" required>
+        </label>
+        <label>
+          Kwota bonu
+          <select id="test-amount" name="amount">
+            <option value="300">300 zł</option>
+            <option value="400">400 zł</option>
+            <option value="500" selected>500 zł</option>
+            <option value="600">600 zł</option>
+            <option value="800">800 zł</option>
+          </select>
+        </label>
+        <label>
+          Kwota na bonie
+          <select id="test-amount-visibility" name="amountVisibility">
+            <option value="hidden" selected>Ukryta</option>
+            <option value="visible">Widoczna</option>
+          </select>
+        </label>
+        <div class="voucher-test-actions">
+          <button class="button primary" id="test-send" type="submit">Wyślij testowy bon</button>
+          <button class="button secondary dark" id="test-preview" type="button">Podgląd HTML</button>
+        </div>
+      </form>
+
+      <p class="analytics-status" id="test-status" hidden></p>
+      <iframe class="voucher-test-preview" id="test-preview-frame" title="Podgląd maila z bonem" hidden></iframe>
+    </main>
+
+    <script src="test-bon.js"></script>
+  </body>
+</html>
