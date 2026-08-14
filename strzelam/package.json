@@ -1,5 +1,9 @@
 {
   "name": "strzelam-strona",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0",
+    "stripe": "^17.7.0"
+  }
 }
