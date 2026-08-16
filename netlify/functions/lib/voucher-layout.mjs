@@ -15,24 +15,24 @@ export const VOUCHER_FIELDS = {
     top: 55.4,
     width: 52.5,
     height: 15.2,
-    fontSize: 1.35,
-    minFontSize: 0.64,
+    fontSize: 22,
+    minFontSize: 14,
   },
   type: {
     left: 8.8,
     top: 75.4,
     width: 52.5,
     height: 8.5,
-    fontSize: 1.05,
-    minFontSize: 0.7,
+    fontSize: 17,
+    minFontSize: 12,
   },
   date: {
     right: 7,
     top: 75.2,
     width: 24,
     height: 8.5,
-    fontSize: 1,
-    minFontSize: 0.68,
+    fontSize: 15,
+    minFontSize: 11,
   },
 };
 
@@ -46,7 +46,9 @@ const escapeHtml = (value) =>
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-export const getRecipientFontSizeRem = (recipient) => {
+const px = (percent, total) => Math.round((percent / 100) * total);
+
+const getRecipientFontSizePx = (recipient, cardWidthPx) => {
   const normalizedRecipient = String(recipient || "")
     .replace(/\s+/g, " ")
     .trim();
@@ -55,46 +57,103 @@ export const getRecipientFontSizeRem = (recipient) => {
     0,
   );
   const totalLength = normalizedRecipient.length;
-  const sizeByTotalLength = 1.44 - Math.max(0, totalLength - 14) * 0.035;
-  const sizeByLongestWord = 1.44 - Math.max(0, longestWordLength - 10) * 0.06;
-  const size = Math.min(sizeByTotalLength, sizeByLongestWord);
+  const sizeByTotalLength = 22 - Math.max(0, totalLength - 14) * 0.55;
+  const sizeByLongestWord = 22 - Math.max(0, longestWordLength - 10) * 0.85;
+  const size = Math.min(sizeByTotalLength, sizeByLongestWord, (cardWidthPx / 600) * 22);
 
-  return `${clamp(size, VOUCHER_FIELDS.name.minFontSize, VOUCHER_FIELDS.name.fontSize).toFixed(2)}rem`;
+  return Math.round(clamp(size, VOUCHER_FIELDS.name.minFontSize, VOUCHER_FIELDS.name.fontSize));
 };
 
-const fieldBoxStyle = (field, cardWidthPx) => {
-  const horizontal =
-    typeof field.right === "number"
-      ? `right:${field.right}%;left:auto;`
-      : `left:${field.left}%;right:auto;`;
+export const getRecipientFontSizeRem = (recipient) => {
+  const pxSize = getRecipientFontSizePx(recipient, 600);
+  return `${(pxSize / 16).toFixed(2)}rem`;
+};
 
-  const fontSizePx = clamp(
-    (field.fontSize / 16) * (cardWidthPx / 37.5),
-    field.minFontSize * 16,
-    field.fontSize * 16,
-  );
+const renderEmailVoucherTable = ({
+  recipient,
+  packageLabel,
+  validUntil,
+  cardWidthPx,
+  backgroundUrl,
+}) => {
+  const cardHeightPx = Math.round((cardWidthPx * VOUCHER_TEMPLATE.height) / VOUCHER_TEMPLATE.width);
+  const safeRecipient = escapeHtml(recipient || "Osoba obdarowana");
+  const safePackage = escapeHtml(packageLabel);
+  const safeDate = escapeHtml(validUntil || "-");
 
-  return [
-    "position:absolute",
-    horizontal,
-    `top:${field.top}%`,
-    `width:${field.width}%`,
-    `height:${field.height}%`,
-    "display:flex",
-    "align-items:center",
-    "justify-content:center",
-    "padding:0 1.4%",
-    "box-sizing:border-box",
-    "overflow:hidden",
-    "color:#141414",
-    "font-weight:900",
-    "line-height:1.1",
-    "text-align:center",
-    "text-transform:uppercase",
-    `font-size:${fontSizePx.toFixed(2)}px`,
-    "overflow-wrap:anywhere",
-    "white-space:normal",
-  ].join(";");
+  const nameTop = px(VOUCHER_FIELDS.name.top, cardHeightPx);
+  const nameHeight = px(VOUCHER_FIELDS.name.height, cardHeightPx);
+  const nameLeft = px(VOUCHER_FIELDS.name.left, cardWidthPx);
+  const nameWidth = px(VOUCHER_FIELDS.name.width, cardWidthPx);
+
+  const rowTop = px(VOUCHER_FIELDS.type.top, cardHeightPx);
+  const rowHeight = px(VOUCHER_FIELDS.type.height, cardHeightPx);
+  const typeLeft = px(VOUCHER_FIELDS.type.left, cardWidthPx);
+  const typeWidth = px(VOUCHER_FIELDS.type.width, cardWidthPx);
+  const dateWidth = px(VOUCHER_FIELDS.date.width, cardWidthPx);
+  const dateRight = px(VOUCHER_FIELDS.date.right, cardWidthPx);
+
+  const gapAfterName = Math.max(0, rowTop - nameTop - nameHeight);
+  const bottomSpacer = Math.max(0, cardHeightPx - rowTop - rowHeight);
+
+  const nameFontSize = getRecipientFontSizePx(recipient, cardWidthPx);
+  const textBase =
+    "font-family:Arial,Helvetica,sans-serif;font-weight:900;color:#141414;text-transform:uppercase;text-align:center;line-height:1.1;mso-line-height-rule:exactly;";
+
+  return `
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${cardWidthPx}" style="width:${cardWidthPx}px;max-width:100%;border-collapse:collapse;margin:0 auto;">
+      <tr>
+        <td
+          width="${cardWidthPx}"
+          height="${cardHeightPx}"
+          valign="top"
+          background="${backgroundUrl}"
+          style="width:${cardWidthPx}px;height:${cardHeightPx}px;background-color:#1a1a1a;background-image:url('${backgroundUrl}');background-repeat:no-repeat;background-size:${cardWidthPx}px ${cardHeightPx}px;background-position:center top;border:1px solid rgba(21,22,23,0.12);padding:0;"
+        >
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border-collapse:collapse;">
+            <tr>
+              <td height="${nameTop}" style="height:${nameTop}px;font-size:0;line-height:0;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td width="${nameLeft}" style="width:${nameLeft}px;font-size:0;line-height:0;">&nbsp;</td>
+              <td
+                width="${nameWidth}"
+                height="${nameHeight}"
+                valign="middle"
+                align="center"
+                style="width:${nameWidth}px;height:${nameHeight}px;${textBase}font-size:${nameFontSize}px;background:transparent;"
+              >${safeRecipient}</td>
+              <td style="font-size:0;line-height:0;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td height="${gapAfterName}" colspan="3" style="height:${gapAfterName}px;font-size:0;line-height:0;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td width="${typeLeft}" style="width:${typeLeft}px;font-size:0;line-height:0;">&nbsp;</td>
+              <td
+                width="${typeWidth}"
+                height="${rowHeight}"
+                valign="middle"
+                align="center"
+                style="width:${typeWidth}px;height:${rowHeight}px;${textBase}font-size:${VOUCHER_FIELDS.type.fontSize}px;background:transparent;"
+              >${safePackage}</td>
+              <td
+                width="${dateWidth}"
+                height="${rowHeight}"
+                valign="middle"
+                align="center"
+                style="width:${dateWidth}px;height:${rowHeight}px;${textBase}font-size:${VOUCHER_FIELDS.date.fontSize}px;background:transparent;"
+              >${safeDate}</td>
+              <td width="${dateRight}" style="width:${dateRight}px;font-size:0;line-height:0;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td height="${bottomSpacer}" colspan="4" style="height:${bottomSpacer}px;font-size:0;line-height:0;">&nbsp;</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  `;
 };
 
 export const renderVoucherCardMarkup = ({
@@ -105,20 +164,15 @@ export const renderVoucherCardMarkup = ({
   backgroundUrl = "",
   mode = "email",
 }) => {
-  const cardHeightPx = Math.round((cardWidthPx * VOUCHER_TEMPLATE.height) / VOUCHER_TEMPLATE.width);
   const safeRecipient = escapeHtml(recipient || "Osoba obdarowana");
   const safePackage = escapeHtml(packageLabel);
   const safeDate = escapeHtml(validUntil || "-");
   const recipientFontSize = getRecipientFontSizeRem(recipient || "");
+  const resolvedBackgroundUrl =
+    backgroundUrl ||
+    "https://strzelam.com/assets/voucher-template-bg.jpg";
 
-  const backgroundStyle = backgroundUrl
-    ? `background-image:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)), url('${backgroundUrl}');`
-    : "background-image:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)), url('assets/voucher-template-bg.jpg');";
-
-  const resolvedNameStyle = fieldBoxStyle(VOUCHER_FIELDS.name, cardWidthPx).replace(
-    /font-size:[^;]+;/,
-    `font-size:${(parseFloat(recipientFontSize) * 16).toFixed(2)}px;`,
-  );
+  const backgroundStyle = `background-image:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)), url('${resolvedBackgroundUrl}');`;
 
   if (mode === "web") {
     return `
@@ -127,22 +181,18 @@ export const renderVoucherCardMarkup = ({
           <div class="voucher-card-name" id="preview-recipient" style="--recipient-font-size:${recipientFontSize};">${safeRecipient}</div>
           <div class="voucher-card-type">${safePackage}</div>
           <div class="voucher-card-date" id="preview-valid-until">${safeDate}</div>
-          <div class="voucher-card-title">BON</div>
         </div>
       </div>
     `;
   }
 
-  return `
-    <div style="width:${cardWidthPx}px;max-width:100%;margin:0 auto;">
-      <div style="position:relative;width:${cardWidthPx}px;max-width:100%;height:${cardHeightPx}px;${backgroundStyle}background-size:cover;background-position:center;border:1px solid rgba(21,22,23,0.12);">
-        <div style="${resolvedNameStyle}">${safeRecipient}</div>
-        <div style="${fieldBoxStyle(VOUCHER_FIELDS.type, cardWidthPx)}">${safePackage}</div>
-        <div style="${fieldBoxStyle(VOUCHER_FIELDS.date, cardWidthPx)}">${safeDate}</div>
-        <div style="position:absolute;left:6.2%;bottom:5.6%;width:26%;color:#f6f1ea;font-weight:900;line-height:1.1;text-align:center;text-transform:uppercase;font-size:${Math.max(12, cardWidthPx * 0.028).toFixed(2)}px;">BON</div>
-      </div>
-    </div>
-  `;
+  return renderEmailVoucherTable({
+    recipient,
+    packageLabel,
+    validUntil,
+    cardWidthPx,
+    backgroundUrl: resolvedBackgroundUrl,
+  });
 };
 
 export const renderControlCouponMarkup = ({
@@ -219,7 +269,7 @@ export const renderVoucherEmailHtml = ({
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bon podarunkowy</title>
   </head>
-  <body style="margin:0;padding:0;background:#f7f4ee;color:#151617;font-family:Inter,Arial,sans-serif;line-height:1.55;">
+  <body style="margin:0;padding:0;background:#f7f4ee;color:#151617;font-family:Arial,Helvetica,sans-serif;line-height:1.55;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#f7f4ee;">
       <tr>
         <td align="center" style="padding:28px 16px;">

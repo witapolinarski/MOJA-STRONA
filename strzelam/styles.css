@@ -832,15 +832,7 @@ h3 {
   overflow: hidden;
 }
 
-.voucher-card-title {
-  left: 6.2%;
-  bottom: 5.6%;
-  width: 26%;
-  height: auto;
-  color: #f6f1ea;
-  font-size: clamp(0.75rem, 2.9vw, 1.12rem);
-  letter-spacing: 0;
-}
+/* BON jest już na grafice szablonu — nie duplikujemy tekstu */
 
 .voucher-cut-line {
   position: relative;
