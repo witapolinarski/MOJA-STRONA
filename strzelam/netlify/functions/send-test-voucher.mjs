@@ -80,11 +80,14 @@ export default async (request) => {
       ...voucher,
     });
 
+    const copyEmail = String(process.env.VOUCHER_COPY_EMAIL || "").trim().toLowerCase();
+
     return jsonResponse({
       ok: true,
-      message: `Wysłano testowy bon na adres ${email}.`,
+      message: `Wysłano testowy bon na adres ${email}. Sprawdź skrzynkę i folder Spam.`,
       voucher,
       emailId: result?.id || "",
+      copyEmail: copyEmail && copyEmail !== email ? copyEmail : "",
     });
   } catch (error) {
     console.error("send-test-voucher", error);

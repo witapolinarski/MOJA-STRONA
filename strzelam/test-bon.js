@@ -69,7 +69,12 @@ form?.addEventListener("submit", async (event) => {
 
   try {
     const result = await callTestEndpoint(false);
-    setStatus(result.message || "Wysłano testowy bon.");
+    const copyHint = result.copyEmail
+      ? ` Kopia: ${result.copyEmail}.`
+      : " Sprawdź też folder Spam/Oferty.";
+    setStatus(
+      `${result.message || "Wysłano testowy bon."}${copyHint} Id wysyłki: ${result.emailId || "-"}.`,
+    );
   } catch (error) {
     setStatus(error.message || "Nie udało się wysłać testowego bonu.", true);
   }
