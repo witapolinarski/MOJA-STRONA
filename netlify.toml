@@ -1,70 +1,38 @@
+# Konfiguracja deployu strzelam.com (gałąź cursor/voucher-fix-2b7f).
+# Netlify UI ma publish = tmp/strzelam-fix2 — build tworzy ten katalog ze strzelam/.
+
 [build]
-  publish = "."
-  functions = "netlify/functions"
-  command = "npm install"
+  command = "npm install && npm install --prefix strzelam && rm -rf tmp/strzelam-fix2 && mkdir -p tmp/strzelam-fix2 && cp -a strzelam/. tmp/strzelam-fix2/"
+  publish = "tmp/strzelam-fix2"
+  functions = "strzelam/netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
 
-[functions."member-dues"]
-  timeout = 26
-
-[functions."member-roster-sync"]
-  timeout = 26
-
-[functions."sync-pzss-roster"]
-  schedule = "0 5 * * *"
+[[redirects]]
+  from = "/test-bon"
+  to = "/test-bon.html"
+  status = 301
 
 [[redirects]]
-  from = "/deklaracja"
-  to = "/assets/deklaracja-rodo.pdf"
-  status = 302
+  from = "/statystyki"
+  to = "/statystyki.html"
+  status = 200
 
 [[redirects]]
-  from = "/deklaracja-rodo.pdf"
-  to = "/assets/deklaracja-rodo.pdf"
-  status = 302
+  from = "/voucher-success"
+  to = "/voucher-success.html"
+  status = 200
 
 [[headers]]
-  for = "/admin.html"
+  for = "/test-bon.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
-  for = "/strefa.html"
+  for = "/statystyki.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
-    Cache-Control = "no-cache, no-store, must-revalidate"
-
-[[headers]]
-  for = "/strefa.js"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-
-[[redirects]]
-  from = "/strefa"
-  to = "/strefa.html"
-  status = 301
-
-[[redirects]]
-  from = "/rodo"
-  to = "/rodo.html"
-  status = 301
-
-[[redirects]]
-  from = "/polityka-prywatnosci"
-  to = "/rodo.html"
-  status = 301
-
-[[redirects]]
-  from = "/mundurowi"
-  to = "/oferta-dla-mundurowych.html"
-  status = 301
-
-[[redirects]]
-  from = "/oferta-dla-mundurowych"
-  to = "/oferta-dla-mundurowych.html"
-  status = 301
 
 [[headers]]
   for = "/*"
