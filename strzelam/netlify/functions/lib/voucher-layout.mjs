@@ -11,11 +11,17 @@ export const VOUCHER_TIERS_PLN = [300, 400, 500, 600, 800];
 
 export const VOUCHER_DATE_LABEL = "Voucher ważny do:";
 
-export const VOUCHER_CONTACT_LINE =
-  "Realizacja vouchera możliwa jest po wcześniejszej rezerwacji telefonicznej +48 662 475 714";
+export const VOUCHER_FOOTER_LINE1 =
+  "Realizacja vouchera możliwa jest po wcześniejszej rezerwacji telefonicznej";
+
+export const VOUCHER_FOOTER_LINE2 = "+48 662 475 714";
+
+export const VOUCHER_CONTACT_LINE = `${VOUCHER_FOOTER_LINE1} ${VOUCHER_FOOTER_LINE2}`;
+
+export const VOUCHER_EMAIL_WIDTH_PX = 800;
 
 export const VOUCHER_FONT_LINK =
-  "https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Merriweather:ital,wght@0,700;1,700&family=Oswald:wght@500;700&display=swap";
+  "https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@600;700&display=swap";
 
 export const VOUCHER_FIELDS = {
   title: {
@@ -23,48 +29,50 @@ export const VOUCHER_FIELDS = {
     left: 26,
     width: 48,
     height: 10,
-    fontSize: 46,
-    minFontSize: 30,
+    fontSize: 48,
+    minFontSize: 34,
   },
   package: {
     left: 21,
-    top: 56.2,
+    top: 55.8,
     width: 58,
-    height: 10.5,
-    fontSize: 21,
-    minFontSize: 14,
+    height: 11,
+    fontSize: 28,
+    minFontSize: 18,
   },
   recipient: {
-    left: 20.5,
-    top: 74.2,
-    width: 36.5,
-    height: 7.8,
-    fontSize: 24,
-    minFontSize: 12,
+    left: 20,
+    top: 73.6,
+    width: 37,
+    height: 8.5,
+    fontSize: 22,
+    minFontSize: 14,
   },
   dateLabel: {
-    left: 57.5,
-    top: 65.8,
-    width: 34,
-    height: 5.2,
-    fontSize: 14,
-    minFontSize: 10,
+    left: 56,
+    top: 64.8,
+    width: 36,
+    height: 6,
+    fontSize: 17,
+    minFontSize: 13,
   },
   date: {
-    left: 57.5,
-    top: 74.2,
-    width: 31,
-    height: 7.8,
-    fontSize: 16,
-    minFontSize: 11,
+    left: 56,
+    top: 73.6,
+    width: 32,
+    height: 8.5,
+    fontSize: 20,
+    minFontSize: 14,
   },
   footer: {
-    bottom: 1.5,
-    left: 3.5,
-    width: 93,
-    height: 9,
-    fontSize: 13.5,
-    minFontSize: 9,
+    bottom: 1.2,
+    left: 3,
+    width: 94,
+    height: 10.5,
+    fontSize: 16,
+    minFontSize: 12,
+    phoneFontSize: 22,
+    phoneMinFontSize: 16,
   },
 };
 
@@ -94,8 +102,8 @@ export const getRecipientFontSizePx = (recipient, cardWidthPx) => {
   );
   const totalLength = normalizedRecipient.length;
   const field = VOUCHER_FIELDS.recipient;
-  const sizeByTotalLength = field.fontSize - Math.max(0, totalLength - 12) * 0.75;
-  const sizeByLongestWord = field.fontSize - Math.max(0, longestWordLength - 9) * 1.1;
+  const sizeByTotalLength = field.fontSize - Math.max(0, totalLength - 10) * 0.8;
+  const sizeByLongestWord = field.fontSize - Math.max(0, longestWordLength - 8) * 1.2;
   const size = Math.min(sizeByTotalLength, sizeByLongestWord, (cardWidthPx / 600) * field.fontSize);
 
   return Math.round(clamp(size, field.minFontSize, field.fontSize));
@@ -119,7 +127,8 @@ export const renderVoucherCardMarkup = ({
   const safePackage = escapeHtml(packageLabel);
   const safeDate = escapeHtml(formatVoucherDate(validUntil));
   const safeDateLabel = escapeHtml(VOUCHER_DATE_LABEL);
-  const safeFooter = escapeHtml(VOUCHER_CONTACT_LINE);
+  const safeFooterLine1 = escapeHtml(VOUCHER_FOOTER_LINE1);
+  const safeFooterLine2 = escapeHtml(VOUCHER_FOOTER_LINE2);
   const recipientFontSize = getRecipientFontSizeRem(recipient || "");
   const resolvedBackgroundUrl =
     backgroundUrl ||
@@ -145,11 +154,14 @@ export const renderVoucherCardMarkup = ({
     <div class="voucher-card-preview" style="max-width:${cardWidthPx}px;">
       <div class="voucher-card-inner" style="${backgroundStyle}background-size:cover;background-position:center;">
         <div class="voucher-card-title">VOUCHER</div>
-          <div class="voucher-card-package">OSTRE STRZELANIE</div>
-          <div class="voucher-card-date-label">${safeDateLabel}</div>
-          <div class="voucher-card-name" id="preview-recipient" style="--recipient-font-size:${recipientFontSize};">${safeRecipient}</div>
-          <div class="voucher-card-date" id="preview-valid-until">${safeDate}</div>
-        <div class="voucher-card-footer">${safeFooter}</div>
+        <div class="voucher-card-package">${safePackage}</div>
+        <div class="voucher-card-date-label">${safeDateLabel}</div>
+        <div class="voucher-card-name" id="preview-recipient" style="--recipient-font-size:${recipientFontSize};">${safeRecipient}</div>
+        <div class="voucher-card-date" id="preview-valid-until">${safeDate}</div>
+        <div class="voucher-card-footer">
+          <span>${safeFooterLine1}</span>
+          <strong>${safeFooterLine2}</strong>
+        </div>
       </div>
     </div>
   `;
@@ -249,7 +261,7 @@ export const renderVoucherEmailHtml = ({
                 ${renderVoucherCardMarkup({
                   recipient,
                   validUntil,
-                  cardWidthPx: 600,
+                  cardWidthPx: VOUCHER_EMAIL_WIDTH_PX,
                   mode: "email",
                   imageSrc: voucherImageSrc,
                 })}

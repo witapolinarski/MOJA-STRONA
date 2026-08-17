@@ -6,7 +6,9 @@ import {
   VOUCHER_TEMPLATE,
   VOUCHER_PACKAGE_LABEL,
   VOUCHER_DATE_LABEL,
-  VOUCHER_CONTACT_LINE,
+  VOUCHER_FOOTER_LINE1,
+  VOUCHER_FOOTER_LINE2,
+  VOUCHER_EMAIL_WIDTH_PX,
   VOUCHER_FIELDS,
   formatVoucherDate,
   getRecipientFontSizePx,
@@ -65,15 +67,13 @@ const readAsset = async (siteUrl, relativePath) => {
 const loadFontsBase64 = async (siteUrl = DEFAULT_SITE_URL) => {
   if (fontCache) return fontCache;
 
-  const [blackOps, merriweather, oswald] = await Promise.all([
+  const [blackOps, oswald] = await Promise.all([
     readAsset(siteUrl, "fonts/BlackOpsOne-Regular.ttf"),
-    readAsset(siteUrl, "fonts/Merriweather-BoldItalic.ttf"),
     readAsset(siteUrl, "fonts/Oswald-Bold.ttf"),
   ]);
 
   fontCache = {
     blackOps: blackOps.toString("base64"),
-    merriweather: merriweather.toString("base64"),
     oswald: oswald.toString("base64"),
   };
 
@@ -89,6 +89,11 @@ const escapeXml = (value) =>
     .replace(/'/g, "&apos;");
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const scaleFont = (field, cardWidthPx, key = "fontSize", minKey = "minFontSize") => {
+  const scale = cardWidthPx / 600;
+  return Math.round(clamp(scale * field[key], field[minKey], field[key]));
+};
 
 const getFieldBox = (field, width, height) => {
   const left =
@@ -111,6 +116,13 @@ const getFieldBox = (field, width, height) => {
   };
 };
 
+const textOnPill = ({ x, y, size, text, uppercase = false }) => {
+  const transform = uppercase ? ' text-transform="uppercase"' : "";
+  return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle"
+    font-family="'Oswald', 'Arial Narrow', Arial, sans-serif" font-size="${size}" font-weight="700"
+    fill="#111111" letter-spacing="0.02em"${transform}>${text}</text>`;
+};
+
 const buildOverlaySvg = async ({
   recipient,
   packageLabel,
@@ -124,29 +136,16 @@ const buildOverlaySvg = async ({
   const safePackage = escapeXml(packageLabel || VOUCHER_PACKAGE_LABEL);
   const safeDate = escapeXml(formatVoucherDate(validUntil));
   const safeDateLabel = escapeXml(VOUCHER_DATE_LABEL);
-  const safeFooter = escapeXml(VOUCHER_CONTACT_LINE);
+  const safeFooterLine1 = escapeXml(VOUCHER_FOOTER_LINE1);
+  const safeFooterLine2 = escapeXml(VOUCHER_FOOTER_LINE2);
 
-  const scale = width / 600;
-  const titleSize = Math.round(
-    clamp(scale * VOUCHER_FIELDS.title.fontSize, VOUCHER_FIELDS.title.minFontSize, VOUCHER_FIELDS.title.fontSize),
-  );
-  const nameSize = getRecipientFontSizePx(recipient, width);
-  const packageSize = Math.round(
-    clamp(scale * VOUCHER_FIELDS.package.fontSize, VOUCHER_FIELDS.package.minFontSize, VOUCHER_FIELDS.package.fontSize),
-  );
-  const dateSize = Math.round(
-    clamp(scale * VOUCHER_FIELDS.date.fontSize, VOUCHER_FIELDS.date.minFontSize, VOUCHER_FIELDS.date.fontSize),
-  );
-  const labelSize = Math.round(
-    clamp(
-      scale * VOUCHER_FIELDS.dateLabel.fontSize,
-      VOUCHER_FIELDS.dateLabel.minFontSize,
-      VOUCHER_FIELDS.dateLabel.fontSize,
-    ),
-  );
-  const footerSize = Math.round(
-    clamp(scale * VOUCHER_FIELDS.footer.fontSize, VOUCHER_FIELDS.footer.minFontSize, VOUCHER_FIELDS.footer.fontSize),
-  );
+  const titleSize = scaleFont(VOUCHER_FIELDS.title, width);
+  const packageSize = scaleFont(VOUCHER_FIELDS.package, width);
+  const recipientSize = getRecipientFontSizePx(recipient, width);
+  const dateSize = scaleFont(VOUCHER_FIELDS.date, width);
+  const labelSize = scaleFont(VOUCHER_FIELDS.dateLabel, width);
+  const footerSize = scaleFont(VOUCHER_FIELDS.footer, width);
+  const phoneSize = scaleFont(VOUCHER_FIELDS.footer, width, "phoneFontSize", "phoneMinFontSize");
 
   const title = getFieldBox(VOUCHER_FIELDS.title, width, height);
   const packageBox = getFieldBox(VOUCHER_FIELDS.package, width, height);
@@ -154,6 +153,9 @@ const buildOverlaySvg = async ({
   const dateLabel = getFieldBox(VOUCHER_FIELDS.dateLabel, width, height);
   const date = getFieldBox(VOUCHER_FIELDS.date, width, height);
   const footer = getFieldBox(VOUCHER_FIELDS.footer, width, height);
+
+  const footerLine1Y = footer.y - phoneSize * 0.55;
+  const footerLine2Y = footer.y + phoneSize * 0.55;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
@@ -165,12 +167,6 @@ const buildOverlaySvg = async ({
         font-weight: 400;
       }
       @font-face {
-        font-family: 'Merriweather';
-        src: url(data:font/truetype;charset=utf-8;base64,${fonts.merriweather}) format('truetype');
-        font-weight: 700;
-        font-style: italic;
-      }
-      @font-face {
         font-family: 'Oswald';
         src: url(data:font/truetype;charset=utf-8;base64,${fonts.oswald}) format('truetype');
         font-weight: 700;
@@ -178,28 +174,23 @@ const buildOverlaySvg = async ({
     </style>
   </defs>
   <text x="${title.x + 1}" y="${title.y + 2}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Black Ops One', Impact, sans-serif" font-size="${titleSize}" fill="#000000" fill-opacity="0.45"
-    letter-spacing="0.14em">VOUCHER</text>
+    font-family="'Black Ops One', Impact, sans-serif" font-size="${titleSize}" fill="#000000" fill-opacity="0.5"
+    letter-spacing="0.12em">VOUCHER</text>
   <text x="${title.x}" y="${title.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Black Ops One', Impact, sans-serif" font-size="${titleSize}" fill="#f8f4ee"
-    letter-spacing="0.14em">VOUCHER</text>
-  <text x="${packageBox.x}" y="${packageBox.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${packageSize}" fill="#141414"
-    letter-spacing="0.04em" font-weight="700">${safePackage}</text>
-  <text x="${recipientBox.x}" y="${recipientBox.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Merriweather', Georgia, serif" font-size="${nameSize}" fill="#141414"
-    font-weight="700" font-style="italic">${safeRecipient}</text>
+    font-family="'Black Ops One', Impact, sans-serif" font-size="${titleSize}" fill="#ffffff"
+    letter-spacing="0.12em">VOUCHER</text>
+  ${textOnPill({ x: packageBox.x, y: packageBox.y, size: packageSize, text: safePackage, uppercase: true })}
+  ${textOnPill({ x: recipientBox.x, y: recipientBox.y, size: recipientSize, text: safeRecipient })}
   <text x="${dateLabel.x + 1}" y="${dateLabel.y + 1}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${labelSize}" fill="#000000" fill-opacity="0.55">${safeDateLabel}</text>
+    font-family="'Oswald', Arial, sans-serif" font-size="${labelSize}" font-weight="700" fill="#000000" fill-opacity="0.55">${safeDateLabel}</text>
   <text x="${dateLabel.x}" y="${dateLabel.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${labelSize}" fill="#f8f4ee">${safeDateLabel}</text>
-  <text x="${date.x}" y="${date.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${dateSize}" fill="#141414"
-    letter-spacing="0.01em" font-weight="700">${safeDate}</text>
-  <rect x="${footer.leftPx}" y="${footer.topPx}" width="${footer.width}" height="${footer.height}" rx="4" fill="rgba(8,8,8,0.62)"/>
-  <text x="${footer.x}" y="${footer.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${footerSize}" fill="#f8f4ee"
-    font-weight="500">${safeFooter}</text>
+    font-family="'Oswald', Arial, sans-serif" font-size="${labelSize}" font-weight="700" fill="#ffffff">${safeDateLabel}</text>
+  ${textOnPill({ x: date.x, y: date.y, size: dateSize, text: safeDate })}
+  <rect x="${footer.leftPx}" y="${footer.topPx}" width="${footer.width}" height="${footer.height}" rx="5" fill="rgba(8,8,8,0.78)"/>
+  <text x="${footer.x}" y="${footerLine1Y}" text-anchor="middle" dominant-baseline="middle"
+    font-family="'Oswald', Arial, sans-serif" font-size="${footerSize}" font-weight="600" fill="#ffffff">${safeFooterLine1}</text>
+  <text x="${footer.x}" y="${footerLine2Y}" text-anchor="middle" dominant-baseline="middle"
+    font-family="'Oswald', Arial, sans-serif" font-size="${phoneSize}" font-weight="700" fill="#ffffff">${safeFooterLine2}</text>
 </svg>`;
 };
 
@@ -207,7 +198,7 @@ export const generateVoucherImageBuffer = async ({
   recipient,
   packageLabel = VOUCHER_PACKAGE_LABEL,
   validUntil,
-  outputWidth = 600,
+  outputWidth = VOUCHER_EMAIL_WIDTH_PX,
   siteUrl = DEFAULT_SITE_URL,
 }) => {
   const template = await readAsset(siteUrl, "voucher-template-bg.jpg");
@@ -238,7 +229,7 @@ export const generateVoucherImageBuffer = async ({
 
   return sharp(composited)
     .resize(outputWidth)
-    .jpeg({ quality: 90, mozjpeg: true })
+    .jpeg({ quality: 93, mozjpeg: true })
     .toBuffer();
 };
 

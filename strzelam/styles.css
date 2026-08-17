@@ -809,98 +809,102 @@ h3 {
 
 .voucher-card-package {
   left: 21%;
-  top: 56.2%;
+  top: 55.8%;
   width: 58%;
-  height: 10.5%;
+  height: 11%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 1.4%;
-  color: #141414;
+  color: #111111;
   font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
-  font-size: clamp(0.72rem, 2.8vw, 1.05rem);
+  font-size: clamp(0.82rem, 3.2vw, 1.2rem);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   line-height: 1.1;
   overflow: hidden;
   text-transform: uppercase;
 }
 
 .voucher-card-name {
-  left: 20.5%;
-  top: 74.2%;
-  width: 36.5%;
-  height: 7.8%;
+  left: 20%;
+  top: 73.6%;
+  width: 37%;
+  height: 8.5%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 1.2%;
-  color: #141414;
-  font-family: "Merriweather", Georgia, "Times New Roman", serif;
-  font-size: clamp(0.58rem, var(--recipient-font-size, 1.1rem), 1.1rem);
-  font-style: italic;
+  color: #111111;
+  font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+  font-size: clamp(0.68rem, var(--recipient-font-size, 1.15rem), 1.15rem);
   font-weight: 700;
   line-height: 1.12;
   overflow: hidden;
   overflow-wrap: anywhere;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.35);
   text-transform: none;
   white-space: normal;
 }
 
 .voucher-card-date-label {
-  left: 57.5%;
-  top: 65.8%;
-  width: 34%;
-  height: 5.2%;
+  left: 56%;
+  top: 64.8%;
+  width: 36%;
+  height: 6%;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  color: #f8f4ee;
+  color: #ffffff;
   font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
-  font-size: clamp(0.54rem, 1.9vw, 0.72rem);
+  font-size: clamp(0.62rem, 2.2vw, 0.82rem);
   font-weight: 700;
   line-height: 1.1;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
   text-transform: none;
 }
 
 .voucher-card-date {
-  left: 57.5%;
-  top: 74.2%;
-  width: 31%;
-  height: 7.8%;
+  left: 56%;
+  top: 73.6%;
+  width: 32%;
+  height: 8.5%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 1%;
-  color: #141414;
+  color: #111111;
   font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
-  font-size: clamp(0.66rem, 2.4vw, 0.95rem);
+  font-size: clamp(0.72rem, 2.7vw, 1.05rem);
   font-weight: 700;
   letter-spacing: 0.01em;
   line-height: 1.1;
   overflow: hidden;
-  text-transform: uppercase;
 }
 
 .voucher-card-footer {
-  left: 3.5%;
-  bottom: 1.5%;
-  width: 93%;
-  min-height: 9%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 8px;
-  background: rgba(8, 8, 8, 0.62);
-  border-radius: 3px;
-  color: #f8f4ee;
+  left: 3%;
+  bottom: 1.2%;
+  width: 94%;
+  min-height: 10.5%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 5px 10px;
+  background: rgba(8, 8, 8, 0.78);
+  border-radius: 4px;
+  color: #ffffff;
   font-family: "Oswald", Arial, sans-serif;
-  font-size: clamp(0.48rem, 1.65vw, 0.72rem);
-  font-weight: 500;
-  line-height: 1.25;
+  font-size: clamp(0.52rem, 1.8vw, 0.72rem);
+  font-weight: 600;
+  line-height: 1.2;
   text-transform: none;
+}
+
+.voucher-card-footer strong {
+  font-size: clamp(0.72rem, 2.6vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
 .voucher-cut-line {

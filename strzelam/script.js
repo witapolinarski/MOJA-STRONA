@@ -82,8 +82,8 @@ const fitRecipientName = () => {
   const card = previewRecipient.closest(".voucher-card-inner");
   const cardWidth = card?.clientWidth || previewRecipient.clientWidth;
   const cardHeight = card?.clientHeight || previewRecipient.clientHeight;
-  const maxSize = Math.max(11, Math.min(18, cardWidth * 0.058));
-  const minSize = Math.max(7.5, cardWidth * 0.028);
+  const maxSize = Math.max(12, Math.min(20, cardWidth * 0.062));
+  const minSize = Math.max(8, cardWidth * 0.032);
   let size = maxSize;
 
   previewRecipient.style.fontSize = `${size}px`;
