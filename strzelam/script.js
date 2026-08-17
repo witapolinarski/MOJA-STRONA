@@ -113,7 +113,8 @@ const updateVoucherPreview = () => {
   const code = getVoucherCode();
 
   if (voucherValidUntil) voucherValidUntil.textContent = expiry;
-  if (previewValidUntil) previewValidUntil.textContent = expiry;
+  const voucherExpiry = expiry === "-" ? expiry : `${expiry} r.`;
+  if (previewValidUntil) previewValidUntil.textContent = voucherExpiry;
   if (previewRecipient) {
     previewRecipient.textContent = recipient;
     previewRecipient.style.setProperty("--recipient-font-size", getRecipientFontSize(recipient));
