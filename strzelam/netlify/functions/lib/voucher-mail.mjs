@@ -77,6 +77,7 @@ export const sendVoucherEmail = async ({
         filename: "bon-podarunkowy.jpg",
         content: imageBase64,
         content_id: imageCid,
+        content_type: "image/jpeg",
       },
     ],
   };

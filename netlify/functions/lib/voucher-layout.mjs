@@ -19,52 +19,52 @@ export const VOUCHER_FONT_LINK =
 
 export const VOUCHER_FIELDS = {
   title: {
-    top: 10.5,
-    left: 0,
-    width: 100,
-    height: 9,
-    fontSize: 50,
-    minFontSize: 32,
+    top: 8.5,
+    left: 26,
+    width: 48,
+    height: 10,
+    fontSize: 46,
+    minFontSize: 30,
   },
-  name: {
+  package: {
     left: 21,
-    top: 55.8,
+    top: 56.2,
     width: 58,
-    height: 11.5,
-    fontSize: 28,
-    minFontSize: 16,
+    height: 10.5,
+    fontSize: 21,
+    minFontSize: 14,
   },
-  dateLabel: {
-    left: 61,
-    top: 66.2,
-    width: 28,
-    height: 5,
-    fontSize: 13,
-    minFontSize: 9,
-  },
-  type: {
-    left: 21,
-    top: 74.5,
-    width: 35,
+  recipient: {
+    left: 20.5,
+    top: 74.2,
+    width: 36.5,
     height: 7.8,
-    fontSize: 19,
-    minFontSize: 13,
-  },
-  date: {
-    left: 61,
-    top: 74.5,
-    width: 22,
-    height: 7.8,
-    fontSize: 17,
+    fontSize: 24,
     minFontSize: 12,
   },
+  dateLabel: {
+    left: 57.5,
+    top: 65.8,
+    width: 34,
+    height: 5.2,
+    fontSize: 14,
+    minFontSize: 10,
+  },
+  date: {
+    left: 57.5,
+    top: 74.2,
+    width: 31,
+    height: 7.8,
+    fontSize: 16,
+    minFontSize: 11,
+  },
   footer: {
-    bottom: 2.5,
-    left: 5,
-    width: 90,
-    height: 7.5,
-    fontSize: 11.5,
-    minFontSize: 8,
+    bottom: 1.5,
+    left: 3.5,
+    width: 93,
+    height: 9,
+    fontSize: 13.5,
+    minFontSize: 9,
   },
 };
 
@@ -93,11 +93,12 @@ export const getRecipientFontSizePx = (recipient, cardWidthPx) => {
     0,
   );
   const totalLength = normalizedRecipient.length;
-  const sizeByTotalLength = 28 - Math.max(0, totalLength - 14) * 0.65;
-  const sizeByLongestWord = 28 - Math.max(0, longestWordLength - 10) * 0.95;
-  const size = Math.min(sizeByTotalLength, sizeByLongestWord, (cardWidthPx / 600) * 28);
+  const field = VOUCHER_FIELDS.recipient;
+  const sizeByTotalLength = field.fontSize - Math.max(0, totalLength - 12) * 0.75;
+  const sizeByLongestWord = field.fontSize - Math.max(0, longestWordLength - 9) * 1.1;
+  const size = Math.min(sizeByTotalLength, sizeByLongestWord, (cardWidthPx / 600) * field.fontSize);
 
-  return Math.round(clamp(size, VOUCHER_FIELDS.name.minFontSize, VOUCHER_FIELDS.name.fontSize));
+  return Math.round(clamp(size, field.minFontSize, field.fontSize));
 };
 
 export const getRecipientFontSizeRem = (recipient) => {
@@ -144,10 +145,10 @@ export const renderVoucherCardMarkup = ({
     <div class="voucher-card-preview" style="max-width:${cardWidthPx}px;">
       <div class="voucher-card-inner" style="${backgroundStyle}background-size:cover;background-position:center;">
         <div class="voucher-card-title">VOUCHER</div>
-        <div class="voucher-card-name" id="preview-recipient" style="--recipient-font-size:${recipientFontSize};">${safeRecipient}</div>
-        <div class="voucher-card-date-label">${safeDateLabel}</div>
-        <div class="voucher-card-type">${safePackage}</div>
-        <div class="voucher-card-date" id="preview-valid-until">${safeDate}</div>
+          <div class="voucher-card-package">OSTRE STRZELANIE</div>
+          <div class="voucher-card-date-label">${safeDateLabel}</div>
+          <div class="voucher-card-name" id="preview-recipient" style="--recipient-font-size:${recipientFontSize};">${safeRecipient}</div>
+          <div class="voucher-card-date" id="preview-valid-until">${safeDate}</div>
         <div class="voucher-card-footer">${safeFooter}</div>
       </div>
     </div>

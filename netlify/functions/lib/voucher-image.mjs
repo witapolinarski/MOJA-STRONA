@@ -131,8 +131,8 @@ const buildOverlaySvg = async ({
     clamp(scale * VOUCHER_FIELDS.title.fontSize, VOUCHER_FIELDS.title.minFontSize, VOUCHER_FIELDS.title.fontSize),
   );
   const nameSize = getRecipientFontSizePx(recipient, width);
-  const typeSize = Math.round(
-    clamp(scale * VOUCHER_FIELDS.type.fontSize, VOUCHER_FIELDS.type.minFontSize, VOUCHER_FIELDS.type.fontSize),
+  const packageSize = Math.round(
+    clamp(scale * VOUCHER_FIELDS.package.fontSize, VOUCHER_FIELDS.package.minFontSize, VOUCHER_FIELDS.package.fontSize),
   );
   const dateSize = Math.round(
     clamp(scale * VOUCHER_FIELDS.date.fontSize, VOUCHER_FIELDS.date.minFontSize, VOUCHER_FIELDS.date.fontSize),
@@ -149,9 +149,9 @@ const buildOverlaySvg = async ({
   );
 
   const title = getFieldBox(VOUCHER_FIELDS.title, width, height);
-  const name = getFieldBox(VOUCHER_FIELDS.name, width, height);
+  const packageBox = getFieldBox(VOUCHER_FIELDS.package, width, height);
+  const recipientBox = getFieldBox(VOUCHER_FIELDS.recipient, width, height);
   const dateLabel = getFieldBox(VOUCHER_FIELDS.dateLabel, width, height);
-  const type = getFieldBox(VOUCHER_FIELDS.type, width, height);
   const date = getFieldBox(VOUCHER_FIELDS.date, width, height);
   const footer = getFieldBox(VOUCHER_FIELDS.footer, width, height);
 
@@ -183,19 +183,19 @@ const buildOverlaySvg = async ({
   <text x="${title.x}" y="${title.y}" text-anchor="middle" dominant-baseline="middle"
     font-family="'Black Ops One', Impact, sans-serif" font-size="${titleSize}" fill="#f8f4ee"
     letter-spacing="0.14em">VOUCHER</text>
-  <text x="${name.x}" y="${name.y}" text-anchor="middle" dominant-baseline="middle"
+  <text x="${packageBox.x}" y="${packageBox.y}" text-anchor="middle" dominant-baseline="middle"
+    font-family="'Oswald', Arial, sans-serif" font-size="${packageSize}" fill="#141414"
+    letter-spacing="0.04em" font-weight="700">${safePackage}</text>
+  <text x="${recipientBox.x}" y="${recipientBox.y}" text-anchor="middle" dominant-baseline="middle"
     font-family="'Merriweather', Georgia, serif" font-size="${nameSize}" fill="#141414"
     font-weight="700" font-style="italic">${safeRecipient}</text>
   <text x="${dateLabel.x + 1}" y="${dateLabel.y + 1}" text-anchor="middle" dominant-baseline="middle"
     font-family="'Oswald', Arial, sans-serif" font-size="${labelSize}" fill="#000000" fill-opacity="0.55">${safeDateLabel}</text>
   <text x="${dateLabel.x}" y="${dateLabel.y}" text-anchor="middle" dominant-baseline="middle"
     font-family="'Oswald', Arial, sans-serif" font-size="${labelSize}" fill="#f8f4ee">${safeDateLabel}</text>
-  <text x="${type.x}" y="${type.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${typeSize}" fill="#141414"
-    letter-spacing="0.04em" font-weight="700">${safePackage}</text>
   <text x="${date.x}" y="${date.y}" text-anchor="middle" dominant-baseline="middle"
     font-family="'Oswald', Arial, sans-serif" font-size="${dateSize}" fill="#141414"
-    letter-spacing="0.02em" font-weight="700">${safeDate}</text>
+    letter-spacing="0.01em" font-weight="700">${safeDate}</text>
   <rect x="${footer.leftPx}" y="${footer.topPx}" width="${footer.width}" height="${footer.height}" rx="4" fill="rgba(8,8,8,0.62)"/>
   <text x="${footer.x}" y="${footer.y}" text-anchor="middle" dominant-baseline="middle"
     font-family="'Oswald', Arial, sans-serif" font-size="${footerSize}" fill="#f8f4ee"
