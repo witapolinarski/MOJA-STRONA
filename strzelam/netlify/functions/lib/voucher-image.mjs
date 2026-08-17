@@ -156,9 +156,9 @@ const getPathBoundingBox = (font, text, fontSize) => {
   return path.getBoundingBox();
 };
 
-const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
+const getCenteredPathData = (font, text, centerX, centerY, fontSize, offsetX = 0) => {
   const bbox = getPathBoundingBox(font, text, fontSize);
-  const x = centerX - (bbox.x1 + bbox.x2) / 2;
+  const x = centerX + offsetX - (bbox.x1 + bbox.x2) / 2;
   const y = centerY - (bbox.y1 + bbox.y2) / 2;
   return font.getPath(text, x, y, fontSize).toPathData(2);
 };
@@ -237,7 +237,8 @@ const buildOverlaySvg = async ({
     recipientMaxSize,
     recipientMinSize,
   );
-  const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, date, dateMaxSize, dateMinSize);
+  const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, date, dateMaxSize, dateMinSize, 0.72);
+  const dateCenterX = width * 0.738;
 
   const footerLine1Y = footer.y - phoneSize * 0.55;
   const footerLine2Y = footer.y + phoneSize * 0.55;
@@ -246,9 +247,21 @@ const buildOverlaySvg = async ({
   const titleMain = getSpacedPathData(fonts.blackOps, "VOUCHER", title.x, title.y, titleSize, 0.12);
   const packagePath = getCenteredPathData(fonts.oswald, safePackage.toUpperCase(), packageBox.x, packageBox.y, packageSize);
   const recipientPath = getCenteredPathData(fonts.oswald, safeRecipient, recipientBox.x, recipientBox.y, recipientSize);
-  const dateLabelShadow = getCenteredPathData(fonts.oswald, VOUCHER_DATE_LABEL, dateLabel.x + 1, dateLabel.y + 1, labelSize);
-  const dateLabelMain = getCenteredPathData(fonts.oswald, VOUCHER_DATE_LABEL, dateLabel.x, dateLabel.y, labelSize);
-  const datePath = getCenteredPathData(fonts.oswald, safeDate, date.x, date.y, dateSize);
+  const datePath = getCenteredPathData(fonts.oswald, safeDate, dateCenterX, date.y, dateSize);
+  const dateLabelShadow = getCenteredPathData(
+    fonts.oswald,
+    VOUCHER_DATE_LABEL,
+    dateCenterX + 1,
+    dateLabel.y + 1,
+    labelSize,
+  );
+  const dateLabelMain = getCenteredPathData(
+    fonts.oswald,
+    VOUCHER_DATE_LABEL,
+    dateCenterX,
+    dateLabel.y,
+    labelSize,
+  );
   const footerLine1Path = getCenteredPathData(fonts.oswald, VOUCHER_FOOTER_LINE1, footer.x, footerLine1Y, footerSize);
   const footerLine2Path = getCenteredPathData(fonts.oswald, VOUCHER_FOOTER_LINE2, footer.x, footerLine2Y, phoneSize);
 

@@ -827,9 +827,9 @@ h3 {
 }
 
 .voucher-card-name {
-  left: 12%;
+  left: 10%;
   top: 75.1%;
-  width: 42.8%;
+  width: 38%;
   height: 10.7%;
   display: flex;
   align-items: center;
@@ -847,9 +847,9 @@ h3 {
 }
 
 .voucher-card-date-label {
-  left: 52%;
+  left: 55%;
   top: 67.5%;
-  width: 37.9%;
+  width: 34%;
   height: 5%;
   display: flex;
   align-items: flex-end;
@@ -864,9 +864,9 @@ h3 {
 }
 
 .voucher-card-date {
-  left: 52%;
+  left: 55%;
   top: 75.1%;
-  width: 37.9%;
+  width: 34%;
   height: 10.7%;
   display: flex;
   align-items: center;
