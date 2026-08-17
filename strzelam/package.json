@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@netlify/blobs": "^8.1.0",
+    "sharp": "^0.34.5",
     "stripe": "^17.7.0"
   }
 }

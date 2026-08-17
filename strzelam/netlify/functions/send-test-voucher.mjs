@@ -1,6 +1,5 @@
 import { jsonResponse, verifyAdminPassword } from "./lib/auth.mjs";
-import { sendVoucherEmail } from "./lib/voucher-mail.mjs";
-import { renderVoucherEmailHtml } from "./lib/voucher-layout.mjs";
+import { sendVoucherEmail, buildVoucherEmail } from "./lib/voucher-mail.mjs";
 import { isAllowedVoucherAmount } from "./lib/voucher-orders.mjs";
 
 const getSiteUrl = () =>
@@ -67,10 +66,15 @@ export default async (request) => {
     };
 
     if (previewOnly) {
+      const { html } = await buildVoucherEmail({
+        ...voucher,
+        inlinePreview: true,
+      });
+
       return jsonResponse({
         ok: true,
         preview: true,
-        html: renderVoucherEmailHtml({ ...voucher, siteUrl }),
+        html,
         voucher,
       });
     }
