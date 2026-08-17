@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import opentype from "opentype.js";
 import { readFile, access } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,8 +23,12 @@ let assetsDirCache = null;
 
 const assetCandidates = () => [
   join(moduleDir, "../assets"),
+  join(moduleDir, "../../assets"),
   join(process.cwd(), "assets"),
+  join(process.cwd(), "netlify/functions/assets"),
+  join(process.cwd(), "strzelam/netlify/functions/assets"),
   "/var/task/assets",
+  "/var/task/netlify/functions/assets",
 ];
 
 const resolveAssetsDir = async () => {
@@ -64,17 +69,22 @@ const readAsset = async (siteUrl, relativePath) => {
   return fetchAsset(siteUrl, relativePath.startsWith("assets/") ? relativePath : `assets/${relativePath}`);
 };
 
-const loadFontsBase64 = async (siteUrl = DEFAULT_SITE_URL) => {
+const parseFontBuffer = (buffer) => {
+  const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+  return opentype.parse(arrayBuffer);
+};
+
+const loadFonts = async (siteUrl = DEFAULT_SITE_URL) => {
   if (fontCache) return fontCache;
 
-  const [blackOps, oswald] = await Promise.all([
+  const [blackOpsBuffer, oswaldBuffer] = await Promise.all([
     readAsset(siteUrl, "fonts/BlackOpsOne-Regular.ttf"),
     readAsset(siteUrl, "fonts/Oswald-Bold.ttf"),
   ]);
 
   fontCache = {
-    blackOps: blackOps.toString("base64"),
-    oswald: oswald.toString("base64"),
+    blackOps: parseFontBuffer(blackOpsBuffer),
+    oswald: parseFontBuffer(oswaldBuffer),
   };
 
   return fontCache;
@@ -116,12 +126,46 @@ const getFieldBox = (field, width, height) => {
   };
 };
 
-const textOnPill = ({ x, y, size, text, uppercase = false }) => {
-  const transform = uppercase ? ' text-transform="uppercase"' : "";
-  return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', 'Arial Narrow', Arial, sans-serif" font-size="${size}" font-weight="700"
-    fill="#111111" letter-spacing="0.02em"${transform}>${text}</text>`;
+const getPathBoundingBox = (font, text, fontSize) => {
+  const path = font.getPath(text, 0, 0, fontSize);
+  return path.getBoundingBox();
 };
+
+const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
+  const bbox = getPathBoundingBox(font, text, fontSize);
+  const x = centerX - (bbox.x1 + bbox.x2) / 2;
+  const y = centerY - (bbox.y1 + bbox.y2) / 2;
+  return font.getPath(text, x, y, fontSize).toPathData(2);
+};
+
+const getSpacedPathData = (font, text, centerX, centerY, fontSize, letterSpacingEm = 0) => {
+  if (!letterSpacingEm || text.length <= 1) {
+    return getCenteredPathData(font, text, centerX, centerY, fontSize);
+  }
+
+  const chars = [...text];
+  const spacing = fontSize * letterSpacingEm;
+  const charBoxes = chars.map((char) => getPathBoundingBox(font, char, fontSize));
+  const totalWidth =
+    charBoxes.reduce((sum, box) => sum + (box.x2 - box.x1), 0) + spacing * (chars.length - 1);
+
+  let cursorX = centerX - totalWidth / 2;
+  const parts = [];
+
+  chars.forEach((char, index) => {
+    const box = charBoxes[index];
+    const charWidth = box.x2 - box.x1;
+    const x = cursorX - box.x1;
+    const y = centerY - (box.y1 + box.y2) / 2;
+    parts.push(font.getPath(char, x, y, fontSize).toPathData(2));
+    cursorX += charWidth + spacing;
+  });
+
+  return parts.join(" ");
+};
+
+const pathElement = (pathData, fill, opacity = 1) =>
+  `<path d="${pathData}" fill="${fill}" fill-opacity="${opacity}"/>`;
 
 const buildOverlaySvg = async ({
   recipient,
@@ -131,13 +175,10 @@ const buildOverlaySvg = async ({
   height,
   siteUrl,
 }) => {
-  const fonts = await loadFontsBase64(siteUrl);
-  const safeRecipient = escapeXml(recipient || "Osoba obdarowana");
-  const safePackage = escapeXml(packageLabel || VOUCHER_PACKAGE_LABEL);
-  const safeDate = escapeXml(formatVoucherDate(validUntil));
-  const safeDateLabel = escapeXml(VOUCHER_DATE_LABEL);
-  const safeFooterLine1 = escapeXml(VOUCHER_FOOTER_LINE1);
-  const safeFooterLine2 = escapeXml(VOUCHER_FOOTER_LINE2);
+  const fonts = await loadFonts(siteUrl);
+  const safeRecipient = recipient || "Osoba obdarowana";
+  const safePackage = packageLabel || VOUCHER_PACKAGE_LABEL;
+  const safeDate = formatVoucherDate(validUntil);
 
   const titleSize = scaleFont(VOUCHER_FIELDS.title, width);
   const packageSize = scaleFont(VOUCHER_FIELDS.package, width);
@@ -157,40 +198,28 @@ const buildOverlaySvg = async ({
   const footerLine1Y = footer.y - phoneSize * 0.55;
   const footerLine2Y = footer.y + phoneSize * 0.55;
 
+  const titleShadow = getSpacedPathData(fonts.blackOps, "VOUCHER", title.x + 1, title.y + 2, titleSize, 0.12);
+  const titleMain = getSpacedPathData(fonts.blackOps, "VOUCHER", title.x, title.y, titleSize, 0.12);
+  const packagePath = getCenteredPathData(fonts.oswald, safePackage.toUpperCase(), packageBox.x, packageBox.y, packageSize);
+  const recipientPath = getCenteredPathData(fonts.oswald, safeRecipient, recipientBox.x, recipientBox.y, recipientSize);
+  const dateLabelShadow = getCenteredPathData(fonts.oswald, VOUCHER_DATE_LABEL, dateLabel.x + 1, dateLabel.y + 1, labelSize);
+  const dateLabelMain = getCenteredPathData(fonts.oswald, VOUCHER_DATE_LABEL, dateLabel.x, dateLabel.y, labelSize);
+  const datePath = getCenteredPathData(fonts.oswald, safeDate, date.x, date.y, dateSize);
+  const footerLine1Path = getCenteredPathData(fonts.oswald, VOUCHER_FOOTER_LINE1, footer.x, footerLine1Y, footerSize);
+  const footerLine2Path = getCenteredPathData(fonts.oswald, VOUCHER_FOOTER_LINE2, footer.x, footerLine2Y, phoneSize);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <style>
-      @font-face {
-        font-family: 'Black Ops One';
-        src: url(data:font/truetype;charset=utf-8;base64,${fonts.blackOps}) format('truetype');
-        font-weight: 400;
-      }
-      @font-face {
-        font-family: 'Oswald';
-        src: url(data:font/truetype;charset=utf-8;base64,${fonts.oswald}) format('truetype');
-        font-weight: 700;
-      }
-    </style>
-  </defs>
-  <text x="${title.x + 1}" y="${title.y + 2}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Black Ops One', Impact, sans-serif" font-size="${titleSize}" fill="#000000" fill-opacity="0.5"
-    letter-spacing="0.12em">VOUCHER</text>
-  <text x="${title.x}" y="${title.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Black Ops One', Impact, sans-serif" font-size="${titleSize}" fill="#ffffff"
-    letter-spacing="0.12em">VOUCHER</text>
-  ${textOnPill({ x: packageBox.x, y: packageBox.y, size: packageSize, text: safePackage, uppercase: true })}
-  ${textOnPill({ x: recipientBox.x, y: recipientBox.y, size: recipientSize, text: safeRecipient })}
-  <text x="${dateLabel.x + 1}" y="${dateLabel.y + 1}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${labelSize}" font-weight="700" fill="#000000" fill-opacity="0.55">${safeDateLabel}</text>
-  <text x="${dateLabel.x}" y="${dateLabel.y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${labelSize}" font-weight="700" fill="#ffffff">${safeDateLabel}</text>
-  ${textOnPill({ x: date.x, y: date.y, size: dateSize, text: safeDate })}
+  ${pathElement(titleShadow, "#000000", 0.5)}
+  ${pathElement(titleMain, "#ffffff")}
+  ${pathElement(packagePath, "#111111")}
+  ${pathElement(recipientPath, "#111111")}
+  ${pathElement(dateLabelShadow, "#000000", 0.55)}
+  ${pathElement(dateLabelMain, "#ffffff")}
+  ${pathElement(datePath, "#111111")}
   <rect x="${footer.leftPx}" y="${footer.topPx}" width="${footer.width}" height="${footer.height}" rx="5" fill="rgba(8,8,8,0.78)"/>
-  <text x="${footer.x}" y="${footerLine1Y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${footerSize}" font-weight="600" fill="#ffffff">${safeFooterLine1}</text>
-  <text x="${footer.x}" y="${footerLine2Y}" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Oswald', Arial, sans-serif" font-size="${phoneSize}" font-weight="700" fill="#ffffff">${safeFooterLine2}</text>
+  ${pathElement(footerLine1Path, "#ffffff")}
+  ${pathElement(footerLine2Path, "#ffffff")}
 </svg>`;
 };
 
