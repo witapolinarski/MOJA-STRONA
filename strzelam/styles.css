@@ -808,10 +808,10 @@ h3 {
 }
 
 .voucher-card-package {
-  left: 21%;
-  top: 55.8%;
-  width: 58%;
-  height: 11%;
+  left: 19.5%;
+  top: 59.8%;
+  width: 57%;
+  height: 8.8%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -827,10 +827,10 @@ h3 {
 }
 
 .voucher-card-name {
-  left: 20%;
-  top: 73.6%;
-  width: 37%;
-  height: 8.5%;
+  left: 19.5%;
+  top: 75.2%;
+  width: 33%;
+  height: 7.2%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -847,10 +847,10 @@ h3 {
 }
 
 .voucher-card-date-label {
-  left: 56%;
-  top: 64.8%;
-  width: 36%;
-  height: 6%;
+  left: 57.5%;
+  top: 67.5%;
+  width: 30%;
+  height: 4.8%;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -864,10 +864,10 @@ h3 {
 }
 
 .voucher-card-date {
-  left: 56%;
-  top: 73.6%;
-  width: 32%;
-  height: 8.5%;
+  left: 57.5%;
+  top: 75.2%;
+  width: 27%;
+  height: 7.2%;
   display: flex;
   align-items: center;
   justify-content: center;
