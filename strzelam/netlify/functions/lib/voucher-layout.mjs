@@ -33,36 +33,36 @@ export const VOUCHER_FIELDS = {
     minFontSize: 34,
   },
   package: {
-    left: 19.5,
-    top: 59.8,
-    width: 57,
-    height: 8.8,
-    fontSize: 26,
-    minFontSize: 17,
+    left: 11,
+    top: 56.9,
+    width: 46.8,
+    height: 11.4,
+    fontSize: 32,
+    minFontSize: 18,
   },
   recipient: {
-    left: 19.5,
-    top: 75.2,
-    width: 33,
-    height: 7.2,
-    fontSize: 22,
-    minFontSize: 14,
+    left: 12,
+    top: 75.1,
+    width: 42.8,
+    height: 10.7,
+    fontSize: 30,
+    minFontSize: 16,
   },
   dateLabel: {
-    left: 57.5,
+    left: 52,
     top: 67.5,
-    width: 30,
-    height: 4.8,
+    width: 37.9,
+    height: 5,
     fontSize: 16,
     minFontSize: 12,
   },
   date: {
-    left: 57.5,
-    top: 75.2,
-    width: 27,
-    height: 7.2,
-    fontSize: 18,
-    minFontSize: 13,
+    left: 52,
+    top: 75.1,
+    width: 37.9,
+    height: 10.7,
+    fontSize: 28,
+    minFontSize: 16,
   },
   footer: {
     bottom: 1.2,
@@ -102,11 +102,14 @@ export const getRecipientFontSizePx = (recipient, cardWidthPx) => {
   );
   const totalLength = normalizedRecipient.length;
   const field = VOUCHER_FIELDS.recipient;
-  const sizeByTotalLength = field.fontSize - Math.max(0, totalLength - 10) * 0.8;
-  const sizeByLongestWord = field.fontSize - Math.max(0, longestWordLength - 8) * 1.2;
-  const size = Math.min(sizeByTotalLength, sizeByLongestWord, (cardWidthPx / 600) * field.fontSize);
+  const scale = cardWidthPx / 600;
+  const baseSize = field.fontSize * scale;
+  const minSize = field.minFontSize * scale;
+  const sizeByTotalLength = baseSize - Math.max(0, totalLength - 10) * 0.8 * scale;
+  const sizeByLongestWord = baseSize - Math.max(0, longestWordLength - 8) * 1.2 * scale;
+  const size = Math.min(sizeByTotalLength, sizeByLongestWord, baseSize);
 
-  return Math.round(clamp(size, field.minFontSize, field.fontSize));
+  return Math.round(clamp(size, minSize, baseSize));
 };
 
 export const getRecipientFontSizeRem = (recipient) => {

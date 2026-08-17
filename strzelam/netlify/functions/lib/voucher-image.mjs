@@ -100,9 +100,34 @@ const escapeXml = (value) =>
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+const REFERENCE_WIDTH = 600;
+
 const scaleFont = (field, cardWidthPx, key = "fontSize", minKey = "minFontSize") => {
-  const scale = cardWidthPx / 600;
-  return Math.round(clamp(scale * field[key], field[minKey], field[key]));
+  const scale = cardWidthPx / REFERENCE_WIDTH;
+  return Math.round(clamp(scale * field[key], scale * field[minKey], scale * field[key]));
+};
+
+const scaledFontValue = (field, cardWidthPx, key) =>
+  Math.round((cardWidthPx / REFERENCE_WIDTH) * field[key]);
+
+const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.76) => {
+  const maxWidth = box.width * fill;
+  const maxHeight = box.height * fill;
+  let best = minSize;
+
+  for (let size = Math.round(minSize); size <= Math.round(maxSize); size += 1) {
+    const bbox = getPathBoundingBox(font, text, size);
+    const width = bbox.x2 - bbox.x1;
+    const height = bbox.y2 - bbox.y1;
+
+    if (width <= maxWidth && height <= maxHeight) {
+      best = size;
+    } else {
+      break;
+    }
+  }
+
+  return best;
 };
 
 const getFieldBox = (field, width, height) => {
@@ -181,9 +206,12 @@ const buildOverlaySvg = async ({
   const safeDate = formatVoucherDate(validUntil);
 
   const titleSize = scaleFont(VOUCHER_FIELDS.title, width);
-  const packageSize = scaleFont(VOUCHER_FIELDS.package, width);
-  const recipientSize = getRecipientFontSizePx(recipient, width);
-  const dateSize = scaleFont(VOUCHER_FIELDS.date, width);
+  const packageMaxSize = scaledFontValue(VOUCHER_FIELDS.package, width, "fontSize");
+  const packageMinSize = scaledFontValue(VOUCHER_FIELDS.package, width, "minFontSize");
+  const recipientMaxSize = getRecipientFontSizePx(recipient, width);
+  const recipientMinSize = scaledFontValue(VOUCHER_FIELDS.recipient, width, "minFontSize");
+  const dateMaxSize = scaledFontValue(VOUCHER_FIELDS.date, width, "fontSize");
+  const dateMinSize = scaledFontValue(VOUCHER_FIELDS.date, width, "minFontSize");
   const labelSize = scaleFont(VOUCHER_FIELDS.dateLabel, width);
   const footerSize = scaleFont(VOUCHER_FIELDS.footer, width);
   const phoneSize = scaleFont(VOUCHER_FIELDS.footer, width, "phoneFontSize", "phoneMinFontSize");
@@ -194,6 +222,22 @@ const buildOverlaySvg = async ({
   const dateLabel = getFieldBox(VOUCHER_FIELDS.dateLabel, width, height);
   const date = getFieldBox(VOUCHER_FIELDS.date, width, height);
   const footer = getFieldBox(VOUCHER_FIELDS.footer, width, height);
+
+  const packageSize = fitFontSizeToBox(
+    fonts.oswald,
+    safePackage.toUpperCase(),
+    packageBox,
+    packageMaxSize,
+    packageMinSize,
+  );
+  const recipientSize = fitFontSizeToBox(
+    fonts.oswald,
+    safeRecipient,
+    recipientBox,
+    recipientMaxSize,
+    recipientMinSize,
+  );
+  const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, date, dateMaxSize, dateMinSize);
 
   const footerLine1Y = footer.y - phoneSize * 0.55;
   const footerLine2Y = footer.y + phoneSize * 0.55;
