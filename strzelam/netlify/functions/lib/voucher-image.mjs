@@ -11,6 +11,7 @@ import {
   VOUCHER_FOOTER_LINE2,
   VOUCHER_EMAIL_WIDTH_PX,
   VOUCHER_FIELDS,
+  VOUCHER_PILL_CENTERS,
   formatVoucherDate,
   getRecipientFontSizePx,
 } from "./voucher-layout.mjs";
@@ -156,9 +157,13 @@ const getPathBoundingBox = (font, text, fontSize) => {
   return path.getBoundingBox();
 };
 
-const getCenteredPathData = (font, text, centerX, centerY, fontSize, offsetX = 0) => {
+const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
   const bbox = getPathBoundingBox(font, text, fontSize);
-  const x = centerX + offsetX - (bbox.x1 + bbox.x2) / 2;
+  const advance = font.getAdvanceWidth(text, fontSize);
+  const bboxCenterX = (bbox.x1 + bbox.x2) / 2;
+  const advanceLeft = centerX - advance / 2;
+  const bboxLeft = centerX - bboxCenterX;
+  const x = Math.abs(advanceLeft - bboxLeft) < 1 ? bboxLeft : (bboxLeft + advanceLeft) / 2;
   const y = centerY - (bbox.y1 + bbox.y2) / 2;
   return font.getPath(text, x, y, fontSize).toPathData(2);
 };
@@ -238,15 +243,29 @@ const buildOverlaySvg = async ({
     recipientMinSize,
   );
   const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, date, dateMaxSize, dateMinSize, 0.72);
-  const dateCenterX = width * 0.738;
+  const packageCenterX = width * (VOUCHER_PILL_CENTERS.package.cx / 100);
+  const recipientCenterX = width * (VOUCHER_PILL_CENTERS.recipient.cx / 100);
+  const dateCenterX = width * (VOUCHER_PILL_CENTERS.date.cx / 100);
 
   const footerLine1Y = footer.y - phoneSize * 0.55;
   const footerLine2Y = footer.y + phoneSize * 0.55;
 
   const titleShadow = getSpacedPathData(fonts.blackOps, "VOUCHER", title.x + 1, title.y + 2, titleSize, 0.12);
   const titleMain = getSpacedPathData(fonts.blackOps, "VOUCHER", title.x, title.y, titleSize, 0.12);
-  const packagePath = getCenteredPathData(fonts.oswald, safePackage.toUpperCase(), packageBox.x, packageBox.y, packageSize);
-  const recipientPath = getCenteredPathData(fonts.oswald, safeRecipient, recipientBox.x, recipientBox.y, recipientSize);
+  const packagePath = getCenteredPathData(
+    fonts.oswald,
+    safePackage.toUpperCase(),
+    packageCenterX,
+    packageBox.y,
+    packageSize,
+  );
+  const recipientPath = getCenteredPathData(
+    fonts.oswald,
+    safeRecipient,
+    recipientCenterX,
+    recipientBox.y,
+    recipientSize,
+  );
   const datePath = getCenteredPathData(fonts.oswald, safeDate, dateCenterX, date.y, dateSize);
   const dateLabelShadow = getCenteredPathData(
     fonts.oswald,

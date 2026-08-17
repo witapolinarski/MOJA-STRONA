@@ -33,34 +33,34 @@ export const VOUCHER_FIELDS = {
     minFontSize: 34,
   },
   package: {
-    left: 11,
-    top: 56.9,
-    width: 46.8,
-    height: 11.4,
+    left: 7.47,
+    top: 56.88,
+    width: 53.77,
+    height: 11.41,
     fontSize: 32,
     minFontSize: 18,
   },
   recipient: {
-    left: 10,
+    left: 7.4,
     top: 75.1,
-    width: 38,
-    height: 10.7,
+    width: 44.48,
+    height: 11.41,
     fontSize: 30,
     minFontSize: 16,
   },
   dateLabel: {
-    left: 55,
+    left: 47.97,
     top: 67.5,
-    width: 34,
+    width: 44.12,
     height: 5,
     fontSize: 16,
     minFontSize: 12,
   },
   date: {
-    left: 55,
+    left: 47.97,
     top: 75.1,
-    width: 34,
-    height: 10.7,
+    width: 44.12,
+    height: 11.41,
     fontSize: 26,
     minFontSize: 15,
   },
@@ -74,6 +74,12 @@ export const VOUCHER_FIELDS = {
     phoneFontSize: 22,
     phoneMinFontSize: 16,
   },
+};
+
+export const VOUCHER_PILL_CENTERS = {
+  package: { cx: 34.36, cy: 62.59 },
+  recipient: { cx: 29.64, cy: 80.81 },
+  date: { cx: 70.03, cy: 80.81 },
 };
 
 const escapeHtml = (value) =>
