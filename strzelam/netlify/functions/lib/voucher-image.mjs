@@ -12,8 +12,8 @@ import {
   getRecipientFontSizePx,
 } from "./voucher-layout.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ASSETS_DIR = join(__dirname, "../assets");
+const moduleDir = dirname(fileURLToPath(import.meta.url));
+const ASSETS_DIR = join(moduleDir, "../assets");
 
 let fontCache = null;
 
