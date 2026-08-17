@@ -19,7 +19,7 @@ export const buildVoucherEmail = async ({
   siteUrl,
   inlinePreview = false,
 }) => {
-  const imageBuffer = await generateVoucherImageBuffer({ recipient, validUntil });
+  const imageBuffer = await generateVoucherImageBuffer({ recipient, validUntil, siteUrl });
   const imageBase64 = imageBuffer.toString("base64");
   const imageSrc = inlinePreview
     ? `data:image/jpeg;base64,${imageBase64}`

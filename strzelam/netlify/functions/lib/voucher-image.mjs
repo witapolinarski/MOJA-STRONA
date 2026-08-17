@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import { readFile } from "node:fs/promises";
+import { readFile, access } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -13,17 +13,62 @@ import {
 } from "./voucher-layout.mjs";
 
 const moduleDir = dirname(fileURLToPath(import.meta.url));
-const ASSETS_DIR = join(moduleDir, "../assets");
+const DEFAULT_SITE_URL = "https://strzelam.com";
 
 let fontCache = null;
+let assetsDirCache = null;
 
-const loadFontsBase64 = async () => {
+const assetCandidates = () => [
+  join(moduleDir, "../assets"),
+  join(process.cwd(), "assets"),
+  "/var/task/assets",
+];
+
+const resolveAssetsDir = async () => {
+  if (assetsDirCache) return assetsDirCache;
+
+  for (const candidate of assetCandidates()) {
+    try {
+      await access(join(candidate, "voucher-template-bg.jpg"));
+      assetsDirCache = candidate;
+      return candidate;
+    } catch {
+      // try next candidate
+    }
+  }
+
+  return null;
+};
+
+const fetchAsset = async (siteUrl, relativePath) => {
+  const url = `${siteUrl.replace(/\/$/, "")}/${relativePath.replace(/^\//, "")}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Nie udało się pobrać zasobu bonu: ${url}`);
+  }
+  return Buffer.from(await response.arrayBuffer());
+};
+
+const readAsset = async (siteUrl, relativePath) => {
+  const assetsDir = await resolveAssetsDir();
+  if (assetsDir) {
+    try {
+      return await readFile(join(assetsDir, relativePath));
+    } catch {
+      // fallback to HTTP
+    }
+  }
+
+  return fetchAsset(siteUrl, relativePath.startsWith("assets/") ? relativePath : `assets/${relativePath}`);
+};
+
+const loadFontsBase64 = async (siteUrl = DEFAULT_SITE_URL) => {
   if (fontCache) return fontCache;
 
   const [blackOps, merriweather, oswald] = await Promise.all([
-    readFile(join(ASSETS_DIR, "fonts/BlackOpsOne-Regular.ttf")),
-    readFile(join(ASSETS_DIR, "fonts/Merriweather-BoldItalic.ttf")),
-    readFile(join(ASSETS_DIR, "fonts/Oswald-Bold.ttf")),
+    readAsset(siteUrl, "fonts/BlackOpsOne-Regular.ttf"),
+    readAsset(siteUrl, "fonts/Merriweather-BoldItalic.ttf"),
+    readAsset(siteUrl, "fonts/Oswald-Bold.ttf"),
   ]);
 
   fontCache = {
@@ -66,8 +111,15 @@ const getFieldBox = (field, width, height) => {
   };
 };
 
-const buildOverlaySvg = async ({ recipient, packageLabel, validUntil, width, height }) => {
-  const fonts = await loadFontsBase64();
+const buildOverlaySvg = async ({
+  recipient,
+  packageLabel,
+  validUntil,
+  width,
+  height,
+  siteUrl,
+}) => {
+  const fonts = await loadFontsBase64(siteUrl);
   const safeRecipient = escapeXml(recipient || "Osoba obdarowana");
   const safePackage = escapeXml(packageLabel || VOUCHER_PACKAGE_LABEL);
   const safeDate = escapeXml(formatVoucherDate(validUntil));
@@ -75,12 +127,26 @@ const buildOverlaySvg = async ({ recipient, packageLabel, validUntil, width, hei
   const safeFooter = escapeXml(VOUCHER_CONTACT_LINE);
 
   const scale = width / 600;
-  const titleSize = Math.round(clamp(scale * VOUCHER_FIELDS.title.fontSize, VOUCHER_FIELDS.title.minFontSize, VOUCHER_FIELDS.title.fontSize));
+  const titleSize = Math.round(
+    clamp(scale * VOUCHER_FIELDS.title.fontSize, VOUCHER_FIELDS.title.minFontSize, VOUCHER_FIELDS.title.fontSize),
+  );
   const nameSize = getRecipientFontSizePx(recipient, width);
-  const typeSize = Math.round(clamp(scale * VOUCHER_FIELDS.type.fontSize, VOUCHER_FIELDS.type.minFontSize, VOUCHER_FIELDS.type.fontSize));
-  const dateSize = Math.round(clamp(scale * VOUCHER_FIELDS.date.fontSize, VOUCHER_FIELDS.date.minFontSize, VOUCHER_FIELDS.date.fontSize));
-  const labelSize = Math.round(clamp(scale * VOUCHER_FIELDS.dateLabel.fontSize, VOUCHER_FIELDS.dateLabel.minFontSize, VOUCHER_FIELDS.dateLabel.fontSize));
-  const footerSize = Math.round(clamp(scale * VOUCHER_FIELDS.footer.fontSize, VOUCHER_FIELDS.footer.minFontSize, VOUCHER_FIELDS.footer.fontSize));
+  const typeSize = Math.round(
+    clamp(scale * VOUCHER_FIELDS.type.fontSize, VOUCHER_FIELDS.type.minFontSize, VOUCHER_FIELDS.type.fontSize),
+  );
+  const dateSize = Math.round(
+    clamp(scale * VOUCHER_FIELDS.date.fontSize, VOUCHER_FIELDS.date.minFontSize, VOUCHER_FIELDS.date.fontSize),
+  );
+  const labelSize = Math.round(
+    clamp(
+      scale * VOUCHER_FIELDS.dateLabel.fontSize,
+      VOUCHER_FIELDS.dateLabel.minFontSize,
+      VOUCHER_FIELDS.dateLabel.fontSize,
+    ),
+  );
+  const footerSize = Math.round(
+    clamp(scale * VOUCHER_FIELDS.footer.fontSize, VOUCHER_FIELDS.footer.minFontSize, VOUCHER_FIELDS.footer.fontSize),
+  );
 
   const title = getFieldBox(VOUCHER_FIELDS.title, width, height);
   const name = getFieldBox(VOUCHER_FIELDS.name, width, height);
@@ -142,8 +208,9 @@ export const generateVoucherImageBuffer = async ({
   packageLabel = VOUCHER_PACKAGE_LABEL,
   validUntil,
   outputWidth = 600,
+  siteUrl = DEFAULT_SITE_URL,
 }) => {
-  const template = await readFile(join(ASSETS_DIR, "voucher-template-bg.jpg"));
+  const template = await readAsset(siteUrl, "voucher-template-bg.jpg");
   const width = VOUCHER_TEMPLATE.width;
   const height = VOUCHER_TEMPLATE.height;
   const templateMeta = await sharp(template).metadata();
@@ -151,7 +218,14 @@ export const generateVoucherImageBuffer = async ({
     .resize(templateMeta.width, templateMeta.height)
     .png()
     .toBuffer();
-  const svg = await buildOverlaySvg({ recipient, packageLabel, validUntil, width, height });
+  const svg = await buildOverlaySvg({
+    recipient,
+    packageLabel,
+    validUntil,
+    width,
+    height,
+    siteUrl,
+  });
   const overlay = await sharp(Buffer.from(svg))
     .resize(templateMeta.width, templateMeta.height, { fit: "fill" })
     .png()
