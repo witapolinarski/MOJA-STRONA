@@ -151,78 +151,161 @@ const getFieldBox = (field, width, height) => {
   };
 };
 
-const pillScoreAt = (data, width, channels, x, y) => {
-  const index = (y * width + x) * channels;
-  const red = data[index];
-  const green = data[index + 1];
-  const blue = data[index + 2];
-  const average = (red + green + blue) / 3;
-  const spread = Math.max(red, green, blue) - Math.min(red, green, blue);
-  return average > 185 && spread < 25 ? average : 0;
+const getBrightColumnCenter = (
+  data,
+  width,
+  height,
+  channels,
+  { xMin, xMax, yMin, yMax },
+  { threshold = 198, preferRight = false } = {},
+) => {
+  const brightColumns = [];
+
+  for (let x = Math.floor(width * xMin); x < Math.floor(width * xMax); x += 1) {
+    let brightSamples = 0;
+    let totalSamples = 0;
+
+    for (let y = Math.floor(height * yMin); y < Math.floor(height * yMax); y += 1) {
+      totalSamples += 1;
+      const index = (y * width + x) * channels;
+      const average = (data[index] + data[index + 1] + data[index + 2]) / 3;
+      const spread = Math.max(data[index], data[index + 1], data[index + 2]) -
+        Math.min(data[index], data[index + 1], data[index + 2]);
+
+      if (average > threshold && spread < 24) {
+        brightSamples += 1;
+      }
+    }
+
+    if (brightSamples / totalSamples > 0.45) {
+      brightColumns.push(x);
+    }
+  }
+
+  if (!brightColumns.length) return null;
+
+  const runs = [];
+  let runStart = brightColumns[0];
+  let runEnd = brightColumns[0];
+
+  for (let index = 1; index < brightColumns.length; index += 1) {
+    const column = brightColumns[index];
+    const previous = brightColumns[index - 1];
+
+    if (column - previous <= 4) {
+      runEnd = column;
+    } else {
+      runs.push({ start: runStart, end: runEnd, width: runEnd - runStart });
+      runStart = column;
+      runEnd = column;
+    }
+  }
+
+  runs.push({ start: runStart, end: runEnd, width: runEnd - runStart });
+
+  const eligibleRuns = runs.filter((run) => run.width > width * 0.02);
+  if (!eligibleRuns.length) return null;
+
+  if (preferRight) {
+    const selectedRun = eligibleRuns.reduce((best, run) => (run.start > best.start ? run : best));
+    return ((selectedRun.start + selectedRun.end) / 2 / width) * 100;
+  }
+
+  if (eligibleRuns.length === 1) {
+    const [selectedRun] = eligibleRuns;
+    return ((selectedRun.start + selectedRun.end) / 2 / width) * 100;
+  }
+
+  const weightedCenter =
+    eligibleRuns.reduce((sum, run) => {
+      const center = (run.start + run.end) / 2;
+      return sum + center * run.width;
+    }, 0) / eligibleRuns.reduce((sum, run) => sum + run.width, 0);
+
+  return (weightedCenter / width) * 100;
 };
 
-const findBestPill = (data, width, height, channels, { xMin, xMax, yMin, yMax }) => {
-  let best = null;
+const tightPillBounds = (data, width, height, channels, { xMin, xMax, yMin, yMax }, textCenterBias = 0.5) => {
+  let minX = width;
+  let maxX = 0;
+  let minY = height;
+  let maxY = 0;
+  let count = 0;
 
-  for (let leftPct = xMin; leftPct < xMax; leftPct += 0.005) {
-    for (let widthPct = 0.28; widthPct <= 0.45; widthPct += 0.005) {
-      const rightPct = leftPct + widthPct;
-      if (rightPct > xMax) continue;
+  for (let y = Math.floor(height * yMin); y < Math.floor(height * yMax); y += 1) {
+    for (let x = Math.floor(width * xMin); x < Math.floor(width * xMax); x += 1) {
+      const index = (y * width + x) * channels;
+      const red = data[index];
+      const green = data[index + 1];
+      const blue = data[index + 2];
+      const average = (red + green + blue) / 3;
+      const spread = Math.max(red, green, blue) - Math.min(red, green, blue);
 
-      let score = 0;
-      let samples = 0;
-
-      for (let y = Math.floor(height * yMin); y < Math.floor(height * yMax); y += 2) {
-        for (let x = Math.floor(width * leftPct); x < Math.floor(width * rightPct); x += 3) {
-          const value = pillScoreAt(data, width, channels, x, y);
-          if (value) {
-            score += value;
-            samples += 1;
-          }
-        }
-      }
-
-      if (samples < 50) continue;
-
-      const candidate = {
-        left: leftPct * 100,
-        width: widthPct * 100,
-        right: rightPct * 100,
-        cx: ((leftPct + rightPct) / 2) * 100,
-        top: yMin * 100,
-        height: (yMax - yMin) * 100,
-        cy: ((yMin + yMax) / 2) * 100,
-      };
-
-      if (!best || score > best.score) {
-        best = { ...candidate, score };
+      if (average > 192 && spread < 24) {
+        count += 1;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
       }
     }
   }
 
-  return best;
+  if (!count) return null;
+
+  const left = (minX / width) * 100;
+  const pillWidth = ((maxX - minX) / width) * 100;
+  const top = (minY / height) * 100;
+  const pillHeight = ((maxY - minY) / height) * 100;
+
+  return {
+    left,
+    width: pillWidth,
+    top,
+    height: pillHeight,
+    cx: left + pillWidth * textCenterBias,
+    cy: top + pillHeight / 2,
+  };
 };
 
 const analyzeTemplatePills = async (templateBuffer) => {
   const { data, info } = await sharp(templateBuffer).raw().toBuffer({ resolveWithObject: true });
-  const packagePill = findBestPill(data, info.width, info.height, info.channels, {
-    xMin: 0.05,
-    xMax: 0.65,
-    yMin: 0.54,
+  const { width, height, channels } = info;
+
+  const packagePill = tightPillBounds(data, width, height, channels, {
+    xMin: 0.06,
+    xMax: 0.64,
+    yMin: 0.55,
     yMax: 0.7,
-  });
-  const recipientPill = findBestPill(data, info.width, info.height, info.channels, {
-    xMin: 0.05,
-    xMax: 0.52,
-    yMin: 0.74,
-    yMax: 0.86,
-  });
-  const datePill = findBestPill(data, info.width, info.height, info.channels, {
+  }, 0.5);
+  const recipientPill = tightPillBounds(data, width, height, channels, {
+    xMin: 0.06,
+    xMax: 0.5,
+    yMin: 0.73,
+    yMax: 0.87,
+  }, 0.5);
+  const datePill = tightPillBounds(data, width, height, channels, {
     xMin: 0.5,
-    xMax: 0.95,
-    yMin: 0.74,
-    yMax: 0.86,
-  });
+    xMax: 0.94,
+    yMin: 0.73,
+    yMax: 0.87,
+  }, 0.5);
+
+  const recipientBrightCenter = getBrightColumnCenter(data, width, height, channels, {
+    xMin: 0.06,
+    xMax: 0.5,
+    yMin: 0.755,
+    yMax: 0.845,
+  }, { threshold: 185 });
+  const dateBrightCenter = getBrightColumnCenter(data, width, height, channels, {
+    xMin: 0.5,
+    xMax: 0.94,
+    yMin: 0.755,
+    yMax: 0.845,
+  }, { threshold: 165, preferRight: true });
+
+  if (recipientBrightCenter) recipientPill.cx = recipientBrightCenter;
+  if (dateBrightCenter) datePill.cx = dateBrightCenter;
 
   return { packagePill, recipientPill, datePill };
 };
