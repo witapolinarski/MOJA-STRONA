@@ -12,6 +12,8 @@ import {
   VOUCHER_EMAIL_WIDTH_PX,
   VOUCHER_FIELDS,
   formatVoucherDate,
+  formatVoucherAmount,
+  shouldShowVoucherAmount,
   getRecipientFontSizePx,
   getVoucherPillBox,
 } from "./voucher-layout.mjs";
@@ -224,6 +226,8 @@ const buildOverlaySvg = async ({
   recipient,
   packageLabel,
   validUntil,
+  amount,
+  amountVisibility = "hidden",
   width,
   height,
   siteUrl,
@@ -232,6 +236,8 @@ const buildOverlaySvg = async ({
   const safeRecipient = recipient || "Osoba obdarowana";
   const safePackage = packageLabel || VOUCHER_PACKAGE_LABEL;
   const safeDate = formatVoucherDate(validUntil);
+  const showAmount = shouldShowVoucherAmount(amountVisibility, amount);
+  const amountLabel = formatVoucherAmount(amount);
 
   const titleBox = getFieldBox(VOUCHER_FIELDS.title, width, height);
   const packageBox = innerBox(getVoucherPillBox("package", width, height), 0.06, 0.14);
@@ -241,13 +247,26 @@ const buildOverlaySvg = async ({
   const footerBox = getFieldBox(VOUCHER_FIELDS.footer, width, height);
 
   const titleSize = scaleFont(VOUCHER_FIELDS.title, width);
+  const packageRows = showAmount ? splitBoxRows(packageBox, [0.56, 0.44], 0.05) : [packageBox];
+  const [packageTitleBox, packageAmountBox] = packageRows;
   const packageSize = fitFontSizeToBox(
     fonts.oswald,
     safePackage.toUpperCase(),
-    packageBox,
+    packageTitleBox,
     scaledFontValue(VOUCHER_FIELDS.package, width, "fontSize"),
     scaledFontValue(VOUCHER_FIELDS.package, width, "minFontSize"),
+    showAmount ? 0.9 : 0.64,
   );
+  const amountSize = showAmount
+    ? fitFontSizeToBox(
+        fonts.oswald,
+        amountLabel,
+        packageAmountBox,
+        scaledFontValue(VOUCHER_FIELDS.package, width, "fontSize"),
+        scaledFontValue(VOUCHER_FIELDS.package, width, "minFontSize"),
+        0.9,
+      )
+    : 0;
   const recipientSize = fitFontSizeToBox(
     fonts.oswald,
     safeRecipient,
@@ -303,7 +322,15 @@ const buildOverlaySvg = async ({
     titleSize,
     0.12,
   );
-  const packagePath = renderTextInBox(fonts.oswald, safePackage.toUpperCase(), packageBox, packageSize);
+  const packagePath = renderTextInBox(
+    fonts.oswald,
+    safePackage.toUpperCase(),
+    packageTitleBox,
+    packageSize,
+  );
+  const amountPath = showAmount
+    ? renderTextInBox(fonts.oswald, amountLabel, packageAmountBox, amountSize)
+    : "";
   const recipientPath = renderTextInBox(fonts.oswald, safeRecipient, recipientBox, recipientSize);
   const datePath = renderTextInBox(fonts.oswald, safeDate, dateBox, dateSize);
   const dateLabelPath = renderTextInBox(fonts.oswald, VOUCHER_DATE_LABEL, dateLabelBox, labelSize);
@@ -315,6 +342,7 @@ const buildOverlaySvg = async ({
   ${pathSvg(titleShadow, "#000000", 0.5)}
   ${pathSvg(titlePath, "#ffffff")}
   ${pathSvgWithStroke(packagePath, "#111111", "#ffffff", 2)}
+  ${showAmount ? pathSvg(amountPath, "#111111") : ""}
   ${pathSvg(recipientPath, "#111111")}
   ${pathSvg(dateLabelPath, "#ffffff")}
   ${pathSvg(datePath, "#111111")}
@@ -328,6 +356,8 @@ export const generateVoucherImageBuffer = async ({
   recipient,
   packageLabel = VOUCHER_PACKAGE_LABEL,
   validUntil,
+  amount,
+  amountVisibility = "hidden",
   outputWidth = VOUCHER_EMAIL_WIDTH_PX,
   siteUrl = DEFAULT_SITE_URL,
 }) => {
@@ -338,6 +368,8 @@ export const generateVoucherImageBuffer = async ({
     recipient,
     packageLabel,
     validUntil,
+    amount,
+    amountVisibility,
     width,
     height,
     siteUrl,

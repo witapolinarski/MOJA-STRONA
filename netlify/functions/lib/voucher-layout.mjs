@@ -109,6 +109,15 @@ export const formatVoucherDate = (value) => {
   return date.endsWith(" r.") ? date : `${date} r.`;
 };
 
+export const formatVoucherAmount = (amount) => {
+  const value = Number(amount);
+  if (!Number.isFinite(value) || value <= 0) return "";
+  return `${value} zł`;
+};
+
+export const shouldShowVoucherAmount = (amountVisibility, amount) =>
+  amountVisibility === "visible" && Boolean(formatVoucherAmount(amount));
+
 export const getRecipientFontSizePx = (recipient, cardWidthPx) => {
   const normalizedRecipient = String(recipient || "")
     .replace(/\s+/g, " ")

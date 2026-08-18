@@ -1,4 +1,5 @@
 import { generateVoucherImageBuffer } from "./lib/voucher-image.mjs";
+import { isAllowedVoucherAmount } from "./lib/voucher-orders.mjs";
 
 const formatDate = (date) =>
   new Intl.DateTimeFormat("pl-PL", {
@@ -22,10 +23,18 @@ export default async (request) => {
     const url = new URL(request.url);
     const recipient = String(url.searchParams.get("recipient") || "Osoba obdarowana").trim() || "Osoba obdarowana";
     const validUntil = String(url.searchParams.get("validUntil") || getDefaultValidUntil()).trim();
+    const amount = Number(url.searchParams.get("amount") || 0);
+    const amountVisibility = url.searchParams.get("amountVisibility") === "visible" ? "visible" : "hidden";
+
+    if (amountVisibility === "visible" && amount > 0 && !isAllowedVoucherAmount(amount)) {
+      return new Response("Niepoprawna kwota bonu.", { status: 400 });
+    }
 
     const image = await generateVoucherImageBuffer({
       recipient,
       validUntil,
+      amount,
+      amountVisibility,
       outputWidth: 800,
     });
 

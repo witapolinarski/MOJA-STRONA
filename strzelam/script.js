@@ -61,10 +61,12 @@ const getVoucherCode = () => {
   return code;
 };
 
-const buildPreviewImageUrl = (recipient, validUntil) => {
+const buildPreviewImageUrl = (recipient, validUntil, amount, amountVisibility) => {
   const params = new URLSearchParams({
     recipient: recipient || "Osoba obdarowana",
     validUntil: validUntil || formatDate(getVoucherExpiryDate()),
+    amount: amount || "500",
+    amountVisibility: amountVisibility || "hidden",
   });
   return `${previewEndpoint}?${params.toString()}`;
 };
@@ -79,10 +81,12 @@ const updatePreviewImage = () => {
   previewTimer = setTimeout(async () => {
     const recipient = voucherRecipient?.value.trim() || "Osoba obdarowana";
     const validUntil = formatDate(getVoucherExpiryDate());
+    const amount = voucherAmount?.value || "500";
+    const amountVisibility = voucherAmountVisibility?.value || "hidden";
     const requestId = ++previewRequestId;
 
     try {
-      const response = await fetch(buildPreviewImageUrl(recipient, validUntil));
+      const response = await fetch(buildPreviewImageUrl(recipient, validUntil, amount, amountVisibility));
       if (!response.ok || requestId !== previewRequestId) return;
 
       const blob = await response.blob();
