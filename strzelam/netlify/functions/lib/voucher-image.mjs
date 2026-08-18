@@ -18,6 +18,7 @@ import {
 
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_SITE_URL = "https://strzelam.com";
+const REFERENCE_WIDTH = 600;
 
 let fontCache = null;
 let assetsDirCache = null;
@@ -93,8 +94,6 @@ const loadFonts = async (siteUrl = DEFAULT_SITE_URL) => {
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-const REFERENCE_WIDTH = 600;
-
 const scaleFont = (field, cardWidthPx, key = "fontSize", minKey = "minFontSize") => {
   const scale = cardWidthPx / REFERENCE_WIDTH;
   return Math.round(clamp(scale * field[key], scale * field[minKey], scale * field[key]));
@@ -124,30 +123,9 @@ const getFieldBox = (field, width, height) => {
   };
 };
 
-const getPathBoundingBox = (font, text, fontSize) => {
-  const path = font.getPath(text, 0, 0, fontSize);
-  return path.getBoundingBox();
-};
+const getPathBoundingBox = (font, text, fontSize) => font.getPath(text, 0, 0, fontSize).getBoundingBox();
 
-const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
-  const bbox = getPathBoundingBox(font, text, fontSize);
-  const x = centerX - (bbox.x1 + bbox.x2) / 2;
-  const y = centerY - (bbox.y1 + bbox.y2) / 2;
-  return font.getPath(text, x, y, fontSize).toPathData(2);
-};
-
-const getCenteredPathWithBackdrop = (font, text, centerX, centerY, fontSize) => {
-  const bbox = getPathBoundingBox(font, text, fontSize);
-  const x = centerX - (bbox.x1 + bbox.x2) / 2;
-  const y = centerY - (bbox.y1 + bbox.y2) / 2;
-  const padX = fontSize * 0.14;
-  const padY = fontSize * 0.1;
-  const rect = `<rect x="${(bbox.x1 + x - padX).toFixed(2)}" y="${(bbox.y1 + y - padY).toFixed(2)}" width="${(bbox.x2 - bbox.x1 + padX * 2).toFixed(2)}" height="${(bbox.y2 - bbox.y1 + padY * 2).toFixed(2)}" rx="${(fontSize * 0.22).toFixed(2)}" fill="#ffffff" fill-opacity="0.94"/>`;
-  const pathData = font.getPath(text, x, y, fontSize).toPathData(2);
-  return { rect, pathData };
-};
-
-const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.72) => {
+const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.64) => {
   const maxWidth = box.width * fill;
   const maxHeight = box.height * fill;
   let best = minSize;
@@ -167,11 +145,22 @@ const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.72) => {
   return best;
 };
 
-const getSpacedPathData = (font, text, centerX, centerY, fontSize, letterSpacingEm = 0) => {
+const renderTextInBox = (font, text, box, fontSize) => {
+  const centerX = box.leftPx + box.width / 2;
+  const centerY = box.topPx + box.height / 2;
+  const bbox = getPathBoundingBox(font, text, fontSize);
+  const x = centerX - (bbox.x1 + bbox.x2) / 2;
+  const y = centerY - (bbox.y1 + bbox.y2) / 2;
+  return font.getPath(text, x, y, fontSize).toPathData(2);
+};
+
+const renderSpacedTextInBox = (font, text, box, fontSize, letterSpacingEm = 0) => {
   if (!letterSpacingEm || text.length <= 1) {
-    return getCenteredPathData(font, text, centerX, centerY, fontSize);
+    return renderTextInBox(font, text, box, fontSize);
   }
 
+  const centerX = box.leftPx + box.width / 2;
+  const centerY = box.topPx + box.height / 2;
   const chars = [...text];
   const spacing = fontSize * letterSpacingEm;
   const charBoxes = chars.map((char) => getPathBoundingBox(font, char, fontSize));
@@ -193,7 +182,12 @@ const getSpacedPathData = (font, text, centerX, centerY, fontSize, letterSpacing
   return parts.join(" ");
 };
 
-const pathElement = (pathData, fill, opacity = 1) =>
+const pillSvg = (box) => {
+  const radius = box.height / 2;
+  return `<rect x="${box.leftPx.toFixed(2)}" y="${box.topPx.toFixed(2)}" width="${box.width.toFixed(2)}" height="${box.height.toFixed(2)}" rx="${radius.toFixed(2)}" ry="${radius.toFixed(2)}" fill="#f8f8f6" fill-opacity="0.98"/>`;
+};
+
+const pathSvg = (pathData, fill, opacity = 1) =>
   `<path d="${pathData}" fill="${fill}" fill-opacity="${opacity}"/>`;
 
 const buildOverlaySvg = async ({
@@ -209,91 +203,83 @@ const buildOverlaySvg = async ({
   const safePackage = packageLabel || VOUCHER_PACKAGE_LABEL;
   const safeDate = formatVoucherDate(validUntil);
 
-  const titleSize = scaleFont(VOUCHER_FIELDS.title, width);
-  const packageMaxSize = scaledFontValue(VOUCHER_FIELDS.package, width, "fontSize");
-  const packageMinSize = scaledFontValue(VOUCHER_FIELDS.package, width, "minFontSize");
-  const recipientMaxSize = getRecipientFontSizePx(recipient, width);
-  const recipientMinSize = scaledFontValue(VOUCHER_FIELDS.recipient, width, "minFontSize");
-  const dateMaxSize = scaledFontValue(VOUCHER_FIELDS.date, width, "fontSize");
-  const dateMinSize = scaledFontValue(VOUCHER_FIELDS.date, width, "minFontSize");
-  const labelSize = scaleFont(VOUCHER_FIELDS.dateLabel, width);
-  const footerSize = scaleFont(VOUCHER_FIELDS.footer, width);
-  const phoneSize = scaleFont(VOUCHER_FIELDS.footer, width, "phoneFontSize", "phoneMinFontSize");
-
-  const title = getFieldBox(VOUCHER_FIELDS.title, width, height);
+  const titleBox = getFieldBox(VOUCHER_FIELDS.title, width, height);
   const packageBox = getVoucherPillBox("package", width, height);
   const recipientBox = getVoucherPillBox("recipient", width, height);
   const dateBox = getVoucherPillBox("date", width, height);
-  const dateLabelBox = {
-    ...getFieldBox(VOUCHER_FIELDS.dateLabel, width, height),
-    x: dateBox.x,
-  };
-  const footer = getFieldBox(VOUCHER_FIELDS.footer, width, height);
+  const dateLabelBox = getFieldBox(VOUCHER_FIELDS.dateLabel, width, height);
+  const footerBox = getFieldBox(VOUCHER_FIELDS.footer, width, height);
 
+  const titleSize = scaleFont(VOUCHER_FIELDS.title, width);
   const packageSize = fitFontSizeToBox(
     fonts.oswald,
     safePackage.toUpperCase(),
     packageBox,
-    packageMaxSize,
-    packageMinSize,
+    scaledFontValue(VOUCHER_FIELDS.package, width, "fontSize"),
+    scaledFontValue(VOUCHER_FIELDS.package, width, "minFontSize"),
   );
   const recipientSize = fitFontSizeToBox(
     fonts.oswald,
     safeRecipient,
     recipientBox,
-    recipientMaxSize,
-    recipientMinSize,
+    getRecipientFontSizePx(recipient, width),
+    scaledFontValue(VOUCHER_FIELDS.recipient, width, "minFontSize"),
   );
-  const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, dateBox, dateMaxSize, dateMinSize);
-
-  const footerLine1Y = footer.y - phoneSize * 0.55;
-  const footerLine2Y = footer.y + phoneSize * 0.55;
-
-  const titleShadow = getSpacedPathData(fonts.blackOps, "VOUCHER", title.x + 1, title.y + 2, titleSize, 0.12);
-  const titleMain = getSpacedPathData(fonts.blackOps, "VOUCHER", title.x, title.y, titleSize, 0.12);
-  const packagePath = getCenteredPathData(
-    fonts.oswald,
-    safePackage.toUpperCase(),
-    packageBox.x,
-    packageBox.y,
-    packageSize,
-  );
-  const recipientPath = getCenteredPathData(
-    fonts.oswald,
-    safeRecipient,
-    recipientBox.x,
-    recipientBox.y,
-    recipientSize,
-  );
-  const dateRendered = getCenteredPathWithBackdrop(
+  const dateSize = fitFontSizeToBox(
     fonts.oswald,
     safeDate,
-    dateBox.x,
-    dateBox.y,
-    dateSize,
+    dateBox,
+    scaledFontValue(VOUCHER_FIELDS.date, width, "fontSize"),
+    scaledFontValue(VOUCHER_FIELDS.date, width, "minFontSize"),
   );
-  const dateLabelMain = getCenteredPathData(
-    fonts.oswald,
-    VOUCHER_DATE_LABEL,
-    dateLabelBox.x,
-    dateLabelBox.y,
-    labelSize,
+  const labelSize = scaleFont(VOUCHER_FIELDS.dateLabel, width);
+  const footerSize = scaleFont(VOUCHER_FIELDS.footer, width);
+  const phoneSize = scaleFont(VOUCHER_FIELDS.footer, width, "phoneFontSize", "phoneMinFontSize");
+
+  const titlePath = renderSpacedTextInBox(fonts.blackOps, "VOUCHER", titleBox, titleSize, 0.12);
+  const titleShadow = renderSpacedTextInBox(
+    fonts.blackOps,
+    "VOUCHER",
+    {
+      ...titleBox,
+      leftPx: titleBox.leftPx + 1,
+      topPx: titleBox.topPx + 2,
+    },
+    titleSize,
+    0.12,
   );
-  const footerLine1Path = getCenteredPathData(fonts.oswald, VOUCHER_FOOTER_LINE1, footer.x, footerLine1Y, footerSize);
-  const footerLine2Path = getCenteredPathData(fonts.oswald, VOUCHER_FOOTER_LINE2, footer.x, footerLine2Y, phoneSize);
+  const packagePath = renderTextInBox(fonts.oswald, safePackage.toUpperCase(), packageBox, packageSize);
+  const recipientPath = renderTextInBox(fonts.oswald, safeRecipient, recipientBox, recipientSize);
+  const datePath = renderTextInBox(fonts.oswald, safeDate, dateBox, dateSize);
+  const dateLabelPath = renderTextInBox(fonts.oswald, VOUCHER_DATE_LABEL, dateLabelBox, labelSize);
+
+  const footerLine1Box = {
+    ...footerBox,
+    topPx: footerBox.topPx + footerBox.height * 0.18,
+    height: footerBox.height * 0.34,
+  };
+  const footerLine2Box = {
+    ...footerBox,
+    topPx: footerBox.topPx + footerBox.height * 0.52,
+    height: footerBox.height * 0.38,
+  };
+  const footerLine1Path = renderTextInBox(fonts.oswald, VOUCHER_FOOTER_LINE1, footerLine1Box, footerSize);
+  const footerLine2Path = renderTextInBox(fonts.oswald, VOUCHER_FOOTER_LINE2, footerLine2Box, phoneSize);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-  ${pathElement(titleShadow, "#000000", 0.5)}
-  ${pathElement(titleMain, "#ffffff")}
-  ${pathElement(packagePath, "#111111")}
-  ${pathElement(recipientPath, "#111111")}
-  ${pathElement(dateLabelMain, "#ffffff")}
-  ${dateRendered.rect}
-  ${pathElement(dateRendered.pathData, "#111111")}
-  <rect x="${footer.leftPx}" y="${footer.topPx}" width="${footer.width}" height="${footer.height}" rx="5" fill="rgba(8,8,8,0.78)"/>
-  ${pathElement(footerLine1Path, "#ffffff")}
-  ${pathElement(footerLine2Path, "#ffffff")}
+  ${pathSvg(titleShadow, "#000000", 0.5)}
+  ${pathSvg(titlePath, "#ffffff")}
+  ${pillSvg(packageBox)}
+  ${pillSvg(recipientBox)}
+  ${pillSvg(dateBox)}
+  ${pathSvg(packagePath, "#111111")}
+  ${pathSvg(recipientPath, "#111111")}
+  ${pathSvg(dateLabelPath, "#ffffff")}
+  ${pathSvg(datePath, "#111111")}
+  <rect x="${footerBox.leftPx.toFixed(2)}" y="${footerBox.topPx.toFixed(2)}" width="${footerBox.width.toFixed(2)}" height="${footerBox.height.toFixed(2)}" rx="5" fill="rgba(8,8,8,0.82)"/>
+  ${pathSvg(footerLine1Path, "#ffffff")}
+  ${pathSvg(footerLine2Path, "#ffffff")}
 </svg>`;
 };
 
@@ -307,11 +293,6 @@ export const generateVoucherImageBuffer = async ({
   const template = await readAsset(siteUrl, "voucher-template-bg.jpg");
   const width = VOUCHER_TEMPLATE.width;
   const height = VOUCHER_TEMPLATE.height;
-  const templateMeta = await sharp(template).metadata();
-  const templatePrepared = await sharp(template)
-    .resize(templateMeta.width, templateMeta.height)
-    .png()
-    .toBuffer();
   const svg = await buildOverlaySvg({
     recipient,
     packageLabel,
@@ -320,12 +301,9 @@ export const generateVoucherImageBuffer = async ({
     height,
     siteUrl,
   });
-  const overlay = await sharp(Buffer.from(svg))
-    .resize(templateMeta.width, templateMeta.height, { fit: "fill" })
-    .png()
-    .toBuffer();
+  const overlay = await sharp(Buffer.from(svg)).png().toBuffer();
 
-  const composited = await sharp(templatePrepared)
+  const composited = await sharp(template)
     .composite([{ input: overlay, top: 0, left: 0, blend: "over" }])
     .png()
     .toBuffer();

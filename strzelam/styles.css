@@ -816,6 +816,8 @@ h3 {
   align-items: center;
   justify-content: center;
   padding: 0 1.4%;
+  background: rgba(248, 248, 246, 0.98);
+  border-radius: 999px;
   color: #111111;
   font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
   font-size: clamp(1rem, 4.8vw, 1.65rem);
@@ -835,6 +837,8 @@ h3 {
   align-items: center;
   justify-content: center;
   padding: 0 1.2%;
+  background: rgba(248, 248, 246, 0.98);
+  border-radius: 999px;
   color: #111111;
   font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
   font-size: clamp(0.82rem, var(--recipient-font-size, 1.35rem), 1.35rem);
@@ -872,6 +876,8 @@ h3 {
   align-items: center;
   justify-content: center;
   padding: 0 1%;
+  background: rgba(248, 248, 246, 0.98);
+  border-radius: 999px;
   color: #111111;
   font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
   font-size: clamp(0.95rem, 4vw, 1.45rem);
