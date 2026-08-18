@@ -233,6 +233,10 @@ h1 {
   letter-spacing: 0;
 }
 
+.hero-content h1 .hero-title-line {
+  display: block;
+}
+
 h2 {
   margin: 0;
   font-size: clamp(2rem, 4vw, 3.55rem);
