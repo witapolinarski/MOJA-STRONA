@@ -236,7 +236,7 @@ const buildOverlaySvg = async ({
   const titleBox = getFieldBox(VOUCHER_FIELDS.title, width, height);
   const packageBox = innerBox(getVoucherPillBox("package", width, height), 0.06, 0.14);
   const recipientBox = innerBox(getVoucherPillBox("recipient", width, height), 0.07, 0.14);
-  const dateBox = innerBox(getVoucherPillBox("date", width, height), 0.12, 0.16);
+  const dateBox = innerBox(getVoucherPillBox("date", width, height), 0.07, 0.14);
   const dateLabelBox = innerBox(getFieldBox(VOUCHER_FIELDS.dateLabel, width, height), 0.06, 0);
   const footerBox = getFieldBox(VOUCHER_FIELDS.footer, width, height);
 
@@ -261,7 +261,7 @@ const buildOverlaySvg = async ({
     dateBox,
     scaledFontValue(VOUCHER_FIELDS.date, width, "fontSize"),
     scaledFontValue(VOUCHER_FIELDS.date, width, "minFontSize"),
-    0.56,
+    0.88,
   );
   const labelSize = fitFontSizeToBox(
     fonts.oswald,
