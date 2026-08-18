@@ -130,17 +130,11 @@ const getPathBoundingBox = (font, text, fontSize) => {
   return path.getBoundingBox();
 };
 
-const getVerticalGlyphCenter = (font, text, fontSize, bbox) => {
-  const hasLowercase = /[a-ząćęłńóśźż]/.test(text);
-  if (!hasLowercase) {
-    return (bbox.y1 + bbox.y2) / 2;
-  }
-
-  const scale = fontSize / font.unitsPerEm;
-  const xHeight = (font.tables.os2?.sxHeight ?? font.ascender * 0.72) * scale;
-  const descender = Math.abs(font.descender) * scale;
-
-  return -(xHeight * 0.5 + descender * 0.12);
+const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
+  const bbox = getPathBoundingBox(font, text, fontSize);
+  const x = centerX - (bbox.x1 + bbox.x2) / 2;
+  const y = centerY - (bbox.y1 + bbox.y2) / 2;
+  return font.getPath(text, x, y, fontSize).toPathData(2);
 };
 
 const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.7) => {
@@ -163,13 +157,6 @@ const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.7) => {
   return best;
 };
 
-const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
-  const bbox = getPathBoundingBox(font, text, fontSize);
-  const x = centerX - (bbox.x1 + bbox.x2) / 2;
-  const y = centerY - getVerticalGlyphCenter(font, text, fontSize, bbox);
-  return font.getPath(text, x, y, fontSize).toPathData(2);
-};
-
 const getSpacedPathData = (font, text, centerX, centerY, fontSize, letterSpacingEm = 0) => {
   if (!letterSpacingEm || text.length <= 1) {
     return getCenteredPathData(font, text, centerX, centerY, fontSize);
@@ -188,7 +175,7 @@ const getSpacedPathData = (font, text, centerX, centerY, fontSize, letterSpacing
     const box = charBoxes[index];
     const charWidth = box.x2 - box.x1;
     const x = cursorX - box.x1;
-    const y = centerY - getVerticalGlyphCenter(font, char, fontSize, box);
+    const y = centerY - (box.y1 + box.y2) / 2;
     parts.push(font.getPath(char, x, y, fontSize).toPathData(2));
     cursorX += charWidth + spacing;
   });
