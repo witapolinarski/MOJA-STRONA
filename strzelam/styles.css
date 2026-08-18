@@ -26,12 +26,8 @@ body {
   background: var(--paper);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.55;
-  hyphens: auto;
-  hyphenate-limit-chars: 6 3 3;
-  hyphenate-limit-lines: 2;
-  hyphenate-limit-last: always;
-  -webkit-hyphens: auto;
-  text-wrap: pretty;
+  hyphens: none;
+  -webkit-hyphens: none;
 }
 
 .top-line {
@@ -228,7 +224,10 @@ h1,
 h2,
 h3,
 p {
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  -webkit-hyphens: none;
 }
 
 h1 {
@@ -265,6 +264,7 @@ h3 {
   color: rgba(255, 255, 255, 0.86);
   font-size: clamp(1.04rem, 1.6vw, 1.2rem);
   text-wrap: pretty;
+  text-align: left;
 }
 
 .hero-actions,
@@ -495,7 +495,43 @@ h3 {
 .audience-grid p,
 .steps-row p {
   color: var(--muted);
+}
+
+.intro-copy p,
+.audience-grid article p,
+.feature-card p,
+.steps-row article p,
+.faq-list details p,
+.faq-voucher-guide > p,
+.split-section .section-heading > p:not(.eyebrow),
+.contact-strip > div > p,
+.site-footer p,
+.arsenal-note,
+.voucher-band > div:first-child > p {
+  hyphens: none;
+  -webkit-hyphens: none;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-align: justify;
+  text-align-last: left;
+  text-justify: inter-word;
   text-wrap: pretty;
+}
+
+@media (max-width: 639px) {
+  .intro-copy p,
+  .audience-grid article p,
+  .feature-card p,
+  .steps-row article p,
+  .faq-list details p,
+  .faq-voucher-guide > p,
+  .split-section .section-heading > p:not(.eyebrow),
+  .contact-strip > div > p,
+  .site-footer p,
+  .arsenal-note,
+  .voucher-band > div:first-child > p {
+    text-align: left;
+  }
 }
 
 .audience-grid h3,
@@ -873,7 +909,6 @@ h3 {
   font-weight: 700;
   line-height: 1.12;
   overflow: hidden;
-  overflow-wrap: anywhere;
   text-transform: none;
   white-space: normal;
 }
@@ -1015,7 +1050,11 @@ h3 {
   color: var(--ink);
   font-size: 0.88rem;
   font-weight: 900;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+}
+
+#control-email {
+  word-break: break-all;
 }
 
 .voucher-summary {
@@ -1117,7 +1156,8 @@ details p {
 }
 
 .voucher-package-table td:first-child {
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .voucher-package-table th:last-child,
@@ -1479,7 +1519,7 @@ details p {
 
 .analytics-list p span {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .analytics-list p strong {
