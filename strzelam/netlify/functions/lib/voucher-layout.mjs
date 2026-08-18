@@ -76,23 +76,16 @@ export const VOUCHER_FIELDS = {
   },
 };
 
-export const VOUCHER_PILL_CENTERS = {
-  package: { cx: 34.36, cy: 62.59 },
-  recipient: { cx: 38.92, cy: 80.81 },
-  date: { cx: 85.85, cy: 80.81 },
-};
-
 export const getVoucherPillBox = (key, width, height) => {
   const field = VOUCHER_FIELDS[key];
-  const center = VOUCHER_PILL_CENTERS[key];
   const leftPx = (field.left / 100) * width;
   const topPx = (field.top / 100) * height;
   const boxWidth = (field.width / 100) * width;
   const boxHeight = (field.height / 100) * height;
 
   return {
-    x: (center.cx / 100) * width,
-    y: (center.cy / 100) * height,
+    x: leftPx + boxWidth / 2,
+    y: topPx + boxHeight / 2,
     leftPx,
     topPx,
     width: boxWidth,

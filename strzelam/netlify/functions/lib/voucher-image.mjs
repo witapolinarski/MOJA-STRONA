@@ -11,7 +11,6 @@ import {
   VOUCHER_FOOTER_LINE2,
   VOUCHER_EMAIL_WIDTH_PX,
   VOUCHER_FIELDS,
-  VOUCHER_PILL_CENTERS,
   formatVoucherDate,
   getRecipientFontSizePx,
   getVoucherPillBox,
@@ -137,7 +136,7 @@ const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
   return font.getPath(text, x, y, fontSize).toPathData(2);
 };
 
-const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.7) => {
+const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.72) => {
   const maxWidth = box.width * fill;
   const maxHeight = box.height * fill;
   let best = minSize;
@@ -186,11 +185,6 @@ const getSpacedPathData = (font, text, centerX, centerY, fontSize, letterSpacing
 const pathElement = (pathData, fill, opacity = 1) =>
   `<path d="${pathData}" fill="${fill}" fill-opacity="${opacity}"/>`;
 
-const pillBackgroundRect = (box) => {
-  const radius = box.height / 2;
-  return `<rect x="${box.leftPx}" y="${box.topPx}" width="${box.width}" height="${box.height}" rx="${radius}" ry="${radius}" fill="#ffffff" fill-opacity="0.94"/>`;
-};
-
 const buildOverlaySvg = async ({
   recipient,
   packageLabel,
@@ -219,22 +213,7 @@ const buildOverlaySvg = async ({
   const packageBox = getVoucherPillBox("package", width, height);
   const recipientBox = getVoucherPillBox("recipient", width, height);
   const dateBox = getVoucherPillBox("date", width, height);
-  const packageCenter = {
-    x: packageBox.leftPx + packageBox.width / 2,
-    y: packageBox.topPx + packageBox.height / 2,
-  };
-  const recipientCenter = {
-    x: (VOUCHER_PILL_CENTERS.recipient.cx / 100) * width,
-    y: recipientBox.topPx + recipientBox.height / 2,
-  };
-  const dateCenter = {
-    x: (VOUCHER_PILL_CENTERS.date.cx / 100) * width,
-    y: dateBox.topPx + dateBox.height / 2,
-  };
-  const dateLabelBox = {
-    ...getFieldBox(VOUCHER_FIELDS.dateLabel, width, height),
-    x: dateBox.x,
-  };
+  const dateLabelBox = getFieldBox(VOUCHER_FIELDS.dateLabel, width, height);
   const footer = getFieldBox(VOUCHER_FIELDS.footer, width, height);
 
   const packageSize = fitFontSizeToBox(
@@ -243,7 +222,6 @@ const buildOverlaySvg = async ({
     packageBox,
     packageMaxSize,
     packageMinSize,
-    0.62,
   );
   const recipientSize = fitFontSizeToBox(
     fonts.oswald,
@@ -251,9 +229,8 @@ const buildOverlaySvg = async ({
     recipientBox,
     recipientMaxSize,
     recipientMinSize,
-    0.62,
   );
-  const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, dateBox, dateMaxSize, dateMinSize, 0.62);
+  const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, dateBox, dateMaxSize, dateMinSize);
 
   const footerLine1Y = footer.y - phoneSize * 0.55;
   const footerLine2Y = footer.y + phoneSize * 0.55;
@@ -263,18 +240,18 @@ const buildOverlaySvg = async ({
   const packagePath = getCenteredPathData(
     fonts.oswald,
     safePackage.toUpperCase(),
-    packageCenter.x,
-    packageCenter.y,
+    packageBox.x,
+    packageBox.y,
     packageSize,
   );
   const recipientPath = getCenteredPathData(
     fonts.oswald,
     safeRecipient,
-    recipientCenter.x,
-    recipientCenter.y,
+    recipientBox.x,
+    recipientBox.y,
     recipientSize,
   );
-  const datePath = getCenteredPathData(fonts.oswald, safeDate, dateCenter.x, dateCenter.y, dateSize);
+  const datePath = getCenteredPathData(fonts.oswald, safeDate, dateBox.x, dateBox.y, dateSize);
   const dateLabelMain = getCenteredPathData(
     fonts.oswald,
     VOUCHER_DATE_LABEL,
@@ -289,9 +266,6 @@ const buildOverlaySvg = async ({
 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
   ${pathElement(titleShadow, "#000000", 0.5)}
   ${pathElement(titleMain, "#ffffff")}
-  ${pillBackgroundRect(packageBox)}
-  ${pillBackgroundRect(recipientBox)}
-  ${pillBackgroundRect(dateBox)}
   ${pathElement(packagePath, "#111111")}
   ${pathElement(recipientPath, "#111111")}
   ${pathElement(dateLabelMain, "#ffffff")}
