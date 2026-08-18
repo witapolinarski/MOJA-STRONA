@@ -76,16 +76,23 @@ export const VOUCHER_FIELDS = {
   },
 };
 
+export const VOUCHER_TEXT_ANCHORS = {
+  package: { cx: 31.76, cy: 62.37 },
+  recipient: { cx: 31.89, cy: 80.71 },
+  date: { cx: 73.6, cy: 81.37 },
+};
+
 export const getVoucherPillBox = (key, width, height) => {
   const field = VOUCHER_FIELDS[key];
+  const anchor = VOUCHER_TEXT_ANCHORS[key];
   const leftPx = (field.left / 100) * width;
   const topPx = (field.top / 100) * height;
   const boxWidth = (field.width / 100) * width;
   const boxHeight = (field.height / 100) * height;
 
   return {
-    x: leftPx + boxWidth / 2,
-    y: topPx + boxHeight / 2,
+    x: (anchor.cx / 100) * width,
+    y: (anchor.cy / 100) * height,
     leftPx,
     topPx,
     width: boxWidth,

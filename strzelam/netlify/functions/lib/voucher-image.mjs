@@ -136,6 +136,17 @@ const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
   return font.getPath(text, x, y, fontSize).toPathData(2);
 };
 
+const getCenteredPathWithBackdrop = (font, text, centerX, centerY, fontSize) => {
+  const bbox = getPathBoundingBox(font, text, fontSize);
+  const x = centerX - (bbox.x1 + bbox.x2) / 2;
+  const y = centerY - (bbox.y1 + bbox.y2) / 2;
+  const padX = fontSize * 0.14;
+  const padY = fontSize * 0.1;
+  const rect = `<rect x="${(bbox.x1 + x - padX).toFixed(2)}" y="${(bbox.y1 + y - padY).toFixed(2)}" width="${(bbox.x2 - bbox.x1 + padX * 2).toFixed(2)}" height="${(bbox.y2 - bbox.y1 + padY * 2).toFixed(2)}" rx="${(fontSize * 0.22).toFixed(2)}" fill="#ffffff" fill-opacity="0.94"/>`;
+  const pathData = font.getPath(text, x, y, fontSize).toPathData(2);
+  return { rect, pathData };
+};
+
 const fitFontSizeToBox = (font, text, box, maxSize, minSize, fill = 0.72) => {
   const maxWidth = box.width * fill;
   const maxHeight = box.height * fill;
@@ -213,7 +224,10 @@ const buildOverlaySvg = async ({
   const packageBox = getVoucherPillBox("package", width, height);
   const recipientBox = getVoucherPillBox("recipient", width, height);
   const dateBox = getVoucherPillBox("date", width, height);
-  const dateLabelBox = getFieldBox(VOUCHER_FIELDS.dateLabel, width, height);
+  const dateLabelBox = {
+    ...getFieldBox(VOUCHER_FIELDS.dateLabel, width, height),
+    x: dateBox.x,
+  };
   const footer = getFieldBox(VOUCHER_FIELDS.footer, width, height);
 
   const packageSize = fitFontSizeToBox(
@@ -251,7 +265,13 @@ const buildOverlaySvg = async ({
     recipientBox.y,
     recipientSize,
   );
-  const datePath = getCenteredPathData(fonts.oswald, safeDate, dateBox.x, dateBox.y, dateSize);
+  const dateRendered = getCenteredPathWithBackdrop(
+    fonts.oswald,
+    safeDate,
+    dateBox.x,
+    dateBox.y,
+    dateSize,
+  );
   const dateLabelMain = getCenteredPathData(
     fonts.oswald,
     VOUCHER_DATE_LABEL,
@@ -269,7 +289,8 @@ const buildOverlaySvg = async ({
   ${pathElement(packagePath, "#111111")}
   ${pathElement(recipientPath, "#111111")}
   ${pathElement(dateLabelMain, "#ffffff")}
-  ${pathElement(datePath, "#111111")}
+  ${dateRendered.rect}
+  ${pathElement(dateRendered.pathData, "#111111")}
   <rect x="${footer.leftPx}" y="${footer.topPx}" width="${footer.width}" height="${footer.height}" rx="5" fill="rgba(8,8,8,0.78)"/>
   ${pathElement(footerLine1Path, "#ffffff")}
   ${pathElement(footerLine2Path, "#ffffff")}
