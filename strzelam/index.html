@@ -299,17 +299,16 @@
 
           <aside class="voucher-preview" aria-label="Podgląd bonu podarunkowego">
             <div class="voucher-card-preview">
-              <div class="voucher-card-inner">
-                <div class="voucher-card-title">VOUCHER</div>
-                <div class="voucher-card-package">OSTRE STRZELANIE</div>
-                <div class="voucher-card-date-label">Voucher ważny do:</div>
-                <div class="voucher-card-name" id="preview-recipient">Osoba obdarowana</div>
-                <div class="voucher-card-date" id="preview-valid-until">-</div>
-                <div class="voucher-card-footer">
-                  <span>Realizacja vouchera możliwa jest po wcześniejszej rezerwacji telefonicznej</span>
-                  <strong>+48 662 475 714</strong>
-                </div>
-              </div>
+              <img
+                class="voucher-preview-image"
+                id="voucher-preview-image"
+                src="/.netlify/functions/preview-voucher-image?recipient=Osoba%20obdarowana"
+                alt="Podgląd bonu podarunkowego"
+                width="800"
+                height="418"
+                loading="eager"
+                decoding="async"
+              >
             </div>
             <div class="voucher-cut-line" aria-label="Linia odcięcia">
               <span aria-hidden="true">✂</span>

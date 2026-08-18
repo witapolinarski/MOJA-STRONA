@@ -760,10 +760,16 @@ h3 {
   max-width: 100%;
 }
 
-.voucher-card-preview::before {
-  content: "";
+.voucher-preview-image {
   display: block;
-  padding-top: 52.176%;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(21, 22, 23, 0.12);
+  background: #f3f1ec;
+}
+
+.voucher-card-preview::before {
+  content: none;
 }
 
 .voucher-card-inner {

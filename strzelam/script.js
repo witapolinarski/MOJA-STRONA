@@ -21,10 +21,8 @@ const voucherAmountVisibility = document.querySelector("#voucher-amount-visibili
 const voucherRecipient = document.querySelector("#voucher-recipient");
 const voucherEmail = document.querySelector("#voucher-email");
 const voucherValidUntil = document.querySelector("#voucher-valid-until");
-const previewRecipient = document.querySelector("#preview-recipient");
-const previewAmount = document.querySelector("#preview-amount");
-const previewAmountLine = document.querySelector("#preview-amount-line");
-const previewValidUntil = document.querySelector("#preview-valid-until");
+const previewImage = document.querySelector("#voucher-preview-image");
+const previewEndpoint = "/.netlify/functions/preview-voucher-image";
 const controlCode = document.querySelector("#control-code");
 const controlAmount = document.querySelector("#control-amount");
 const controlRecipient = document.querySelector("#control-recipient");
@@ -63,43 +61,22 @@ const getVoucherCode = () => {
   return code;
 };
 
-const getRecipientFontSize = (recipient) => {
-  const normalizedRecipient = recipient.replace(/\s+/g, " ").trim();
-  const longestWordLength = Math.max(
-    ...normalizedRecipient.split(" ").map((word) => word.length),
-  );
-  const totalLength = normalizedRecipient.length;
-  const sizeByTotalLength = 1.44 - Math.max(0, totalLength - 14) * 0.035;
-  const sizeByLongestWord = 1.44 - Math.max(0, longestWordLength - 10) * 0.06;
-  const size = Math.min(sizeByTotalLength, sizeByLongestWord);
+let previewRequestId = 0;
 
-  return `${Math.max(0.64, Math.min(1.35, size)).toFixed(2)}rem`;
+const buildPreviewImageUrl = (recipient, validUntil) => {
+  const params = new URLSearchParams({
+    recipient: recipient || "Osoba obdarowana",
+    validUntil: validUntil || formatDate(getVoucherExpiryDate()),
+  });
+  return `${previewEndpoint}?${params.toString()}`;
 };
 
-const fitRecipientName = () => {
-  if (!previewRecipient) return;
+const updatePreviewImage = () => {
+  if (!previewImage) return;
 
-  const card = previewRecipient.closest(".voucher-card-inner");
-  const cardWidth = card?.clientWidth || previewRecipient.clientWidth;
-  const cardHeight = card?.clientHeight || previewRecipient.clientHeight;
-  const maxSize = Math.max(12, Math.min(20, cardWidth * 0.062));
-  const minSize = Math.max(8, cardWidth * 0.032);
-  let size = maxSize;
-
-  previewRecipient.style.fontSize = `${size}px`;
-
-  while (
-    size > minSize &&
-    (previewRecipient.scrollWidth > previewRecipient.clientWidth + 1 ||
-      previewRecipient.scrollHeight > previewRecipient.clientHeight + 1)
-  ) {
-    size -= 0.5;
-    previewRecipient.style.fontSize = `${size}px`;
-  }
-
-  if (cardHeight > 0 && previewRecipient.scrollHeight > cardHeight * 0.16) {
-    previewRecipient.style.fontSize = `${Math.max(minSize, size - 1)}px`;
-  }
+  const recipient = voucherRecipient?.value.trim() || "Osoba obdarowana";
+  const validUntil = formatDate(getVoucherExpiryDate());
+  previewImage.src = buildPreviewImageUrl(recipient, validUntil);
 };
 
 const updateVoucherPreview = () => {
@@ -113,17 +90,7 @@ const updateVoucherPreview = () => {
   const code = getVoucherCode();
 
   if (voucherValidUntil) voucherValidUntil.textContent = expiry;
-  const voucherExpiry = expiry === "-" ? expiry : `${expiry} r.`;
-  if (previewValidUntil) previewValidUntil.textContent = voucherExpiry;
-  if (previewRecipient) {
-    previewRecipient.textContent = recipient;
-    previewRecipient.style.setProperty("--recipient-font-size", getRecipientFontSize(recipient));
-    requestAnimationFrame(fitRecipientName);
-  }
-  if (previewAmount) previewAmount.textContent = amount;
-  if (previewAmountLine) {
-    previewAmountLine.textContent = showAmount ? `${amount} zł` : "Kwota ukryta";
-  }
+  updatePreviewImage();
   if (controlCode) controlCode.textContent = code;
   if (controlAmount) controlAmount.textContent = `${amount} zł`;
   if (controlRecipient) controlRecipient.textContent = recipient;
@@ -258,14 +225,6 @@ if (voucherForm) {
     field?.addEventListener("change", updateVoucherPreview);
   });
 
-  const previewCard = document.querySelector(".voucher-card-preview");
-  if (previewCard && "ResizeObserver" in window) {
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(fitRecipientName);
-    });
-    resizeObserver.observe(previewCard);
-  }
-
   voucherForm.addEventListener("submit", (event) => {
     event.preventDefault();
     updateVoucherPreview();
@@ -283,9 +242,5 @@ if (voucherForm) {
     startCheckout();
   });
 }
-
-window.addEventListener("resize", () => {
-  requestAnimationFrame(fitRecipientName);
-});
 
 renderSuccessVoucherSummary();
