@@ -82,6 +82,24 @@ export const VOUCHER_PILL_CENTERS = {
   date: { cx: 85.85, cy: 80.81 },
 };
 
+export const getVoucherPillBox = (key, width, height) => {
+  const field = VOUCHER_FIELDS[key];
+  const center = VOUCHER_PILL_CENTERS[key];
+  const leftPx = (field.left / 100) * width;
+  const topPx = (field.top / 100) * height;
+  const boxWidth = (field.width / 100) * width;
+  const boxHeight = (field.height / 100) * height;
+
+  return {
+    x: (center.cx / 100) * width,
+    y: (center.cy / 100) * height,
+    leftPx,
+    topPx,
+    width: boxWidth,
+    height: boxHeight,
+  };
+};
+
 const escapeHtml = (value) =>
   String(value ?? "")
     .replace(/&/g, "&amp;")
