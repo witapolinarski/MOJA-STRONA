@@ -764,8 +764,9 @@ h3 {
   display: block;
   width: 100%;
   height: auto;
+  min-height: 180px;
   border: 1px solid rgba(21, 22, 23, 0.12);
-  background: #f3f1ec;
+  background: transparent;
 }
 
 .voucher-card-preview::before {

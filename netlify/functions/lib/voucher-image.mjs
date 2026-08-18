@@ -182,13 +182,11 @@ const renderSpacedTextInBox = (font, text, box, fontSize, letterSpacingEm = 0) =
   return parts.join(" ");
 };
 
-const pillSvg = (box) => {
-  const radius = box.height / 2;
-  return `<rect x="${box.leftPx.toFixed(2)}" y="${box.topPx.toFixed(2)}" width="${box.width.toFixed(2)}" height="${box.height.toFixed(2)}" rx="${radius.toFixed(2)}" ry="${radius.toFixed(2)}" fill="#f8f8f6" fill-opacity="0.98"/>`;
-};
-
 const pathSvg = (pathData, fill, opacity = 1) =>
   `<path d="${pathData}" fill="${fill}" fill-opacity="${opacity}"/>`;
+
+const pathSvgWithStroke = (pathData, fill, stroke = "#ffffff", strokeWidth = 3) =>
+  `<path d="${pathData}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" paint-order="stroke fill" stroke-linejoin="round"/>`;
 
 const buildOverlaySvg = async ({
   recipient,
@@ -270,13 +268,10 @@ const buildOverlaySvg = async ({
 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
   ${pathSvg(titleShadow, "#000000", 0.5)}
   ${pathSvg(titlePath, "#ffffff")}
-  ${pillSvg(packageBox)}
-  ${pillSvg(recipientBox)}
-  ${pillSvg(dateBox)}
-  ${pathSvg(packagePath, "#111111")}
-  ${pathSvg(recipientPath, "#111111")}
+  ${pathSvgWithStroke(packagePath, "#111111")}
+  ${pathSvgWithStroke(recipientPath, "#111111")}
   ${pathSvg(dateLabelPath, "#ffffff")}
-  ${pathSvg(datePath, "#111111")}
+  ${pathSvgWithStroke(datePath, "#111111")}
   <rect x="${footerBox.leftPx.toFixed(2)}" y="${footerBox.topPx.toFixed(2)}" width="${footerBox.width.toFixed(2)}" height="${footerBox.height.toFixed(2)}" rx="5" fill="rgba(8,8,8,0.82)"/>
   ${pathSvg(footerLine1Path, "#ffffff")}
   ${pathSvg(footerLine2Path, "#ffffff")}

@@ -61,8 +61,6 @@ const getVoucherCode = () => {
   return code;
 };
 
-let previewRequestId = 0;
-
 const buildPreviewImageUrl = (recipient, validUntil) => {
   const params = new URLSearchParams({
     recipient: recipient || "Osoba obdarowana",
@@ -71,12 +69,34 @@ const buildPreviewImageUrl = (recipient, validUntil) => {
   return `${previewEndpoint}?${params.toString()}`;
 };
 
+let previewTimer = null;
+let previewRequestId = 0;
+
 const updatePreviewImage = () => {
   if (!previewImage) return;
 
-  const recipient = voucherRecipient?.value.trim() || "Osoba obdarowana";
-  const validUntil = formatDate(getVoucherExpiryDate());
-  previewImage.src = buildPreviewImageUrl(recipient, validUntil);
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(async () => {
+    const recipient = voucherRecipient?.value.trim() || "Osoba obdarowana";
+    const validUntil = formatDate(getVoucherExpiryDate());
+    const requestId = ++previewRequestId;
+
+    try {
+      const response = await fetch(buildPreviewImageUrl(recipient, validUntil));
+      if (!response.ok || requestId !== previewRequestId) return;
+
+      const blob = await response.blob();
+      if (requestId !== previewRequestId) return;
+
+      const objectUrl = URL.createObjectURL(blob);
+      const previousUrl = previewImage.dataset.objectUrl;
+      previewImage.src = objectUrl;
+      previewImage.dataset.objectUrl = objectUrl;
+      if (previousUrl) URL.revokeObjectURL(previousUrl);
+    } catch (error) {
+      console.error(error);
+    }
+  }, 450);
 };
 
 const updateVoucherPreview = () => {
