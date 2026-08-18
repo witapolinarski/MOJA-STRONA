@@ -11,7 +11,6 @@ import {
   VOUCHER_FOOTER_LINE2,
   VOUCHER_EMAIL_WIDTH_PX,
   VOUCHER_FIELDS,
-  VOUCHER_PILL_CENTERS,
   formatVoucherDate,
   getRecipientFontSizePx,
 } from "./voucher-layout.mjs";
@@ -152,6 +151,101 @@ const getFieldBox = (field, width, height) => {
   };
 };
 
+const pillScoreAt = (data, width, channels, x, y) => {
+  const index = (y * width + x) * channels;
+  const red = data[index];
+  const green = data[index + 1];
+  const blue = data[index + 2];
+  const average = (red + green + blue) / 3;
+  const spread = Math.max(red, green, blue) - Math.min(red, green, blue);
+  return average > 185 && spread < 25 ? average : 0;
+};
+
+const findBestPill = (data, width, height, channels, { xMin, xMax, yMin, yMax }) => {
+  let best = null;
+
+  for (let leftPct = xMin; leftPct < xMax; leftPct += 0.005) {
+    for (let widthPct = 0.28; widthPct <= 0.45; widthPct += 0.005) {
+      const rightPct = leftPct + widthPct;
+      if (rightPct > xMax) continue;
+
+      let score = 0;
+      let samples = 0;
+
+      for (let y = Math.floor(height * yMin); y < Math.floor(height * yMax); y += 2) {
+        for (let x = Math.floor(width * leftPct); x < Math.floor(width * rightPct); x += 3) {
+          const value = pillScoreAt(data, width, channels, x, y);
+          if (value) {
+            score += value;
+            samples += 1;
+          }
+        }
+      }
+
+      if (samples < 50) continue;
+
+      const candidate = {
+        left: leftPct * 100,
+        width: widthPct * 100,
+        right: rightPct * 100,
+        cx: ((leftPct + rightPct) / 2) * 100,
+        top: yMin * 100,
+        height: (yMax - yMin) * 100,
+        cy: ((yMin + yMax) / 2) * 100,
+      };
+
+      if (!best || score > best.score) {
+        best = { ...candidate, score };
+      }
+    }
+  }
+
+  return best;
+};
+
+const analyzeTemplatePills = async (templateBuffer) => {
+  const { data, info } = await sharp(templateBuffer).raw().toBuffer({ resolveWithObject: true });
+  const packagePill = findBestPill(data, info.width, info.height, info.channels, {
+    xMin: 0.05,
+    xMax: 0.65,
+    yMin: 0.54,
+    yMax: 0.7,
+  });
+  const recipientPill = findBestPill(data, info.width, info.height, info.channels, {
+    xMin: 0.05,
+    xMax: 0.52,
+    yMin: 0.74,
+    yMax: 0.86,
+  });
+  const datePill = findBestPill(data, info.width, info.height, info.channels, {
+    xMin: 0.5,
+    xMax: 0.95,
+    yMin: 0.74,
+    yMax: 0.86,
+  });
+
+  return { packagePill, recipientPill, datePill };
+};
+
+const pillToBox = (pill, width, height) => {
+  const leftPx = (pill.left / 100) * width;
+  const topPx = (pill.top / 100) * height;
+  const boxWidth = (pill.width / 100) * width;
+  const boxHeight = (pill.height / 100) * height;
+
+  return {
+    x: (pill.cx / 100) * width,
+    y: (pill.cy / 100) * height,
+    leftPx,
+    topPx,
+    width: boxWidth,
+    height: boxHeight,
+  };
+};
+
+const clipRect = (id, box, radius = 18) =>
+  `<clipPath id="${id}"><rect x="${box.leftPx}" y="${box.topPx}" width="${box.width}" height="${box.height}" rx="${radius}"/></clipPath>`;
+
 const getPathBoundingBox = (font, text, fontSize) => {
   const path = font.getPath(text, 0, 0, fontSize);
   return path.getBoundingBox();
@@ -159,11 +253,7 @@ const getPathBoundingBox = (font, text, fontSize) => {
 
 const getCenteredPathData = (font, text, centerX, centerY, fontSize) => {
   const bbox = getPathBoundingBox(font, text, fontSize);
-  const advance = font.getAdvanceWidth(text, fontSize);
-  const bboxCenterX = (bbox.x1 + bbox.x2) / 2;
-  const advanceLeft = centerX - advance / 2;
-  const bboxLeft = centerX - bboxCenterX;
-  const x = Math.abs(advanceLeft - bboxLeft) < 1 ? bboxLeft : (bboxLeft + advanceLeft) / 2;
+  const x = centerX - (bbox.x1 + bbox.x2) / 2;
   const y = centerY - (bbox.y1 + bbox.y2) / 2;
   return font.getPath(text, x, y, fontSize).toPathData(2);
 };
@@ -204,11 +294,13 @@ const buildOverlaySvg = async ({
   width,
   height,
   siteUrl,
+  templateBuffer,
 }) => {
   const fonts = await loadFonts(siteUrl);
   const safeRecipient = recipient || "Osoba obdarowana";
   const safePackage = packageLabel || VOUCHER_PACKAGE_LABEL;
   const safeDate = formatVoucherDate(validUntil);
+  const pills = await analyzeTemplatePills(templateBuffer);
 
   const titleSize = scaleFont(VOUCHER_FIELDS.title, width);
   const packageMaxSize = scaledFontValue(VOUCHER_FIELDS.package, width, "fontSize");
@@ -222,10 +314,15 @@ const buildOverlaySvg = async ({
   const phoneSize = scaleFont(VOUCHER_FIELDS.footer, width, "phoneFontSize", "phoneMinFontSize");
 
   const title = getFieldBox(VOUCHER_FIELDS.title, width, height);
-  const packageBox = getFieldBox(VOUCHER_FIELDS.package, width, height);
-  const recipientBox = getFieldBox(VOUCHER_FIELDS.recipient, width, height);
-  const dateLabel = getFieldBox(VOUCHER_FIELDS.dateLabel, width, height);
-  const date = getFieldBox(VOUCHER_FIELDS.date, width, height);
+  const packageBox = pillToBox(pills.packagePill, width, height);
+  const recipientBox = pillToBox(pills.recipientPill, width, height);
+  const dateBox = pillToBox(pills.datePill, width, height);
+  const dateLabelBox = {
+    ...dateBox,
+    topPx: (VOUCHER_FIELDS.dateLabel.top / 100) * height,
+    height: (VOUCHER_FIELDS.dateLabel.height / 100) * height,
+    y: (VOUCHER_FIELDS.dateLabel.top / 100) * height + ((VOUCHER_FIELDS.dateLabel.height / 100) * height) / 2,
+  };
   const footer = getFieldBox(VOUCHER_FIELDS.footer, width, height);
 
   const packageSize = fitFontSizeToBox(
@@ -242,10 +339,7 @@ const buildOverlaySvg = async ({
     recipientMaxSize,
     recipientMinSize,
   );
-  const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, date, dateMaxSize, dateMinSize, 0.72);
-  const packageCenterX = width * (VOUCHER_PILL_CENTERS.package.cx / 100);
-  const recipientCenterX = width * (VOUCHER_PILL_CENTERS.recipient.cx / 100);
-  const dateCenterX = width * (VOUCHER_PILL_CENTERS.date.cx / 100);
+  const dateSize = fitFontSizeToBox(fonts.oswald, safeDate, dateBox, dateMaxSize, dateMinSize, 0.72);
 
   const footerLine1Y = footer.y - phoneSize * 0.55;
   const footerLine2Y = footer.y + phoneSize * 0.55;
@@ -255,30 +349,23 @@ const buildOverlaySvg = async ({
   const packagePath = getCenteredPathData(
     fonts.oswald,
     safePackage.toUpperCase(),
-    packageCenterX,
+    packageBox.x,
     packageBox.y,
     packageSize,
   );
   const recipientPath = getCenteredPathData(
     fonts.oswald,
     safeRecipient,
-    recipientCenterX,
+    recipientBox.x,
     recipientBox.y,
     recipientSize,
   );
-  const datePath = getCenteredPathData(fonts.oswald, safeDate, dateCenterX, date.y, dateSize);
-  const dateLabelShadow = getCenteredPathData(
-    fonts.oswald,
-    VOUCHER_DATE_LABEL,
-    dateCenterX + 1,
-    dateLabel.y + 1,
-    labelSize,
-  );
+  const datePath = getCenteredPathData(fonts.oswald, safeDate, dateBox.x, dateBox.y, dateSize);
   const dateLabelMain = getCenteredPathData(
     fonts.oswald,
     VOUCHER_DATE_LABEL,
-    dateCenterX,
-    dateLabel.y,
+    dateBox.x,
+    dateLabelBox.y,
     labelSize,
   );
   const footerLine1Path = getCenteredPathData(fonts.oswald, VOUCHER_FOOTER_LINE1, footer.x, footerLine1Y, footerSize);
@@ -290,7 +377,6 @@ const buildOverlaySvg = async ({
   ${pathElement(titleMain, "#ffffff")}
   ${pathElement(packagePath, "#111111")}
   ${pathElement(recipientPath, "#111111")}
-  ${pathElement(dateLabelShadow, "#000000", 0.55)}
   ${pathElement(dateLabelMain, "#ffffff")}
   ${pathElement(datePath, "#111111")}
   <rect x="${footer.leftPx}" y="${footer.topPx}" width="${footer.width}" height="${footer.height}" rx="5" fill="rgba(8,8,8,0.78)"/>
@@ -321,6 +407,7 @@ export const generateVoucherImageBuffer = async ({
     width,
     height,
     siteUrl,
+    templateBuffer: template,
   });
   const overlay = await sharp(Buffer.from(svg))
     .resize(templateMeta.width, templateMeta.height, { fit: "fill" })
