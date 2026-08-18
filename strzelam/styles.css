@@ -26,6 +26,12 @@ body {
   background: var(--paper);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.55;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+  hyphenate-limit-lines: 2;
+  hyphenate-limit-last: always;
+  -webkit-hyphens: auto;
+  text-wrap: pretty;
 }
 
 .top-line {
@@ -231,6 +237,7 @@ h1 {
   font-size: clamp(2.45rem, 5.1vw, 4.85rem);
   line-height: 1;
   letter-spacing: 0;
+  text-wrap: balance;
 }
 
 .hero-content h1 .hero-title-line {
@@ -242,12 +249,14 @@ h2 {
   font-size: clamp(2rem, 4vw, 3.55rem);
   line-height: 1.06;
   letter-spacing: 0;
+  text-wrap: balance;
 }
 
 h3 {
   margin: 0 0 12px;
   font-size: 1.14rem;
   line-height: 1.22;
+  text-wrap: balance;
 }
 
 .hero-lead {
@@ -255,6 +264,7 @@ h3 {
   margin: 20px 0 0;
   color: rgba(255, 255, 255, 0.86);
   font-size: clamp(1.04rem, 1.6vw, 1.2rem);
+  text-wrap: pretty;
 }
 
 .hero-actions,
@@ -485,6 +495,13 @@ h3 {
 .audience-grid p,
 .steps-row p {
   color: var(--muted);
+  text-wrap: pretty;
+}
+
+.audience-grid h3,
+.feature-card h3,
+.steps-row h3 {
+  text-wrap: balance;
 }
 
 .feature-band {
