@@ -9,6 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ secrets.NETLIFY_AUTH_TOKEN != '' && secrets.NETLIFY_SITE_ID != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -43,3 +44,13 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 10
+
+  notify-missing-secrets:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.NETLIFY_AUTH_TOKEN == '' || secrets.NETLIFY_SITE_ID == '' }}
+    steps:
+      - name: Netlify secrets missing
+        run: |
+          echo "::error::Brak NETLIFY_AUTH_TOKEN lub NETLIFY_SITE_ID w sekretach repozytorium GitHub."
+          echo "Dodaj je w Settings → Secrets → Actions albo w Netlify: Deploys → Trigger deploy (gałąź cursor/voucher-fix-2b7f)."
+          exit 1
