@@ -397,17 +397,40 @@ h3 {
 
 .intro {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.78fr);
-  gap: 64px;
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
+  gap: clamp(40px, 6vw, 72px);
+  align-items: start;
+}
+
+.intro .section-heading {
+  max-width: none;
+}
+
+.intro-lead {
+  max-width: 11.5em;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.intro-lead-line {
+  display: block;
 }
 
 .intro-copy {
   color: #39413e;
   font-size: 1.05rem;
+  line-height: 1.62;
 }
 
-.intro-copy p:first-child {
-  margin-top: 0;
+.intro-copy p {
+  margin: 0 0 1.1em;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+.intro-copy p:last-child {
+  margin-bottom: 0;
 }
 
 .photo-proof {
@@ -497,7 +520,6 @@ h3 {
   color: var(--muted);
 }
 
-.intro-copy p,
 .audience-grid article p,
 .feature-card p,
 .steps-row article p,
@@ -519,7 +541,6 @@ h3 {
 }
 
 @media (max-width: 639px) {
-  .intro-copy p,
   .audience-grid article p,
   .feature-card p,
   .steps-row article p,
@@ -1590,6 +1611,10 @@ details p {
   .voucher-purchase {
     grid-template-columns: 1fr;
     gap: 28px;
+  }
+
+  .intro-lead {
+    max-width: none;
   }
 
   .voucher-band > div:first-child {
