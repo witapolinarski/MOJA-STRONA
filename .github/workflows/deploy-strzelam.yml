@@ -1,0 +1,56 @@
+name: Deploy strzelam.com
+
+on:
+  push:
+    branches:
+      - cursor/voucher-fix-2b7f
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.NETLIFY_AUTH_TOKEN != '' && secrets.NETLIFY_SITE_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install --prefix strzelam
+
+      - name: Build publish directory
+        run: |
+          rm -rf tmp/strzelam-fix2
+          mkdir -p tmp/strzelam-fix2
+          cp -a strzelam/. tmp/strzelam-fix2/
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: ./tmp/strzelam-fix2
+          production-branch: cursor/voucher-fix-2b7f
+          production-deploy: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy strzelam.com from ${{ github.sha }}"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 10
+
+  notify-missing-secrets:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.NETLIFY_AUTH_TOKEN == '' || secrets.NETLIFY_SITE_ID == '' }}
+    steps:
+      - name: Netlify secrets missing
+        run: |
+          echo "::error::Brak NETLIFY_AUTH_TOKEN lub NETLIFY_SITE_ID w sekretach repozytorium GitHub."
+          echo "Dodaj je w Settings → Secrets → Actions albo w Netlify: Deploys → Trigger deploy (gałąź cursor/voucher-fix-2b7f)."
+          exit 1

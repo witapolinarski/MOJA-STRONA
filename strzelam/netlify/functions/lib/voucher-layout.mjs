@@ -1,0 +1,317 @@
+export const VOUCHER_TEMPLATE = {
+  width: 1378,
+  height: 719,
+};
+
+export const VOUCHER_ASPECT_RATIO = `${VOUCHER_TEMPLATE.width} / ${VOUCHER_TEMPLATE.height}`;
+
+export const VOUCHER_PACKAGE_LABEL = "OSTRE STRZELANIE";
+
+export const VOUCHER_TIERS_PLN = [300, 400, 500, 600, 800];
+
+export const VOUCHER_DATE_LABEL = "Voucher ważny do:";
+
+export const VOUCHER_FOOTER_LINE1 =
+  "Realizacja vouchera możliwa jest po wcześniejszej rezerwacji telefonicznej";
+
+export const VOUCHER_FOOTER_LINE2 = "+48 662 475 714";
+
+export const VOUCHER_CONTACT_LINE = `${VOUCHER_FOOTER_LINE1} ${VOUCHER_FOOTER_LINE2}`;
+
+export const VOUCHER_EMAIL_WIDTH_PX = 800;
+
+export const VOUCHER_FONT_LINK =
+  "https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@600;700&display=swap";
+
+export const VOUCHER_FIELDS = {
+  title: {
+    top: 8.5,
+    left: 26,
+    width: 48,
+    height: 10,
+    fontSize: 48,
+    minFontSize: 34,
+  },
+  package: {
+    left: 7.47,
+    top: 56.88,
+    width: 53.77,
+    height: 11.41,
+    fontSize: 32,
+    minFontSize: 18,
+  },
+  recipient: {
+    left: 7.4,
+    top: 75.1,
+    width: 47.61,
+    height: 11.54,
+    fontSize: 30,
+    minFontSize: 16,
+  },
+  dateLabel: {
+    left: 69.09,
+    top: 67.5,
+    width: 23.08,
+    height: 5,
+    fontSize: 16,
+    minFontSize: 12,
+  },
+  date: {
+    left: 69.09,
+    top: 75.24,
+    width: 23.08,
+    height: 11.54,
+    fontSize: 26,
+    minFontSize: 15,
+  },
+  footer: {
+    bottom: 1.2,
+    left: 3,
+    width: 94,
+    height: 10.5,
+    fontSize: 16,
+    minFontSize: 12,
+    phoneFontSize: 22,
+    phoneMinFontSize: 16,
+  },
+};
+
+export const getVoucherPillBox = (key, width, height) => {
+  const field = VOUCHER_FIELDS[key];
+  const leftPx = (field.left / 100) * width;
+  const topPx = (field.top / 100) * height;
+  const boxWidth = (field.width / 100) * width;
+  const boxHeight = (field.height / 100) * height;
+
+  return {
+    x: leftPx + boxWidth / 2,
+    y: topPx + boxHeight / 2,
+    leftPx,
+    topPx,
+    width: boxWidth,
+    height: boxHeight,
+  };
+};
+
+const escapeHtml = (value) =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+export const formatVoucherDate = (value) => {
+  const date = String(value || "-").trim();
+  if (date === "-") return date;
+  return date.endsWith(" r.") ? date : `${date} r.`;
+};
+
+export const formatVoucherAmount = (amount) => {
+  const value = Number(amount);
+  if (!Number.isFinite(value) || value <= 0) return "";
+  return `${value} zł`;
+};
+
+export const shouldShowVoucherAmount = (amountVisibility, amount) =>
+  amountVisibility === "visible" && Boolean(formatVoucherAmount(amount));
+
+export const getRecipientFontSizePx = (recipient, cardWidthPx) => {
+  const normalizedRecipient = String(recipient || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const longestWordLength = Math.max(
+    ...normalizedRecipient.split(" ").map((word) => word.length),
+    0,
+  );
+  const totalLength = normalizedRecipient.length;
+  const field = VOUCHER_FIELDS.recipient;
+  const scale = cardWidthPx / 600;
+  const baseSize = field.fontSize * scale;
+  const minSize = field.minFontSize * scale;
+  const sizeByTotalLength = baseSize - Math.max(0, totalLength - 10) * 0.8 * scale;
+  const sizeByLongestWord = baseSize - Math.max(0, longestWordLength - 8) * 1.2 * scale;
+  const size = Math.min(sizeByTotalLength, sizeByLongestWord, baseSize);
+
+  return Math.round(clamp(size, minSize, baseSize));
+};
+
+export const getRecipientFontSizeRem = (recipient) => {
+  const pxSize = getRecipientFontSizePx(recipient, 600);
+  return `${(pxSize / 16).toFixed(2)}rem`;
+};
+
+export const renderVoucherCardMarkup = ({
+  recipient,
+  packageLabel = VOUCHER_PACKAGE_LABEL,
+  validUntil,
+  cardWidthPx = 600,
+  backgroundUrl = "",
+  mode = "web",
+  imageSrc = "",
+}) => {
+  const safeRecipient = escapeHtml(recipient || "Osoba obdarowana");
+  const safePackage = escapeHtml(packageLabel);
+  const safeDate = escapeHtml(formatVoucherDate(validUntil));
+  const safeDateLabel = escapeHtml(VOUCHER_DATE_LABEL);
+  const safeFooterLine1 = escapeHtml(VOUCHER_FOOTER_LINE1);
+  const safeFooterLine2 = escapeHtml(VOUCHER_FOOTER_LINE2);
+  const recipientFontSize = getRecipientFontSizeRem(recipient || "");
+  const resolvedBackgroundUrl =
+    backgroundUrl ||
+    "https://strzelam.com/assets/voucher-template-bg.jpg";
+
+  if (mode === "email" && imageSrc) {
+    const safeImageSrc = escapeHtml(imageSrc);
+    const safeAlt = escapeHtml(`Bon podarunkowy dla ${recipient || "osoby obdarowanej"}`);
+
+    return `
+      <img
+        src="${safeImageSrc}"
+        width="${cardWidthPx}"
+        alt="${safeAlt}"
+        style="display:block;width:100%;max-width:${cardWidthPx}px;height:auto;margin:0 auto;border:1px solid rgba(21,22,23,0.12);"
+      />
+    `;
+  }
+
+  const backgroundStyle = `background-image:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)), url('${resolvedBackgroundUrl}');`;
+
+  return `
+    <div class="voucher-card-preview" style="max-width:${cardWidthPx}px;">
+      <div class="voucher-card-inner" style="${backgroundStyle}background-size:cover;background-position:center;">
+        <div class="voucher-card-title">VOUCHER</div>
+        <div class="voucher-card-package">${safePackage}</div>
+        <div class="voucher-card-date-label">${safeDateLabel}</div>
+        <div class="voucher-card-name" id="preview-recipient" style="--recipient-font-size:${recipientFontSize};">${safeRecipient}</div>
+        <div class="voucher-card-date" id="preview-valid-until">${safeDate}</div>
+        <div class="voucher-card-footer">
+          <span>${safeFooterLine1}</span>
+          <strong>${safeFooterLine2}</strong>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+export const renderControlCouponMarkup = ({
+  code,
+  amount,
+  recipient,
+  validUntil,
+  amountVisibility,
+  mode = "email",
+}) => {
+  const safeCode = escapeHtml(code);
+  const safeRecipient = escapeHtml(recipient);
+  const safeDate = escapeHtml(validUntil);
+  const amountLabel = escapeHtml(`${amount} zł`);
+  const visibilityLabel = amountVisibility === "visible" ? "widoczna" : "ukryta";
+
+  if (mode === "web") {
+    return "";
+  }
+
+  return `
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:18px auto 0;border-collapse:collapse;max-width:600px;">
+      <tr>
+        <td style="padding:14px 16px;background:#fbfaf7;border:1px solid rgba(21,22,23,0.18);">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+            <tr>
+              <td style="padding:0 0 10px;border-bottom:1px solid rgba(21,22,23,0.14);font-size:12px;font-weight:900;color:#626970;text-transform:uppercase;">Kupon kontrolny</td>
+              <td style="padding:0 0 10px;border-bottom:1px solid rgba(21,22,23,0.14);font-size:16px;font-weight:900;color:#153526;text-align:right;">${safeCode}</td>
+            </tr>
+          </table>
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin-top:10px;">
+            <tr>
+              <td width="50%" style="padding:6px 8px 6px 0;vertical-align:top;">
+                <div style="font-size:11px;font-weight:900;color:#626970;text-transform:uppercase;">Do realizacji</div>
+                <div style="margin-top:3px;font-size:14px;font-weight:900;color:#151617;">${amountLabel}</div>
+              </td>
+              <td width="50%" style="padding:6px 0 6px 8px;vertical-align:top;">
+                <div style="font-size:11px;font-weight:900;color:#626970;text-transform:uppercase;">Bon dla</div>
+                <div style="margin-top:3px;font-size:14px;font-weight:900;color:#151617;">${safeRecipient}</div>
+              </td>
+            </tr>
+            <tr>
+              <td width="50%" style="padding:6px 8px 6px 0;vertical-align:top;">
+                <div style="font-size:11px;font-weight:900;color:#626970;text-transform:uppercase;">Ważny do</div>
+                <div style="margin-top:3px;font-size:14px;font-weight:900;color:#151617;">${safeDate}</div>
+              </td>
+              <td width="50%" style="padding:6px 0 6px 8px;vertical-align:top;">
+                <div style="font-size:11px;font-weight:900;color:#626970;text-transform:uppercase;">Kwota na bonie</div>
+                <div style="margin-top:3px;font-size:14px;font-weight:900;color:#151617;">${visibilityLabel}</div>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:12px 0 0;font-size:12px;line-height:1.45;color:#626970;">Rezerwacje: 662 475 714. Bon jest ważny rok od daty zakupu.</p>
+        </td>
+      </tr>
+    </table>
+  `;
+};
+
+export const renderVoucherEmailHtml = ({
+  recipient,
+  validUntil,
+  amount,
+  amountVisibility,
+  code,
+  siteUrl,
+  voucherImageSrc = "",
+}) => {
+  return `<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bon podarunkowy</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f7f4ee;color:#151617;font-family:Arial,Helvetica,sans-serif;line-height:1.55;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#f7f4ee;">
+      <tr>
+        <td align="center" style="padding:28px 16px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;max-width:640px;">
+            <tr>
+              <td style="padding:0 0 8px;font-size:12px;font-weight:800;color:#c89b46;text-transform:uppercase;letter-spacing:0.04em;">STRZELAM.COM</td>
+            </tr>
+            <tr>
+              <td style="padding:0 0 10px;font-size:30px;font-weight:900;line-height:1.05;">Bon podarunkowy</td>
+            </tr>
+            <tr>
+              <td style="padding:0 0 22px;font-size:16px;color:#626970;">
+                Dziękujemy za zakup. Poniżej znajduje się bon do wydrukowania lub przekazania osobie obdarowanej.
+              </td>
+            </tr>
+            <tr>
+              <td>
+                ${renderVoucherCardMarkup({
+                  recipient,
+                  validUntil,
+                  cardWidthPx: VOUCHER_EMAIL_WIDTH_PX,
+                  mode: "email",
+                  imageSrc: voucherImageSrc,
+                })}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                ${renderControlCouponMarkup({
+                  code,
+                  amount,
+                  recipient,
+                  validUntil,
+                  amountVisibility,
+                  mode: "email",
+                })}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+};
