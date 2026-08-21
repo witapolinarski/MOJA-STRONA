@@ -34,7 +34,7 @@ jobs:
         uses: nwtgck/actions-netlify@v3.0
         with:
           publish-dir: ./tmp/strzelam-fix2
-          production-branch: cursor/voucher-fix-2b7f
+          production-branch: main
           production-deploy: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Deploy strzelam.com from ${{ github.sha }}"
@@ -53,5 +53,5 @@ jobs:
       - name: Netlify secrets missing
         run: |
           echo "::error::Brak NETLIFY_AUTH_TOKEN lub NETLIFY_SITE_ID w sekretach repozytorium GitHub."
-          echo "Dodaj je w Settings → Secrets → Actions albo w Netlify: Deploys → Trigger deploy (gałąź cursor/voucher-fix-2b7f)."
+          echo "Dodaj je w Settings → Secrets → Actions albo w Netlify: Deploys → Trigger deploy (gałąź main)."
           exit 1
