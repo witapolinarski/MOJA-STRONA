@@ -1,10 +1,18 @@
+# Używany tylko gdy w Netlify ustawiono Base directory = strzelam.
+# Domyślnie strzelam.com buduje się z netlify.toml w katalogu głównym repozytorium.
+
 [build]
   publish = "."
   command = "npm install"
 
+[build.environment]
+  NODE_VERSION = "20"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  included_files = ["netlify/functions/assets/**"]
+  external_node_modules = ["sharp"]
 
 [[redirects]]
   from = "/test-bon"

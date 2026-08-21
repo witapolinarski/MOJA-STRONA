@@ -6,8 +6,12 @@ Zmiany w kodzie trafiają na produkcję dopiero po deployu Netlify. Sam merge do
 
 1. Zaloguj się na [app.netlify.com](https://app.netlify.com).
 2. Otwórz witrynę podpiętą pod **strzelam.com** (projekt `strzelam-strona`).
-3. **Deploys** → **Trigger deploy** → **Deploy project** (gałąź **main**).
-4. Po zakończeniu: odśwież strzelam.com (Ctrl+F5).
+3. **Site configuration** → **Build & deploy** → **Continuous deployment**:
+   - **Base directory**: puste (katalog główny repozytorium, nie `strzelam`)
+   - **Build command**: z pliku `netlify.toml` (nie nadpisuj ręcznie)
+   - **Publish directory**: `tmp/strzelam-fix2`
+4. **Deploys** → **Trigger deploy** → **Deploy project** (gałąź **main**).
+5. Po zakończeniu: odśwież strzelam.com (Ctrl+F5).
 
 ## Automatyczny deploy (GitHub Actions)
 

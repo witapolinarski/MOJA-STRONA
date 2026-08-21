@@ -1,14 +1,17 @@
-# Konfiguracja deployu strzelam.com (gałąź cursor/voucher-fix-2b7f).
-# Netlify UI ma publish = tmp/strzelam-fix2 — build tworzy ten katalog ze strzelam/.
+# strzelam.com — build z katalogu głównego repozytorium (publish: tmp/strzelam-fix2).
 
 [build]
-  command = "npm install && npm install --prefix strzelam && rm -rf tmp/strzelam-fix2 && mkdir -p tmp/strzelam-fix2 && cp -a strzelam/. tmp/strzelam-fix2/"
+  command = "bash bin/build-strzelam.sh"
   publish = "tmp/strzelam-fix2"
   functions = "strzelam/netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 [functions]
   node_bundler = "esbuild"
   included_files = ["strzelam/netlify/functions/assets/**"]
+  external_node_modules = ["sharp"]
 
 [[redirects]]
   from = "/test-bon"

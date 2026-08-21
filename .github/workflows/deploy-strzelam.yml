@@ -25,10 +25,7 @@ jobs:
           npm install --prefix strzelam
 
       - name: Build publish directory
-        run: |
-          rm -rf tmp/strzelam-fix2
-          mkdir -p tmp/strzelam-fix2
-          cp -a strzelam/. tmp/strzelam-fix2/
+        run: bash bin/build-strzelam.sh
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0
