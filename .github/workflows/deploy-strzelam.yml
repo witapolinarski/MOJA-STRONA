@@ -3,6 +3,7 @@ name: Deploy strzelam.com
 on:
   push:
     branches:
+      - main
       - cursor/voucher-fix-2b7f
   workflow_dispatch:
 
