@@ -25,12 +25,12 @@ jobs:
           npm install --prefix strzelam
 
       - name: Build publish directory
-        run: bash bin/build-strzelam.sh
+        run: npm install && npm install --prefix strzelam
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: ./tmp/strzelam-fix2
+          publish-dir: ./strzelam
           production-branch: main
           production-deploy: true
           github-token: ${{ secrets.GITHUB_TOKEN }}

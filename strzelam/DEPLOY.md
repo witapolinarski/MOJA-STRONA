@@ -1,32 +1,31 @@
 # Wdrożenie strzelam.com
 
-Zmiany w kodzie trafiają na produkcję dopiero po deployu Netlify. Sam merge do `main` nie aktualizuje domeny, jeśli deploy nie przejdzie.
+## Ustawienia Netlify (strzelam-strona) — OBOWIĄZKOWE
 
-## Szybki deploy (panel Netlify)
+W **Site configuration → Build & deploy → Build settings**:
 
-1. Zaloguj się na [app.netlify.com](https://app.netlify.com).
-2. Otwórz witrynę podpiętą pod **strzelam.com** (projekt `strzelam-strona`).
-3. **Site configuration** → **Build & deploy** → **Continuous deployment**:
-   - **Base directory**: puste (katalog główny repozytorium, nie `strzelam`)
-   - **Build command**: z pliku `netlify.toml` (nie nadpisuj ręcznie)
-   - **Publish directory**: `tmp/strzelam-fix2`
-4. **Deploys** → **Trigger deploy** → **Deploy project** (gałąź **main**).
-5. Po zakończeniu: odśwież strzelam.com (Ctrl+F5).
+| Pole | Wartość |
+|------|---------|
+| **Base directory** | *(puste — katalog główny repo)* |
+| **Build command** | *(puste — bierze z `netlify.toml`)* |
+| **Publish directory** | `strzelam` *(albo puste — bierze z `netlify.toml`)* |
 
-## Automatyczny deploy (GitHub Actions)
+**Nie ustawiaj** publish na `tmp/strzelam-fix2` — to stara konfiguracja i powoduje błąd buildu.
 
-W repozytorium GitHub → **Settings** → **Secrets and variables** → **Actions** dodaj:
+Usuń ręczne nadpisania (Override), jeśli są włączone — Netlify ma używać pliku `netlify.toml` z głównego katalogu repozytorium.
 
-- `NETLIFY_AUTH_TOKEN` — z Netlify: User settings → Applications → Personal access tokens
-- `NETLIFY_SITE_ID` — ID witryny **strzelam.com** (Site configuration → General → Site ID)
+## Deploy ręczny
 
-Workflow: `.github/workflows/deploy-strzelam.yml` (push na `main`).
+1. [app.netlify.com](https://app.netlify.com) → witryna **strzelam-strona**
+2. **Deploys** → **Trigger deploy** → **Clear cache and deploy site**
+3. Gałąź: **main**
+4. Po zielonym statusie: odśwież strzelam.com (Ctrl+F5)
 
 ## Weryfikacja
 
-Po deployu na stronie głównej w sekcji intro powinno być:
+Po deployu w sekcji intro powinno być:
 
 - **Przyjedź postrzelać —**
 - **bezpieczeństwo na pierwszym planie.**
 
-Stary tekst z podwójnym „miejscu” oznacza, że produkcja nie została jeszcze zaktualizowana.
+Stary tekst z podwójnym „miejscu” = produkcja nie została zaktualizowana.

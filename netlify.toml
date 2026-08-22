@@ -1,8 +1,8 @@
-# strzelam.com — build z katalogu głównego repozytorium (publish: tmp/strzelam-fix2).
+# strzelam.com — build z katalogu głównego repozytorium.
 
 [build]
-  command = "bash bin/build-strzelam.sh"
-  publish = "tmp/strzelam-fix2"
+  command = "npm install && npm install --prefix strzelam"
+  publish = "strzelam"
   functions = "strzelam/netlify/functions"
 
 [build.environment]
