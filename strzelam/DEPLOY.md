@@ -8,11 +8,11 @@ W **Site configuration → Build & deploy → Build settings**:
 |------|---------|
 | **Base directory** | *(puste — katalog główny repo)* |
 | **Build command** | *(puste — bierze z `netlify.toml`)* |
-| **Publish directory** | `strzelam` *(albo puste — bierze z `netlify.toml`)* |
+| **Publish directory** | `tmp/strzelam-fix2` *(albo puste — bierze z `netlify.toml`)* |
 
-**Nie ustawiaj** publish na `tmp/strzelam-fix2` — to stara konfiguracja i powoduje błąd buildu.
+Build kopiuje `strzelam/` do `tmp/strzelam-fix2/` przed publikacją. Katalog `tmp/` nie jest w repozytorium — tworzy go komenda buildu.
 
-Usuń ręczne nadpisania (Override), jeśli są włączone — Netlify ma używać pliku `netlify.toml` z głównego katalogu repozytorium.
+Usuń ręczne nadpisania (Override) tylko jeśli kolidują z powyższymi wartościami.
 
 ## Deploy ręczny
 
