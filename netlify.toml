@@ -1,8 +1,9 @@
 # strzelam.com — build z katalogu głównego repozytorium.
 
 [build]
-  command = "npm install && npm install --prefix strzelam"
-  publish = "strzelam"
+  # Netlify UI (strzelam-strona) ma publish = tmp/strzelam-fix2 — build musi go utworzyć.
+  command = "npm install && npm install --prefix strzelam && rm -rf tmp/strzelam-fix2 && mkdir -p tmp && cp -a strzelam/. tmp/strzelam-fix2/"
+  publish = "tmp/strzelam-fix2"
   functions = "strzelam/netlify/functions"
 
 [build.environment]
