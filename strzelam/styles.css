@@ -344,19 +344,23 @@ h3 {
 }
 
 .hero-note {
-  display: flex;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 12px;
-  max-width: 820px;
+  width: fit-content;
+  max-width: 100%;
   margin-top: 10px;
   padding: 10px 18px;
   color: rgba(255, 255, 255, 0.82);
   background: rgba(47, 95, 74, 0.34);
   border: 1px solid rgba(255, 255, 255, 0.14);
+  white-space: nowrap;
 }
 
 .hero-note strong {
   color: var(--gold-soft);
-  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .quick-facts div {
