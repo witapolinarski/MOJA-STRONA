@@ -690,6 +690,33 @@ h3 {
   align-items: stretch;
 }
 
+.price-intro {
+  max-width: none;
+  width: 100%;
+  text-align: center;
+}
+
+.price-intro .eyebrow,
+.price-intro h2,
+.price-intro > p:not(.eyebrow) {
+  white-space: nowrap;
+}
+
+.price-intro > p:not(.eyebrow) {
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  text-align-last: center;
+  text-wrap: nowrap;
+}
+
+.split-section .price-intro > p:not(.eyebrow) {
+  text-align: center;
+  text-align-last: center;
+  text-wrap: nowrap;
+}
+
 .price-panel {
   position: relative;
   padding: 26px;
