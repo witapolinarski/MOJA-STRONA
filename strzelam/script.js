@@ -126,7 +126,7 @@ const updateVoucherPreview = () => {
 };
 
 const getVoucherData = () => ({
-    amount: voucherAmount?.value || "500",
+    amount: Number(voucherAmount?.value || 500),
     recipient: voucherRecipient?.value.trim() || "Osoba obdarowana",
     email: voucherEmail?.value.trim() || "",
     amountVisibility: voucherAmountVisibility?.value || "hidden",

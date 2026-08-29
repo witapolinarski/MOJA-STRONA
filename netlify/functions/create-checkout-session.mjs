@@ -12,12 +12,89 @@ const getSiteUrl = () =>
   process.env.DEPLOY_PRIME_URL ||
   "https://strzelam.com";
 
+const buildSessionParams = (payload, siteUrl, paymentMethodTypes) => {
+  const amountLabel =
+    payload.amountVisibility === "visible" ? `${payload.amount} zł` : "kwota ukryta na bonie";
+
+  const params = {
+    mode: "payment",
+    customer_email: payload.email,
+    line_items: [
+      {
+        price_data: {
+          currency: "pln",
+          unit_amount: payload.amount * 100,
+          product_data: {
+            name: `Bon podarunkowy ${payload.amount} zł`,
+            description: `Bon dla: ${payload.recipient} (${amountLabel})`,
+          },
+        },
+        quantity: 1,
+      },
+    ],
+    metadata: {
+      voucherCode: payload.code,
+      voucherRecipient: payload.recipient,
+      voucherEmail: payload.email,
+      voucherAmount: String(payload.amount),
+      voucherAmountVisibility: payload.amountVisibility,
+      voucherValidUntil: payload.validUntil,
+    },
+    success_url: `${siteUrl}/?payment=success&code=${encodeURIComponent(payload.code)}`,
+    cancel_url: `${siteUrl}/#vouchery?payment=cancelled`,
+  };
+
+  if (paymentMethodTypes) {
+    params.payment_method_types = paymentMethodTypes;
+  } else {
+    params.automatic_payment_methods = { enabled: true };
+  }
+
+  return params;
+};
+
+const createCheckoutSession = async (stripe, payload, siteUrl) => {
+  const attempts = [
+    { label: "automatic", types: null },
+    { label: "card+blik+p24", types: ["card", "blik", "p24"] },
+    { label: "card", types: ["card"] },
+  ];
+
+  let lastError = null;
+
+  for (const attempt of attempts) {
+    try {
+      return await stripe.checkout.sessions.create(
+        buildSessionParams(payload, siteUrl, attempt.types),
+      );
+    } catch (error) {
+      lastError = error;
+      console.error(`create-checkout-session:${attempt.label}`, error?.type || error?.message);
+    }
+  }
+
+  throw lastError;
+};
+
+const getCheckoutErrorMessage = (error) => {
+  if (error?.type === "StripeAuthenticationError") {
+    return "Płatności wymagają aktualizacji klucza Stripe w konfiguracji strony.";
+  }
+
+  const message = String(error?.message || "");
+  if (message.includes("payment_method_types") || message.includes("payment method")) {
+    return "Wybrana metoda płatności jest chwilowo niedostępna. Spróbuj ponownie za chwilę.";
+  }
+
+  return "Nie udało się przygotować płatności.";
+};
+
 export default async (request) => {
   if (request.method !== "POST") {
     return jsonResponse({ error: "Metoda niedozwolona." }, 405);
   }
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
   if (!secretKey) {
     return jsonResponse({ error: "Płatności online nie są jeszcze skonfigurowane." }, 503);
   }
@@ -31,43 +108,21 @@ export default async (request) => {
 
     const stripe = new Stripe(secretKey);
     const siteUrl = getSiteUrl().replace(/\/$/, "");
-    const amountLabel =
-      payload.amountVisibility === "visible" ? `${payload.amount} zł` : "kwota ukryta na bonie";
+    const session = await createCheckoutSession(stripe, payload, siteUrl);
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card", "blik", "p24"],
-      customer_email: payload.email,
-      line_items: [
-        {
-          price_data: {
-            currency: "pln",
-            unit_amount: payload.amount * 100,
-            product_data: {
-              name: `Bon podarunkowy ${payload.amount} zł`,
-              description: `Bon dla: ${payload.recipient} (${amountLabel})`,
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        voucherCode: payload.code,
-        voucherRecipient: payload.recipient,
-        voucherEmail: payload.email,
-        voucherAmount: String(payload.amount),
-        voucherAmountVisibility: payload.amountVisibility,
-        voucherValidUntil: payload.validUntil,
-      },
-      success_url: `${siteUrl}/?payment=success&code=${encodeURIComponent(payload.code)}`,
-      cancel_url: `${siteUrl}/#vouchery?payment=cancelled`,
-    });
+    if (!session?.url) {
+      throw new Error("Stripe nie zwrócił adresu płatności.");
+    }
 
-    await savePendingVoucherOrder(payload, session.id);
+    try {
+      await savePendingVoucherOrder(payload, session.id);
+    } catch (blobError) {
+      console.error("savePendingVoucherOrder", blobError);
+    }
 
     return jsonResponse({ checkoutUrl: session.url });
   } catch (error) {
     console.error("create-checkout-session", error);
-    return jsonResponse({ error: "Nie udało się przygotować płatności." }, 500);
+    return jsonResponse({ error: getCheckoutErrorMessage(error) }, 500);
   }
 };
