@@ -16,8 +16,10 @@ const buildSessionParams = (payload, siteUrl, paymentMethodTypes) => {
   const amountLabel =
     payload.amountVisibility === "visible" ? `${payload.amount} zł` : "kwota ukryta na bonie";
 
-  const params = {
+  return {
     mode: "payment",
+    locale: "pl",
+    payment_method_types: paymentMethodTypes,
     customer_email: payload.email,
     line_items: [
       {
@@ -43,19 +45,11 @@ const buildSessionParams = (payload, siteUrl, paymentMethodTypes) => {
     success_url: `${siteUrl}/?payment=success&code=${encodeURIComponent(payload.code)}`,
     cancel_url: `${siteUrl}/#vouchery?payment=cancelled`,
   };
-
-  if (paymentMethodTypes) {
-    params.payment_method_types = paymentMethodTypes;
-  } else {
-    params.automatic_payment_methods = { enabled: true };
-  }
-
-  return params;
 };
 
 const createCheckoutSession = async (stripe, payload, siteUrl) => {
   const attempts = [
-    { label: "automatic", types: null },
+    { label: "card+blik", types: ["card", "blik"] },
     { label: "card+blik+p24", types: ["card", "blik", "p24"] },
     { label: "card", types: ["card"] },
   ];
