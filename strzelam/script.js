@@ -267,4 +267,30 @@ if (voucherForm) {
   });
 }
 
-renderSuccessVoucherSummary();
+const voucherSuccessBanner = document.querySelector("#voucher-success-banner");
+
+const handlePaymentRedirectStatus = () => {
+  const params = new URLSearchParams(window.location.search);
+  const paymentStatus = params.get("payment");
+
+  if (paymentStatus === "success") {
+    renderSuccessVoucherSummary();
+    if (voucherSuccessBanner) {
+      voucherSuccessBanner.hidden = false;
+      voucherSuccessBanner.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    localStorage.removeItem("pendingVoucher");
+  } else if (paymentStatus === "cancelled" && paymentNote) {
+    paymentNote.textContent =
+      "Płatność została przerwana. Możesz spróbować ponownie w każdej chwili.";
+  }
+
+  if (paymentStatus) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("payment");
+    url.searchParams.delete("code");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+};
+
+handlePaymentRedirectStatus();
