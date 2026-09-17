@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Bilans Firmy — proste narzędzie do liczenia zysku/straty JDG na podstawie faktur przychodowych i kosztowych.">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Bilans Firmy | Zysk / strata JDG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="bilans-firmy.css">
+  </head>
+  <body class="bf-body">
+    <div class="bf-shell">
+      <header class="bf-header">
+        <a class="brand" href="/">
+          <span class="brand-mark">B</span>
+          <span>
+            <strong>Bilans Firmy</strong>
+            <small>Zysk / strata JDG</small>
+          </span>
+        </a>
+        <div class="bf-header-actions">
+          <button class="button secondary" type="button" id="bf-export-json">Eksportuj kopię danych</button>
+          <button class="button secondary" type="button" id="bf-import-json-btn">Importuj kopię danych</button>
+          <input type="file" id="bf-import-json-input" accept="application/json" class="bf-hidden-input">
+          <button class="button dark" type="button" id="bf-clear-all">Wyczyść dane</button>
+        </div>
+      </header>
+
+      <section class="bf-intro">
+        <p class="eyebrow">Narzędzie prywatne — dane zostają w Twojej przeglądarce</p>
+        <h1>Bilans Firmy</h1>
+        <p class="bf-lead">
+          Wpisz lub zaimportuj faktury przychodowe i kosztowe (np. wyeksportowane z systemu do fakturowania /
+          KSeF), a narzędzie policzy wynik finansowy za wybrany miesiąc. Dla <strong>JDG</strong> koszty
+          paliwa i raty leasingu pojazdu używanego również prywatnie są zwykle kosztem podatkowym tylko w
+          <strong>75%</strong> (art. 23 ust. 1 pkt 46a ustawy o PIT) — domyślny procent możesz zmienić dla
+          każdej kategorii i każdej pozycji z osobna.
+        </p>
+        <p class="bf-disclaimer">
+          To jest narzędzie pomocnicze / szacunkowe, nie zastępuje księgowego. Wszystkie dane są zapisywane
+          wyłącznie lokalnie w tej przeglądarce (localStorage) — nic nie jest wysyłane na żaden serwer.
+        </p>
+      </section>
+
+      <section class="bf-toolbar">
+        <label class="bf-month-label">
+          Miesiąc
+          <input type="month" id="bf-month">
+        </label>
+        <button class="button dark" type="button" id="bf-month-all">Pokaż wszystkie miesiące</button>
+      </section>
+
+      <section class="bf-summary" id="bf-summary" aria-live="polite">
+        <div class="bf-summary-card">
+          <p class="bf-summary-label">Przychody netto</p>
+          <p class="bf-summary-value" id="bf-sum-revenue">0,00 zł</p>
+        </div>
+        <div class="bf-summary-card">
+          <p class="bf-summary-label">Koszty uznane netto</p>
+          <p class="bf-summary-value" id="bf-sum-costs">0,00 zł</p>
+          <p class="bf-summary-sub" id="bf-sum-costs-sub"></p>
+        </div>
+        <div class="bf-summary-card bf-summary-card--result" id="bf-result-card">
+          <p class="bf-summary-label">Wynik</p>
+          <p class="bf-summary-value" id="bf-sum-result">0,00 zł</p>
+          <p class="bf-summary-sub" id="bf-sum-result-label"></p>
+        </div>
+      </section>
+
+      <section class="bf-panel" id="bf-categories-panel">
+        <h2>Kategorie kosztów i domyślny % odliczenia</h2>
+        <p class="bf-hint">
+          Ustaw procent, w jakim dana kategoria kosztów wchodzi do rachunku (np. 75% dla paliwa i leasingu
+          przy pojeździe używanym też prywatnie, 100% dla kosztów w pełni firmowych).
+        </p>
+        <div id="bf-categories-list" class="bf-categories-list"></div>
+        <form id="bf-category-form" class="bf-inline-form">
+          <input type="text" id="bf-new-category-name" placeholder="Nowa kategoria, np. Materiały" required>
+          <input type="number" id="bf-new-category-pct" placeholder="%" min="0" max="100" value="100" required>
+          <button class="button dark" type="submit">Dodaj kategorię</button>
+        </form>
+      </section>
+
+      <section class="bf-panel">
+        <div class="bf-panel-header">
+          <h2>Przychody</h2>
+        </div>
+        <p class="bf-hint">
+          Faktury sprzedażowe (przychód). Import CSV: nagłówek <code>data;kontrahent;numer;kwota_netto;kwota_brutto</code>
+          (rozdzielacz <code>;</code> lub <code>,</code>, przecinek lub kropka jako separator dziesiętny).
+        </p>
+        <div id="bf-revenue-table-wrap" class="bf-table-wrap"></div>
+        <form id="bf-revenue-form" class="bf-row-form">
+          <input type="date" id="bf-rev-date" required>
+          <input type="text" id="bf-rev-party" placeholder="Kontrahent" required>
+          <input type="text" id="bf-rev-number" placeholder="Nr faktury">
+          <input type="text" inputmode="decimal" id="bf-rev-netto" placeholder="Kwota netto" required>
+          <input type="text" inputmode="decimal" id="bf-rev-brutto" placeholder="Kwota brutto">
+          <button class="button primary" type="submit">Dodaj przychód</button>
+        </form>
+        <details class="bf-import-details">
+          <summary>Import CSV — przychody</summary>
+          <textarea id="bf-rev-csv" rows="6" placeholder="data;kontrahent;numer;kwota_netto;kwota_brutto"></textarea>
+          <div class="bf-import-actions">
+            <input type="file" id="bf-rev-csv-file" accept=".csv,.txt,text/csv,text/plain">
+            <button class="button dark" type="button" id="bf-rev-csv-import">Importuj wklejony/wgrany CSV</button>
+          </div>
+          <p class="form-note" id="bf-rev-csv-note" role="status"></p>
+        </details>
+      </section>
+
+      <section class="bf-panel">
+        <div class="bf-panel-header">
+          <h2>Koszty</h2>
+        </div>
+        <p class="bf-hint">
+          Faktury kosztowe. Import CSV: nagłówek
+          <code>data;kontrahent;numer;kategoria;kwota_netto;kwota_brutto;procent</code>
+          (kolumna <code>procent</code> opcjonalna — jeśli brak, użyty zostanie domyślny % kategorii).
+        </p>
+        <div id="bf-cost-table-wrap" class="bf-table-wrap"></div>
+        <form id="bf-cost-form" class="bf-row-form bf-row-form--cost">
+          <input type="date" id="bf-cost-date" required>
+          <input type="text" id="bf-cost-party" placeholder="Kontrahent" required>
+          <input type="text" id="bf-cost-number" placeholder="Nr faktury">
+          <select id="bf-cost-category" required></select>
+          <input type="text" inputmode="decimal" id="bf-cost-netto" placeholder="Kwota netto" required>
+          <input type="text" inputmode="decimal" id="bf-cost-brutto" placeholder="Kwota brutto">
+          <input type="number" id="bf-cost-pct" placeholder="% odliczenia" min="0" max="100">
+          <button class="button primary" type="submit">Dodaj koszt</button>
+        </form>
+        <details class="bf-import-details">
+          <summary>Import CSV — koszty</summary>
+          <textarea id="bf-cost-csv" rows="6" placeholder="data;kontrahent;numer;kategoria;kwota_netto;kwota_brutto;procent"></textarea>
+          <div class="bf-import-actions">
+            <input type="file" id="bf-cost-csv-file" accept=".csv,.txt,text/csv,text/plain">
+            <button class="button dark" type="button" id="bf-cost-csv-import">Importuj wklejony/wgrany CSV</button>
+          </div>
+          <p class="form-note" id="bf-cost-csv-note" role="status"></p>
+        </details>
+      </section>
+    </div>
+
+    <script src="bilans-firmy.js?v=1" type="module"></script>
+  </body>
+</html>
