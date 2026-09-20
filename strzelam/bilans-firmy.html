@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Bilans Firmy — proste narzędzie do liczenia zysku/straty JDG na podstawie faktur przychodowych i kosztowych.">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Bilans Firmy | Zysk / strata JDG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --ink: #182033;
+        --muted: #5c6678;
+        --paper: #eef1f6;
+        --white: #ffffff;
+        --line: rgba(24, 32, 51, 0.12);
+        --brand: #2b4c7e;
+        --brand-dark: #14213d;
+        --accent: #c45c26;
+        --accent-soft: #f0b48a;
+        --steel: #d5dce8;
+        --shadow: 0 22px 60px rgba(20, 33, 61, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 185px;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(255, 255, 255, 0.32);
+        background: var(--accent);
+        color: #ffffff;
+        font-weight: 800;
+      }
+
+      .brand strong,
+      .brand small {
+        display: block;
+      }
+
+      .brand strong {
+        font-size: 0.98rem;
+        line-height: 1.1;
+      }
+
+      .brand small {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.76rem;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 13px 18px;
+        border: 1px solid transparent;
+        font: inherit;
+        font-weight: 800;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .button.primary {
+        color: #ffffff;
+        background: var(--accent);
+      }
+
+      .button.secondary {
+        color: var(--white);
+        border-color: rgba(255, 255, 255, 0.34);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .button.dark {
+        color: var(--brand-dark);
+        border-color: rgba(20, 33, 61, 0.2);
+        background: var(--white);
+      }
+
+      .form-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.35;
+      }
+
+      /* ---- Bilans Firmy specific styles ---- */
+      .bf-body {
+        min-height: 100vh;
+        background:
+          linear-gradient(180deg, rgba(20, 33, 61, 0.96), rgba(13, 21, 40, 0.98)),
+          var(--paper);
+      }
+
+      .bf-shell {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 72px;
+        display: grid;
+        gap: 24px;
+      }
+
+      .bf-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .bf-header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .bf-hidden-input {
+        display: none;
+      }
+
+      .bf-intro {
+        width: 100%;
+        background: var(--white);
+        box-shadow: var(--shadow);
+        padding: 28px;
+      }
+
+      .bf-intro h1 {
+        margin: 8px 0;
+        font-size: clamp(2rem, 4vw, 2.6rem);
+      }
+
+      .bf-lead {
+        color: var(--ink);
+      }
+
+      .bf-disclaimer {
+        margin-top: 14px;
+        padding: 12px 14px;
+        background: rgba(196, 92, 38, 0.08);
+        border-left: 4px solid var(--accent);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .bf-standalone-note {
+        margin-top: 14px;
+        padding: 12px 14px;
+        background: rgba(26, 107, 52, 0.08);
+        border-left: 4px solid #1a6b34;
+        color: var(--ink);
+        font-size: 0.92rem;
+      }
+
+      .bf-toolbar {
+        display: flex;
+        align-items: end;
+        flex-wrap: wrap;
+        gap: 16px;
+        background: var(--white);
+        box-shadow: var(--shadow);
+        padding: 18px 24px;
+      }
+
+      .bf-month-label {
+        display: grid;
+        gap: 8px;
+        font-weight: 700;
+      }
+
+      .bf-month-label input {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        font: inherit;
+      }
+
+      .bf-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      .bf-summary-card {
+        background: var(--white);
+        box-shadow: var(--shadow);
+        padding: 22px 24px;
+      }
+
+      .bf-summary-label {
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-weight: 700;
+      }
+
+      .bf-summary-value {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--brand-dark);
+      }
+
+      .bf-summary-sub {
+        margin: 8px 0 0;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .bf-summary-card--result.is-profit .bf-summary-value {
+        color: #1a6b34;
+      }
+
+      .bf-summary-card--result.is-loss .bf-summary-value {
+        color: #b42318;
+      }
+
+      .bf-panel {
+        background: var(--white);
+        box-shadow: var(--shadow);
+        padding: 24px 28px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .bf-panel h2 {
+        margin: 0;
+        font-size: 1.35rem;
+      }
+
+      .bf-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .bf-hint {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .bf-hint code {
+        background: var(--paper);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .bf-categories-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .bf-category-row {
+        display: grid;
+        grid-template-columns: 1fr 110px auto;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+      }
+
+      .bf-category-row input[type="number"] {
+        min-height: 40px;
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        font: inherit;
+        width: 100%;
+      }
+
+      .bf-category-row-name {
+        font-weight: 700;
+      }
+
+      .bf-inline-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .bf-inline-form input[type="text"] {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        font: inherit;
+        flex: 1 1 220px;
+      }
+
+      .bf-inline-form input[type="number"] {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        font: inherit;
+        width: 100px;
+      }
+
+      .bf-table-wrap {
+        overflow: auto;
+        max-height: 420px;
+        border: 1px solid var(--line);
+      }
+
+      .bf-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+
+      .bf-table th,
+      .bf-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: middle;
+        white-space: nowrap;
+      }
+
+      .bf-table th {
+        position: sticky;
+        top: 0;
+        background: #f7f7f8;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .bf-table tfoot td {
+        font-weight: 800;
+        border-top: 2px solid var(--ink);
+        border-bottom: none;
+        background: #f7f7f8;
+      }
+
+      .bf-table-empty {
+        padding: 18px;
+        color: var(--muted);
+      }
+
+      .bf-row-delete {
+        border: none;
+        background: none;
+        color: #b42318;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 4px 8px;
+      }
+
+      .bf-row-form {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr) auto;
+        gap: 10px;
+      }
+
+      .bf-row-form--cost {
+        grid-template-columns: repeat(7, 1fr) auto;
+      }
+
+      .bf-row-form input,
+      .bf-row-form select {
+        min-height: 44px;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        font: inherit;
+        width: 100%;
+      }
+
+      .bf-import-details {
+        border-top: 1px dashed var(--line);
+        padding-top: 12px;
+      }
+
+      .bf-import-details summary {
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .bf-import-details textarea {
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        font: inherit;
+        resize: vertical;
+      }
+
+      .bf-import-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .bf-pct-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(196, 92, 38, 0.12);
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 0.82rem;
+      }
+
+      @media (max-width: 900px) {
+        .bf-row-form,
+        .bf-row-form--cost {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .bf-row-form,
+        .bf-row-form--cost {
+          grid-template-columns: 1fr;
+        }
+
+        .bf-category-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="bf-body">
+    <div class="bf-shell">
+      <header class="bf-header">
+        <span class="brand">
+          <span class="brand-mark">B</span>
+          <span>
+            <strong>Bilans Firmy</strong>
+            <small>Zysk / strata JDG</small>
+          </span>
+        </span>
+        <div class="bf-header-actions">
+          <button class="button secondary" type="button" id="bf-export-json">Eksportuj kopię danych</button>
+          <button class="button secondary" type="button" id="bf-import-json-btn">Importuj kopię danych</button>
+          <input type="file" id="bf-import-json-input" accept="application/json" class="bf-hidden-input">
+          <button class="button dark" type="button" id="bf-clear-all">Wyczyść dane</button>
+        </div>
+      </header>
+
+      <section class="bf-intro">
+        <p class="eyebrow">Narzędzie prywatne — dane zostają w Twojej przeglądarce</p>
+        <h1>Bilans Firmy</h1>
+        <p class="bf-lead">
+          Wpisz lub zaimportuj faktury przychodowe i kosztowe (np. wyeksportowane z systemu do fakturowania /
+          KSeF), a narzędzie policzy wynik finansowy za wybrany miesiąc. Dla <strong>JDG</strong> koszty
+          paliwa i raty leasingu pojazdu używanego również prywatnie są zwykle kosztem podatkowym tylko w
+          <strong>75%</strong> (art. 23 ust. 1 pkt 46a ustawy o PIT) — domyślny procent możesz zmienić dla
+          każdej kategorii i każdej pozycji z osobna.
+        </p>
+        <p class="bf-disclaimer">
+          To jest narzędzie pomocnicze / szacunkowe, nie zastępuje księgowego.
+        </p>
+        <p class="bf-standalone-note">
+          Ta strona nie jest linkowana z żadnej nawigacji — dostępna tylko pod adresem, który znasz. Wszystkie
+          dane zapisują się wyłącznie lokalnie w Twojej przeglądarce (localStorage) — nic nie jest wysyłane na
+          żaden serwer. Pamiętaj, żeby wchodzić na tę stronę zawsze z tej samej przeglądarki na tym samym
+          urządzeniu — inaczej dane się nie „zobaczą" nawzajem.
+        </p>
+      </section>
+
+      <section class="bf-toolbar">
+        <label class="bf-month-label">
+          Miesiąc
+          <input type="month" id="bf-month">
+        </label>
+        <button class="button dark" type="button" id="bf-month-all">Pokaż wszystkie miesiące</button>
+      </section>
+
+      <section class="bf-summary" id="bf-summary" aria-live="polite">
+        <div class="bf-summary-card">
+          <p class="bf-summary-label">Przychody netto</p>
+          <p class="bf-summary-value" id="bf-sum-revenue">0,00 zł</p>
+        </div>
+        <div class="bf-summary-card">
+          <p class="bf-summary-label">Koszty uznane netto</p>
+          <p class="bf-summary-value" id="bf-sum-costs">0,00 zł</p>
+          <p class="bf-summary-sub" id="bf-sum-costs-sub"></p>
+        </div>
+        <div class="bf-summary-card bf-summary-card--result" id="bf-result-card">
+          <p class="bf-summary-label">Wynik</p>
+          <p class="bf-summary-value" id="bf-sum-result">0,00 zł</p>
+          <p class="bf-summary-sub" id="bf-sum-result-label"></p>
+        </div>
+      </section>
+
+      <section class="bf-panel" id="bf-categories-panel">
+        <h2>Kategorie kosztów i domyślny % odliczenia</h2>
+        <p class="bf-hint">
+          Ustaw procent, w jakim dana kategoria kosztów wchodzi do rachunku (np. 75% dla paliwa i leasingu
+          przy pojeździe używanym też prywatnie, 100% dla kosztów w pełni firmowych).
+        </p>
+        <div id="bf-categories-list" class="bf-categories-list"></div>
+        <form id="bf-category-form" class="bf-inline-form">
+          <input type="text" id="bf-new-category-name" placeholder="Nowa kategoria, np. Materiały" required>
+          <input type="number" id="bf-new-category-pct" placeholder="%" min="0" max="100" value="100" required>
+          <button class="button dark" type="submit">Dodaj kategorię</button>
+        </form>
+      </section>
+
+      <section class="bf-panel">
+        <div class="bf-panel-header">
+          <h2>Przychody</h2>
+        </div>
+        <p class="bf-hint">
+          Faktury sprzedażowe (przychód). Import CSV: nagłówek <code>data;kontrahent;numer;kwota_netto;kwota_brutto</code>
+          (rozdzielacz <code>;</code> lub <code>,</code>, przecinek lub kropka jako separator dziesiętny).
+        </p>
+        <div id="bf-revenue-table-wrap" class="bf-table-wrap"></div>
+        <form id="bf-revenue-form" class="bf-row-form">
+          <input type="date" id="bf-rev-date" required>
+          <input type="text" id="bf-rev-party" placeholder="Kontrahent" required>
+          <input type="text" id="bf-rev-number" placeholder="Nr faktury">
+          <input type="text" inputmode="decimal" id="bf-rev-netto" placeholder="Kwota netto" required>
+          <input type="text" inputmode="decimal" id="bf-rev-brutto" placeholder="Kwota brutto">
+          <button class="button primary" type="submit">Dodaj przychód</button>
+        </form>
+        <details class="bf-import-details">
+          <summary>Import CSV — przychody</summary>
+          <textarea id="bf-rev-csv" rows="6" placeholder="data;kontrahent;numer;kwota_netto;kwota_brutto"></textarea>
+          <div class="bf-import-actions">
+            <input type="file" id="bf-rev-csv-file" accept=".csv,.txt,text/csv,text/plain">
+            <button class="button dark" type="button" id="bf-rev-csv-import">Importuj wklejony/wgrany CSV</button>
+          </div>
+          <p class="form-note" id="bf-rev-csv-note" role="status"></p>
+        </details>
+      </section>
+
+      <section class="bf-panel">
+        <div class="bf-panel-header">
+          <h2>Koszty</h2>
+        </div>
+        <p class="bf-hint">
+          Faktury kosztowe. Import CSV: nagłówek
+          <code>data;kontrahent;numer;kategoria;kwota_netto;kwota_brutto;procent</code>
+          (kolumna <code>procent</code> opcjonalna — jeśli brak, użyty zostanie domyślny % kategorii).
+        </p>
+        <div id="bf-cost-table-wrap" class="bf-table-wrap"></div>
+        <form id="bf-cost-form" class="bf-row-form bf-row-form--cost">
+          <input type="date" id="bf-cost-date" required>
+          <input type="text" id="bf-cost-party" placeholder="Kontrahent" required>
+          <input type="text" id="bf-cost-number" placeholder="Nr faktury">
+          <select id="bf-cost-category" required></select>
+          <input type="text" inputmode="decimal" id="bf-cost-netto" placeholder="Kwota netto" required>
+          <input type="text" inputmode="decimal" id="bf-cost-brutto" placeholder="Kwota brutto">
+          <input type="number" id="bf-cost-pct" placeholder="% odliczenia" min="0" max="100">
+          <button class="button primary" type="submit">Dodaj koszt</button>
+        </form>
+        <details class="bf-import-details">
+          <summary>Import CSV — koszty</summary>
+          <textarea id="bf-cost-csv" rows="6" placeholder="data;kontrahent;numer;kategoria;kwota_netto;kwota_brutto;procent"></textarea>
+          <div class="bf-import-actions">
+            <input type="file" id="bf-cost-csv-file" accept=".csv,.txt,text/csv,text/plain">
+            <button class="button dark" type="button" id="bf-cost-csv-import">Importuj wklejony/wgrany CSV</button>
+          </div>
+          <p class="form-note" id="bf-cost-csv-note" role="status"></p>
+        </details>
+      </section>
+    </div>
+
+    <script>
+// Bilans Firmy — kalkulator zysku/straty JDG na podstawie faktur przychodowych i kosztowych.
+// Wszystkie dane są przechowywane wyłącznie lokalnie (localStorage) — nic nie jest wysyłane na serwer.
+
+const STORAGE_KEY = "bilansFirmy.v1";
+
+const DEFAULT_CATEGORIES = [
+  { id: "paliwo", name: "Paliwo", pct: 75 },
+  { id: "leasing", name: "Leasing", pct: 75 },
+  { id: "inne", name: "Inne", pct: 100 },
+];
+
+function uid() {
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) throw new Error("empty");
+    const parsed = JSON.parse(raw);
+    return {
+      categories: Array.isArray(parsed.categories) && parsed.categories.length
+        ? parsed.categories
+        : DEFAULT_CATEGORIES.map((c) => ({ ...c })),
+      revenues: Array.isArray(parsed.revenues) ? parsed.revenues : [],
+      costs: Array.isArray(parsed.costs) ? parsed.costs : [],
+    };
+  } catch {
+    return {
+      categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
+      revenues: [],
+      costs: [],
+    };
+  }
+}
+
+let state = loadState();
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function parseAmount(raw) {
+  if (raw === undefined || raw === null) return null;
+  let str = String(raw).trim();
+  if (!str) return null;
+  str = str.replace(/\s|zł|PLN/gi, "");
+  const hasComma = str.includes(",");
+  const hasDot = str.includes(".");
+  if (hasComma && hasDot) {
+    if (str.lastIndexOf(",") > str.lastIndexOf(".")) {
+      str = str.replace(/\./g, "").replace(",", ".");
+    } else {
+      str = str.replace(/,/g, "");
+    }
+  } else if (hasComma) {
+    str = str.replace(",", ".");
+  }
+  const value = Number.parseFloat(str);
+  return Number.isFinite(value) ? value : null;
+}
+
+function formatMoney(value) {
+  const v = Number.isFinite(value) ? value : 0;
+  return `${v.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+}
+
+function currentMonthValue() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function monthOf(dateStr) {
+  return typeof dateStr === "string" ? dateStr.slice(0, 7) : "";
+}
+
+function findCategory(idOrName) {
+  return state.categories.find(
+    (c) => c.id === idOrName || c.name.toLowerCase() === String(idOrName).toLowerCase()
+  );
+}
+
+function normalizeHeader(h) {
+  return h
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function detectDelimiter(line) {
+  const semi = (line.match(/;/g) || []).length;
+  const comma = (line.match(/,/g) || []).length;
+  return semi >= comma ? ";" : ",";
+}
+
+function parseCsv(text) {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length);
+  if (!lines.length) return { rows: [], error: "Brak danych do zaimportowania." };
+  const delimiter = detectDelimiter(lines[0]);
+  const headerCells = lines[0].split(delimiter).map(normalizeHeader);
+  const rows = [];
+  for (let i = 1; i < lines.length; i += 1) {
+    const cells = lines[i].split(delimiter);
+    const row = {};
+    headerCells.forEach((h, idx) => {
+      row[h] = (cells[idx] || "").trim();
+    });
+    rows.push(row);
+  }
+  return { rows, error: null };
+}
+
+function pick(row, ...keys) {
+  for (const k of keys) {
+    if (row[k] !== undefined && row[k] !== "") return row[k];
+  }
+  return "";
+}
+
+const el = (id) => document.getElementById(id);
+
+let monthFilter = currentMonthValue();
+let showAllMonths = false;
+
+function ensureMonthInput() {
+  const input = el("bf-month");
+  input.value = monthFilter;
+  input.addEventListener("change", () => {
+    monthFilter = input.value || currentMonthValue();
+    showAllMonths = false;
+    render();
+  });
+  el("bf-month-all").addEventListener("click", () => {
+    showAllMonths = !showAllMonths;
+    el("bf-month-all").textContent = showAllMonths
+      ? "Pokaż tylko wybrany miesiąc"
+      : "Pokaż wszystkie miesiące";
+    render();
+  });
+}
+
+function renderCategories() {
+  const wrap = el("bf-categories-list");
+  wrap.innerHTML = "";
+  state.categories.forEach((cat) => {
+    const row = document.createElement("div");
+    row.className = "bf-category-row";
+    row.innerHTML = `
+      <span class="bf-category-row-name">${escapeHtml(cat.name)}</span>
+      <input type="number" min="0" max="100" value="${cat.pct}" data-cat="${cat.id}">
+      <button type="button" class="bf-row-delete" data-remove-cat="${cat.id}">Usuń</button>
+    `;
+    wrap.appendChild(row);
+  });
+
+  wrap.querySelectorAll("input[data-cat]").forEach((input) => {
+    input.addEventListener("change", () => {
+      const cat = state.categories.find((c) => c.id === input.dataset.cat);
+      if (!cat) return;
+      const pct = Number.parseFloat(input.value);
+      cat.pct = Number.isFinite(pct) ? Math.min(100, Math.max(0, pct)) : cat.pct;
+      saveState();
+      render();
+    });
+  });
+
+  wrap.querySelectorAll("button[data-remove-cat]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.removeCat;
+      if (state.costs.some((c) => c.categoryId === id)) {
+        if (!confirm("Ta kategoria jest używana w kosztach. Usunąć mimo to? Koszty pozostaną z zapisanym procentem.")) {
+          return;
+        }
+      }
+      state.categories = state.categories.filter((c) => c.id !== id);
+      saveState();
+      populateCategorySelect();
+      render();
+    });
+  });
+}
+
+function populateCategorySelect() {
+  const select = el("bf-cost-category");
+  const prev = select.value;
+  select.innerHTML = state.categories
+    .map((c) => `<option value="${c.id}">${escapeHtml(c.name)} (${c.pct}%)</option>`)
+    .join("");
+  if (state.categories.some((c) => c.id === prev)) select.value = prev;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[ch]));
+}
+
+function visibleRevenues() {
+  return state.revenues
+    .filter((r) => showAllMonths || monthOf(r.date) === monthFilter)
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
+function visibleCosts() {
+  return state.costs
+    .filter((c) => showAllMonths || monthOf(c.date) === monthFilter)
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
+function renderRevenueTable() {
+  const wrap = el("bf-revenue-table-wrap");
+  const rows = visibleRevenues();
+  if (!rows.length) {
+    wrap.innerHTML = '<p class="bf-table-empty">Brak przychodów w tym okresie.</p>';
+    return;
+  }
+  const total = rows.reduce((sum, r) => sum + (r.netto || 0), 0);
+  wrap.innerHTML = `
+    <table class="bf-table">
+      <thead>
+        <tr><th>Data</th><th>Kontrahent</th><th>Nr faktury</th><th>Netto</th><th>Brutto</th><th></th></tr>
+      </thead>
+      <tbody>
+        ${rows
+          .map(
+            (r) => `
+          <tr>
+            <td>${escapeHtml(r.date)}</td>
+            <td>${escapeHtml(r.party)}</td>
+            <td>${escapeHtml(r.number || "—")}</td>
+            <td>${formatMoney(r.netto)}</td>
+            <td>${r.brutto ? formatMoney(r.brutto) : "—"}</td>
+            <td><button type="button" class="bf-row-delete" data-remove-revenue="${r.id}">Usuń</button></td>
+          </tr>`
+          )
+          .join("")}
+      </tbody>
+      <tfoot>
+        <tr><td colspan="3">Suma</td><td>${formatMoney(total)}</td><td></td><td></td></tr>
+      </tfoot>
+    </table>
+  `;
+  wrap.querySelectorAll("button[data-remove-revenue]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.revenues = state.revenues.filter((r) => r.id !== btn.dataset.removeRevenue);
+      saveState();
+      render();
+    });
+  });
+}
+
+function renderCostTable() {
+  const wrap = el("bf-cost-table-wrap");
+  const rows = visibleCosts();
+  if (!rows.length) {
+    wrap.innerHTML = '<p class="bf-table-empty">Brak kosztów w tym okresie.</p>';
+    return;
+  }
+  let totalNetto = 0;
+  let totalRecognized = 0;
+  wrap.innerHTML = `
+    <table class="bf-table">
+      <thead>
+        <tr><th>Data</th><th>Kontrahent</th><th>Nr faktury</th><th>Kategoria</th><th>Netto</th><th>% uznane</th><th>Uznany koszt</th><th></th></tr>
+      </thead>
+      <tbody>
+        ${rows
+          .map((c) => {
+            const cat = findCategory(c.categoryId) || { name: "Inne", pct: 100 };
+            const pct = Number.isFinite(c.pctOverride) ? c.pctOverride : cat.pct;
+            const recognized = (c.netto || 0) * (pct / 100);
+            totalNetto += c.netto || 0;
+            totalRecognized += recognized;
+            return `
+          <tr>
+            <td>${escapeHtml(c.date)}</td>
+            <td>${escapeHtml(c.party)}</td>
+            <td>${escapeHtml(c.number || "—")}</td>
+            <td>${escapeHtml(cat.name)}</td>
+            <td>${formatMoney(c.netto)}</td>
+            <td><span class="bf-pct-badge">${pct}%</span></td>
+            <td>${formatMoney(recognized)}</td>
+            <td><button type="button" class="bf-row-delete" data-remove-cost="${c.id}">Usuń</button></td>
+          </tr>`;
+          })
+          .join("")}
+      </tbody>
+      <tfoot>
+        <tr><td colspan="4">Suma</td><td>${formatMoney(totalNetto)}</td><td></td><td>${formatMoney(totalRecognized)}</td><td></td></tr>
+      </tfoot>
+    </table>
+  `;
+  wrap.querySelectorAll("button[data-remove-cost]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.costs = state.costs.filter((c) => c.id !== btn.dataset.removeCost);
+      saveState();
+      render();
+    });
+  });
+}
+
+function renderSummary() {
+  const revenues = visibleRevenues();
+  const costs = visibleCosts();
+  const revenueTotal = revenues.reduce((sum, r) => sum + (r.netto || 0), 0);
+  let costTotal = 0;
+  let costFullTotal = 0;
+  costs.forEach((c) => {
+    const cat = findCategory(c.categoryId) || { pct: 100 };
+    const pct = Number.isFinite(c.pctOverride) ? c.pctOverride : cat.pct;
+    costTotal += (c.netto || 0) * (pct / 100);
+    costFullTotal += c.netto || 0;
+  });
+  const result = revenueTotal - costTotal;
+
+  el("bf-sum-revenue").textContent = formatMoney(revenueTotal);
+  el("bf-sum-costs").textContent = formatMoney(costTotal);
+  el("bf-sum-costs-sub").textContent =
+    costFullTotal !== costTotal
+      ? `Pełna kwota kosztów: ${formatMoney(costFullTotal)} (część nieuznana: ${formatMoney(costFullTotal - costTotal)})`
+      : "";
+  el("bf-sum-result").textContent = formatMoney(result);
+
+  const card = el("bf-result-card");
+  card.classList.remove("is-profit", "is-loss");
+  const label = el("bf-sum-result-label");
+  if (result > 0) {
+    card.classList.add("is-profit");
+    label.textContent = "Zysk";
+  } else if (result < 0) {
+    card.classList.add("is-loss");
+    label.textContent = "Strata";
+  } else {
+    label.textContent = "Zero";
+  }
+}
+
+function render() {
+  renderCategories();
+  populateCategorySelect();
+  renderRevenueTable();
+  renderCostTable();
+  renderSummary();
+}
+
+function wireRevenueForm() {
+  el("bf-revenue-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const netto = parseAmount(el("bf-rev-netto").value);
+    if (netto === null) {
+      alert("Podaj poprawną kwotę netto.");
+      return;
+    }
+    state.revenues.push({
+      id: uid(),
+      date: el("bf-rev-date").value,
+      party: el("bf-rev-party").value.trim(),
+      number: el("bf-rev-number").value.trim(),
+      netto,
+      brutto: parseAmount(el("bf-rev-brutto").value),
+    });
+    saveState();
+    e.target.reset();
+    render();
+  });
+
+  el("bf-rev-csv-import").addEventListener("click", () => {
+    importRevenueCsv(el("bf-rev-csv").value, "bf-rev-csv-note");
+  });
+  el("bf-rev-csv-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    el("bf-rev-csv").value = text;
+    importRevenueCsv(text, "bf-rev-csv-note");
+  });
+}
+
+function importRevenueCsv(text, noteId) {
+  const { rows, error } = parseCsv(text);
+  const note = el(noteId);
+  if (error) {
+    note.textContent = error;
+    return;
+  }
+  let imported = 0;
+  rows.forEach((row) => {
+    const netto = parseAmount(pick(row, "kwota_netto", "netto", "kwota netto"));
+    const date = pick(row, "data", "date");
+    if (netto === null || !date) return;
+    state.revenues.push({
+      id: uid(),
+      date,
+      party: pick(row, "kontrahent", "klient", "nazwa"),
+      number: pick(row, "numer", "nr faktury", "nr_faktury"),
+      netto,
+      brutto: parseAmount(pick(row, "kwota_brutto", "brutto", "kwota brutto")) ?? null,
+    });
+    imported += 1;
+  });
+  saveState();
+  note.textContent = `Zaimportowano ${imported} z ${rows.length} wierszy.`;
+  render();
+}
+
+function wireCostForm() {
+  el("bf-cost-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const netto = parseAmount(el("bf-cost-netto").value);
+    if (netto === null) {
+      alert("Podaj poprawną kwotę netto.");
+      return;
+    }
+    const pctRaw = el("bf-cost-pct").value;
+    state.costs.push({
+      id: uid(),
+      date: el("bf-cost-date").value,
+      party: el("bf-cost-party").value.trim(),
+      number: el("bf-cost-number").value.trim(),
+      categoryId: el("bf-cost-category").value,
+      netto,
+      brutto: parseAmount(el("bf-cost-brutto").value),
+      pctOverride: pctRaw ? Math.min(100, Math.max(0, Number.parseFloat(pctRaw))) : null,
+    });
+    saveState();
+    e.target.reset();
+    populateCategorySelect();
+    render();
+  });
+
+  el("bf-cost-csv-import").addEventListener("click", () => {
+    importCostCsv(el("bf-cost-csv").value, "bf-cost-csv-note");
+  });
+  el("bf-cost-csv-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    el("bf-cost-csv").value = text;
+    importCostCsv(text, "bf-cost-csv-note");
+  });
+}
+
+function resolveOrCreateCategory(name) {
+  if (!name) return state.categories[state.categories.length - 1]?.id || null;
+  let cat = findCategory(name);
+  if (!cat) {
+    cat = { id: uid(), name: name.trim(), pct: 100 };
+    state.categories.push(cat);
+  }
+  return cat.id;
+}
+
+function importCostCsv(text, noteId) {
+  const { rows, error } = parseCsv(text);
+  const note = el(noteId);
+  if (error) {
+    note.textContent = error;
+    return;
+  }
+  let imported = 0;
+  rows.forEach((row) => {
+    const netto = parseAmount(pick(row, "kwota_netto", "netto", "kwota netto"));
+    const date = pick(row, "data", "date");
+    if (netto === null || !date) return;
+    const categoryName = pick(row, "kategoria", "category") || "Inne";
+    const categoryId = resolveOrCreateCategory(categoryName);
+    const pctRaw = pick(row, "procent", "%", "pct");
+    state.costs.push({
+      id: uid(),
+      date,
+      party: pick(row, "kontrahent", "klient", "nazwa"),
+      number: pick(row, "numer", "nr faktury", "nr_faktury"),
+      categoryId,
+      netto,
+      brutto: parseAmount(pick(row, "kwota_brutto", "brutto", "kwota brutto")) ?? null,
+      pctOverride: pctRaw ? Math.min(100, Math.max(0, Number.parseFloat(pctRaw))) : null,
+    });
+    imported += 1;
+  });
+  saveState();
+  populateCategorySelect();
+  note.textContent = `Zaimportowano ${imported} z ${rows.length} wierszy.`;
+  render();
+}
+
+function wireCategoryForm() {
+  el("bf-category-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = el("bf-new-category-name").value.trim();
+    const pct = Number.parseFloat(el("bf-new-category-pct").value);
+    if (!name || !Number.isFinite(pct)) return;
+    if (findCategory(name)) {
+      alert("Kategoria o tej nazwie już istnieje.");
+      return;
+    }
+    state.categories.push({ id: uid(), name, pct: Math.min(100, Math.max(0, pct)) });
+    saveState();
+    e.target.reset();
+    el("bf-new-category-pct").value = 100;
+    render();
+  });
+}
+
+function wireGlobalActions() {
+  el("bf-clear-all").addEventListener("click", () => {
+    if (!confirm("Na pewno usunąć wszystkie dane (przychody, koszty, kategorie)? Tej operacji nie można cofnąć.")) {
+      return;
+    }
+    state = {
+      categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
+      revenues: [],
+      costs: [],
+    };
+    saveState();
+    render();
+  });
+
+  el("bf-export-json").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bilans-firmy-kopia-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  el("bf-import-json-btn").addEventListener("click", () => el("bf-import-json-input").click());
+  el("bf-import-json-input").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      state = {
+        categories: Array.isArray(parsed.categories) ? parsed.categories : DEFAULT_CATEGORIES,
+        revenues: Array.isArray(parsed.revenues) ? parsed.revenues : [],
+        costs: Array.isArray(parsed.costs) ? parsed.costs : [],
+      };
+      saveState();
+      render();
+      alert("Dane zostały zaimportowane.");
+    } catch {
+      alert("Nie udało się odczytać pliku — sprawdź, czy to poprawny plik eksportu tego narzędzia.");
+    } finally {
+      e.target.value = "";
+    }
+  });
+}
+
+function init() {
+  ensureMonthInput();
+  wireRevenueForm();
+  wireCostForm();
+  wireCategoryForm();
+  wireGlobalActions();
+  el("bf-rev-date").value = new Date().toISOString().slice(0, 10);
+  el("bf-cost-date").value = new Date().toISOString().slice(0, 10);
+  render();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
