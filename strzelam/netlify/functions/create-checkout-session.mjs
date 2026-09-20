@@ -43,7 +43,7 @@ const buildSessionParams = (payload, siteUrl, paymentMethodTypes) => {
       voucherValidUntil: payload.validUntil,
     },
     success_url: `${siteUrl}/?payment=success&code=${encodeURIComponent(payload.code)}`,
-    cancel_url: `${siteUrl}/#vouchery?payment=cancelled`,
+    cancel_url: `${siteUrl}/?payment=cancelled#vouchery`,
   };
 };
 
