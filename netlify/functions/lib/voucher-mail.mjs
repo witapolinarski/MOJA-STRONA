@@ -78,7 +78,7 @@ export const sendVoucherEmail = async ({
   const payload = {
     from: getFromAddress(),
     to: [to],
-    subject: `Bon podarunkowy dla ${recipient}`,
+    subject: `Bon podarunkowy ${amount} zł — ${code} — dla ${recipient}`,
     html,
     reply_to: copyEmail || undefined,
     attachments: [
