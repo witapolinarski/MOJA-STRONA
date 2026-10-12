@@ -2,7 +2,7 @@
 
 ## „[NAZWA STOWARZYSZENIA]”
 
-> **Wzór uproszczony** — przygotowany na bazie struktury statutu Towarzystwa Miłośników Strzelectwa „Sagittarius” (Gogolin, KRS 0000591210), ograniczony do elementów wymaganych ustawą — Prawo o stowarzyszeniach, a jednocześnie rozbudowany o zapisy, które: (1) ułatwiają bezproblemowe przyjęcie klubu do PZSS i uzyskanie licencji klubowej, oraz (2) nadają Stowarzyszeniu wyraźny **charakter kolekcjonerski**, dzięki czemu udokumentowane członkostwo w nim stanowi samodzielną, ustawową podstawę do uzyskania przez członka pozwolenia na broń do celów kolekcjonerskich. Pola w nawiasach kwadratowych `[...]` należy uzupełnić przed uchwaleniem statutu.
+> **Wzór uproszczony** — przygotowany na bazie struktury statutu Towarzystwa Miłośników Strzelectwa „Sagittarius” (Gogolin, KRS 0000591210), ograniczony do elementów wymaganych ustawą — Prawo o stowarzyszeniach, a jednocześnie rozbudowany o zapisy, które: (1) ułatwiają bezproblemowe przyjęcie klubu do PZSS i uzyskanie licencji klubowej, (2) nadają Stowarzyszeniu wyraźny **charakter kolekcjonerski**, dzięki czemu udokumentowane członkostwo w nim stanowi samodzielną, ustawową podstawę do uzyskania przez członka pozwolenia na broń do celów kolekcjonerskich, oraz (3) maksymalnie upraszczają zarządzanie: Stowarzyszenie nie prowadzi działalności gospodarczej (co pozwala zarejestrować je w **uproszczonym trybie ewidencji starosty**, zamiast w KRS), a pełnię bieżącej władzy wykonawczej i reprezentacji sprawuje samodzielnie **Prezes Zarządu**, przy zachowaniu jedynie dwóch organów wymaganych ustawowo — Walnego Zebrania Członków (jako najwyższej władzy) i Komisji Rewizyjnej (jako organu kontroli). Pola w nawiasach kwadratowych `[...]` należy uzupełnić przed uchwaleniem statutu.
 
 ---
 
@@ -21,7 +21,7 @@ Stowarzyszenie jest dobrowolnym, samorządnym i trwałym zrzeszeniem o celach ni
 
 **§ 4**
 1. Stowarzyszenie jest zawiązane na czas nieokreślony.
-2. Stowarzyszenie posiada osobowość prawną i podlega wpisowi do Krajowego Rejestru Sądowego.
+2. Stowarzyszenie nie prowadzi działalności gospodarczej, w związku z czym podlega wpisowi do ewidencji klubów sportowych prowadzonej przez starostę właściwego ze względu na siedzibę Stowarzyszenia, w uproszczonym trybie określonym w art. 4 ust. 7 w zw. z ust. 2 i 4–6 ustawy z dnia 25 czerwca 2010 r. o sporcie; Stowarzyszenie może też, według wyboru założycieli, zostać zarejestrowane na zasadach ogólnych w Krajowym Rejestrze Sądowym. Stowarzyszenie uzyskuje osobowość prawną z chwilą dokonania właściwego wpisu.
 3. Stowarzyszenie działa na podstawie ustawy z dnia 7 kwietnia 1989 r. — Prawo o stowarzyszeniach, ustawy z dnia 25 czerwca 2010 r. o sporcie, ustawy z dnia 21 maja 1999 r. o broni i amunicji oraz niniejszego Statutu.
 
 **§ 5**
@@ -72,7 +72,7 @@ Stowarzyszenie realizuje swoje cele poprzez:
 11. podejmowanie innych działań sprzyjających realizacji celów Stowarzyszenia.
 
 **§ 11**
-Stowarzyszenie może prowadzić działalność gospodarczą wyłącznie jako dodatkową w stosunku do działalności statutowej, a cały dochód z tej działalności przeznacza na realizację celów statutowych.
+Stowarzyszenie nie prowadzi działalności gospodarczej. Dochody uzyskiwane z odpłatnej działalności statutowej, o której mowa w § 10, Stowarzyszenie przeznacza w całości na realizację swoich celów statutowych.
 
 ---
 
@@ -131,31 +131,33 @@ Członkowie zwyczajni mają obowiązek:
 **§ 19**
 1. Władzami Stowarzyszenia są:
    1. Walne Zebranie Członków,
-   2. Zarząd,
+   2. Prezes Zarządu (Zarząd jednoosobowy),
    3. Komisja Rewizyjna.
-2. Kadencja Zarządu i Komisji Rewizyjnej jest **bezterminowa** — członek tych organów pełni swoją funkcję do czasu rezygnacji, odwołania przez Walne Zebranie Członków, utraty członkostwa w Stowarzyszeniu albo śmierci, bez konieczności dokonywania okresowych reelekcji.
-3. Niezależnie od ust. 2, Walne Zebranie Członków może w każdym czasie odwołać Zarząd, Komisję Rewizyjną lub poszczególnych ich członków w drodze uchwały, na zasadach określonych w ust. 4.
-4. Jeżeli Statut nie stanowi inaczej, uchwały władz Stowarzyszenia zapadają zwykłą większością głosów przy obecności co najmniej połowy uprawnionych do głosowania, w głosowaniu jawnym; wybory do władz odbywają się w głosowaniu tajnym.
-5. W razie zmniejszenia się składu Zarządu lub Komisji Rewizyjnej w wyniku rezygnacji, odwołania lub ustania członkostwa, organy te mogą dokooptować nowych członków spośród członków zwyczajnych, w liczbie nieprzekraczającej 1/3 dotychczasowego składu pochodzącego z wyboru; dokooptowani w ten sposób członkowie pełnią funkcję również bezterminowo, na zasadach ust. 2.
+2. Ilekroć w niniejszym Statucie jest mowa o „Zarządzie”, rozumie się przez to Prezesa Zarządu, który jednoosobowo wykonuje wszystkie kompetencje przypisane w Statucie Zarządowi.
+3. Kadencja Prezesa Zarządu i Komisji Rewizyjnej jest **bezterminowa** — osoby pełniące te funkcje sprawują je do czasu rezygnacji, odwołania przez Walne Zebranie Członków, utraty członkostwa w Stowarzyszeniu albo śmierci, bez konieczności dokonywania okresowych reelekcji.
+4. Niezależnie od ust. 3, Walne Zebranie Członków może w każdym czasie odwołać Prezesa Zarządu, Komisję Rewizyjną lub jej poszczególnych członków w drodze uchwały, na zasadach określonych w § 20 ust. 5.
 
 **§ 20**
 1. Walne Zebranie Członków jest najwyższą władzą Stowarzyszenia.
-2. Zwyczajne Walne Zebranie Członków zwołuje Zarząd co najmniej raz w roku, zawiadamiając członków o terminie, miejscu i porządku obrad co najmniej 14 dni wcześniej.
-3. Nadzwyczajne Walne Zebranie Członków zwołuje Zarząd z własnej inicjatywy, na wniosek Komisji Rewizyjnej lub na pisemny wniosek co najmniej 1/3 członków zwyczajnych.
-4. Do kompetencji Walnego Zebrania Członków należy w szczególności: uchwalanie kierunków działania Stowarzyszenia, zmian Statutu i regulaminów wewnętrznych, wybór i odwoływanie członków Zarządu i Komisji Rewizyjnej, udzielanie absolutorium Zarządowi, zatwierdzanie sprawozdań, ustalanie wysokości składek członkowskich oraz podejmowanie uchwały o rozwiązaniu Stowarzyszenia.
+2. Zwyczajne Walne Zebranie Członków zwołuje Prezes Zarządu co najmniej raz w roku, zawiadamiając członków o terminie, miejscu i porządku obrad co najmniej 14 dni wcześniej.
+3. Nadzwyczajne Walne Zebranie Członków zwołuje Prezes Zarządu z własnej inicjatywy, na wniosek Komisji Rewizyjnej lub na pisemny wniosek co najmniej 1/3 członków zwyczajnych.
+4. Do wyłącznej kompetencji Walnego Zebrania Członków należy: uchwalanie zmian Statutu; wybór i odwoływanie Prezesa Zarządu oraz Komisji Rewizyjnej (jej członków); udzielanie Prezesowi Zarządu absolutorium; zatwierdzanie rocznego sprawozdania z działalności Stowarzyszenia; podjęcie uchwały o rozwiązaniu Stowarzyszenia i przeznaczeniu jego majątku. We wszystkich pozostałych sprawach, niezastrzeżonych niniejszym Statutem do wyłącznej kompetencji Walnego Zebrania Członków lub Komisji Rewizyjnej, decyzje podejmuje samodzielnie Prezes Zarządu.
+5. Jeżeli Statut nie stanowi inaczej, uchwały Walnego Zebrania Członków zapadają zwykłą większością głosów przy obecności co najmniej połowy uprawnionych do głosowania w pierwszym terminie; w drugim terminie, wyznaczonym na ten sam dzień nie wcześniej niż po upływie 30 minut od pierwszego terminu, uchwały zapadają zwykłą większością głosów bez względu na liczbę obecnych. Wybory oraz uchwały o odwołaniu władz podejmowane są w głosowaniu tajnym, pozostałe uchwały — w głosowaniu jawnym, chyba że Walne Zebranie Członków postanowi inaczej.
+6. Uchwały Walnego Zebrania Członków mogą być podejmowane w **trybie uproszczonym** — pisemnie albo przy wykorzystaniu środków komunikacji elektronicznej (w tym poczty elektronicznej lub wideokonferencji), bez konieczności odbywania zebrania w jednym miejscu i czasie — jeżeli wszyscy członkowie uprawnieni do głosowania wyrazili pisemną lub elektroniczną zgodę na głosowanie w tym trybie oraz na treść uchwały.
 
 **§ 21**
-1. Zarząd kieruje bieżącą działalnością Stowarzyszenia i reprezentuje je na zewnątrz.
-2. Zarząd składa się z 1 do 5 osób wybieranych przez Walne Zebranie Członków. Jeżeli Zarząd jest wieloosobowy, na pierwszym posiedzeniu wybiera spośród siebie prezesa, a w razie potrzeby również wiceprezesa i skarbnika; jeżeli Walne Zebranie Członków wybierze Zarząd jednoosobowy, jego jedyny członek pełni funkcję Prezesa Zarządu.
-3. Do kompetencji Zarządu należy w szczególności: realizacja celów statutowych, kierowanie bieżącą działalnością, przyjmowanie i wykluczanie członków, zarządzanie majątkiem i finansami, zwoływanie Walnego Zebrania Członków, reprezentowanie Stowarzyszenia wobec PZSS i WZSS, wydawanie zaświadczeń, o których mowa w § 10 pkt 7, dotyczących członkostwa i czynnego udziału w działalności kolekcjonerskiej Stowarzyszenia, a także składanie wymaganych sprawozdań.
-4. Do składania oświadczeń woli w imieniu Stowarzyszenia, w tym w sprawach majątkowych, a także do podpisywania zaświadczeń, o których mowa w ust. 3, uprawniony jest **samodzielnie Prezes Zarządu**. Pozostali (nie będący prezesem) członkowie Zarządu, jeżeli zostali powołani, reprezentują Stowarzyszenie w tym zakresie dwaj działający łącznie.
-5. W przypadku, gdy funkcja Prezesa Zarządu pozostaje nieobsadzona lub Prezes Zarządu jest trwale niezdolny do pełnienia funkcji, Zarząd niezwłocznie wybiera spośród siebie nowego prezesa w trybie § 21 ust. 2; do czasu wyboru Stowarzyszenie reprezentuje dwóch członków Zarządu działających łącznie.
+1. Zarząd Stowarzyszenia jest jednoosobowy; funkcję tę pełni Prezes Zarządu, wybierany przez Walne Zebranie Członków spośród członków zwyczajnych.
+2. Prezes Zarządu kieruje całością bieżącej działalności Stowarzyszenia i samodzielnie podejmuje wszelkie decyzje niezastrzeżone niniejszym Statutem do wyłącznej kompetencji Walnego Zebrania Członków lub Komisji Rewizyjnej, a w szczególności: realizuje cele statutowe; zarządza majątkiem i finansami Stowarzyszenia; przyjmuje i wyklucza członków w drodze decyzji; ustala wysokość wpisowego i składek członkowskich, chyba że Walne Zebranie Członków postanowi inaczej; zwołuje Walne Zebranie Członków; reprezentuje Stowarzyszenie wobec PZSS, właściwego WZSS, organów administracji publicznej oraz osób trzecich; wydaje zaświadczenia, o których mowa w § 10 pkt 7; składa Walnemu Zebraniu Członków i Komisji Rewizyjnej wymagane sprawozdania.
+3. Prezes Zarządu reprezentuje Stowarzyszenie na zewnątrz oraz składa w jego imieniu oświadczenia woli, w tym w sprawach majątkowych i przy podpisywaniu zaświadczeń, o których mowa w ust. 2 — **samodzielnie i jednoosobowo**.
+4. Prezes Zarządu może, w drodze pisemnego pełnomocnictwa, upoważnić inną osobę do dokonywania w jego imieniu określonych czynności lub do zastępowania go w czasie nieobecności.
+5. Jeżeli funkcja Prezesa Zarządu pozostaje nieobsadzona lub Prezes Zarządu jest trwale niezdolny do jej pełnienia, Walne Zebranie Członków niezwłocznie wybiera nowego Prezesa; do czasu wyboru Stowarzyszenie — wyłącznie w zakresie niezbędnym do zwołania Walnego Zebrania Członków — reprezentuje Przewodniczący Komisji Rewizyjnej.
 
 **§ 22**
-1. Komisja Rewizyjna jest organem kontroli wewnętrznej, odrębnym od Zarządu i niepodlegającym mu.
-2. Komisja Rewizyjna składa się z 3 osób, które wybierają spośród siebie przewodniczącego.
-3. Do kompetencji Komisji Rewizyjnej należy: kontrola działalności i gospodarki finansowej Stowarzyszenia co najmniej raz w roku, składanie sprawozdań Walnemu Zebraniu Członków oraz wnioskowanie o udzielenie Zarządowi absolutorium.
-4. Członkowie Komisji Rewizyjnej nie mogą być jednocześnie członkami Zarządu.
+1. Komisja Rewizyjna jest organem kontroli wewnętrznej Stowarzyszenia, odrębnym od Prezesa Zarządu i niepodlegającym mu; jej powołanie jest obowiązkowe zgodnie z art. 11 ust. 3 ustawy — Prawo o stowarzyszeniach.
+2. Komisja Rewizyjna składa się z 1 do 3 osób wybieranych przez Walne Zebranie Członków spośród członków zwyczajnych niebędących Prezesem Zarządu; jeżeli jest wieloosobowa, wybiera spośród siebie przewodniczącego.
+3. Do kompetencji Komisji Rewizyjnej należy: kontrola działalności i gospodarki finansowej Stowarzyszenia co najmniej raz w roku, składanie sprawozdań Walnemu Zebraniu Członków oraz wnioskowanie o udzielenie Prezesowi Zarządu absolutorium.
+4. Członkiem Komisji Rewizyjnej nie może być Prezes Zarządu.
+5. W razie zmniejszenia się składu wieloosobowej Komisji Rewizyjnej w wyniku rezygnacji, odwołania lub ustania członkostwa, jej pozostali członkowie mogą dokooptować nowych członków spośród członków zwyczajnych, w liczbie nieprzekraczającej 1/3 dotychczasowego składu pochodzącego z wyboru; jeżeli Komisja Rewizyjna jest jednoosobowa i jej funkcja pozostaje nieobsadzona, Walne Zebranie Członków niezwłocznie wybiera nową osobę pełniącą tę funkcję.
 
 ---
 
@@ -163,9 +165,9 @@ Członkowie zwyczajni mają obowiązek:
 
 **§ 23**
 1. Majątek Stowarzyszenia stanowią nieruchomości, ruchomości oraz środki finansowe.
-2. Majątek powstaje w szczególności z: składek członkowskich, darowizn, spadków i zapisów, dotacji, sponsoringu, zbiórek publicznych oraz dochodów z działalności statutowej i gospodarczej.
+2. Majątek powstaje w szczególności z: składek członkowskich i wpisowego, darowizn, spadków i zapisów, dotacji, sponsoringu, zbiórek publicznych oraz opłat i innych dochodów z odpłatnej działalności statutowej, o której mowa w § 10 (np. opłat za udział w szkoleniach, kursach lub zawodach).
 3. Cały dochód Stowarzyszenia przeznacza się na realizację celów statutowych; majątek nie może być dzielony między członków ani wykorzystywany na ich rzecz na zasadach korzystniejszych niż wobec osób trzecich.
-4. Wysokość wpisowego i składek członkowskich ustala Walne Zebranie Członków w drodze uchwały; Walne Zebranie Członków może upoważnić Zarząd do ustalenia wysokości i trybu płatności składek.
+4. Wysokość wpisowego i składek członkowskich ustala Prezes Zarządu, zgodnie z § 21 ust. 2, chyba że Walne Zebranie Członków postanowi inaczej w drodze uchwały.
 
 ---
 
@@ -185,7 +187,7 @@ Niniejszy Statut został uchwalony przez Zebranie Założycielskie Stowarzyszeni
 
 ---
 
-Podpisy założycieli (co najmniej 7 osób fizycznych — wymóg ustawowy dla stowarzyszenia rejestrowego):
+Podpisy założycieli (co najmniej 7 osób fizycznych — wymóg ustawowy niezależnie od wybranej ścieżki rejestracji, czy to ewidencja starosty, czy KRS):
 
 | Lp. | Imię i nazwisko | PESEL | Podpis |
 |---|---|---|---|
@@ -205,7 +207,7 @@ Zgodnie z *Regulaminem uzyskiwania i utraty członkostwa w PZSS oraz przyznawani
 
 - **§ 2, § 5 ust. 1, § 9 pkt 1–2** — jednoznacznie definiują Stowarzyszenie jako klub sportowy działający w dyscyplinie strzelectwo sportowe i wskazują udział we współzawodnictwie PZSS/WZSS jako cel statutowy (to kluczowy warunek uznania za „klub sportowy” w rozumieniu ustawy o sporcie).
 - **§ 5 ust. 2–3** — wprost przewidują członkostwo w PZSS i WZSS oraz zobowiązanie do przestrzegania statutu, regulaminów, przepisów bezpieczeństwa i dyscyplinarnych Związku oraz poddania się jego jurysdykcji dyscyplinarnej — treściowo odpowiada to oświadczeniu wymaganemu w pkt „i” wniosku licencyjnego (patrz niżej), więc nic w statucie temu nie przeczy.
-- **§ 4** — zapewnia osobowość prawną przez wpis do KRS, co jest warunkiem koniecznym pierwszego wniosku o licencję (dokument „a” poniżej).
+- **§ 4** — zapewnia osobowość prawną przez wpis do ewidencji starosty (tryb uproszczony) albo do KRS, co jest warunkiem koniecznym pierwszego wniosku o licencję (dokument „a” poniżej); regulamin licencyjny PZSS wprost dopuszcza „wypis z KRS lub innego rejestru albo ewidencji”.
 - Zawiera **wszystkie elementy obowiązkowe** wymagane przez art. 10 ust. 1 ustawy — Prawo o stowarzyszeniach (nazwa, teren działania i siedziba, cele i sposoby realizacji, zasady nabywania/utraty członkostwa oraz prawa i obowiązki członków, władze i tryb ich wyboru/uzupełniania/kompetencje, sposób reprezentacji i zaciągania zobowiązań majątkowych, warunki ważności uchwał, sposób pozyskiwania środków i ustanawiania składek, zasady zmiany statutu, sposób rozwiązania) — sąd rejestrowy KRS nie powinien mieć podstaw do wezwania o uzupełnienie braków formalnych statutu.
 - Nie zawiera żadnych postanowień sprzecznych ze statutem PZSS/WZSS (np. ograniczeń terytorialnych, zakazów przynależności do innych związków), co jest warunkiem przyjęcia w poczet członków Związku.
 - Dodanie celów kolekcjonerskich (§ 6, § 9 pkt 3–5) **nie koliduje** z wymogami PZSS — Związek ocenia wyłącznie, czy statut przewiduje działalność w sporcie strzeleckim; dodatkowe, równoległe cele statutowe (np. kolekcjonerstwo) są w pełni dopuszczalne i nie stanowią przesłanki odmowy licencji.
@@ -227,11 +229,12 @@ Statut to tylko jeden z kilku wymaganych załączników. Zgodnie z § 4 ust. 2 r
 
 ### Uwagi praktyczne dot. rejestracji samego stowarzyszenia
 
-- Do założenia stowarzyszenia rejestrowego (wpis do KRS) potrzeba **co najmniej 7 osób fizycznych** (zebranie założycielskie, uchwała o powołaniu, uchwalenie statutu, wybór komitetu założycielskiego lub władz).
-- Rejestracja w KRS jest bezpłatna dla organizacji, które w statucie zadeklarują, że nie będą prowadzić działalności gospodarczej.
-- Alternatywą dla pełnej rejestracji w KRS jest uproszczony tryb z art. 4 ustawy o sporcie — wpis klubu sportowego (bez działalności gospodarczej) do **ewidencji starosty** właściwego dla siedziby klubu. PZSS honoruje taki wpis na równi z KRS (regulamin licencyjny dopuszcza „wypis z KRS **lub innego rejestru albo ewidencji**”), a wymogi co do treści statutu są analogiczne — ten wzór statutu nadaje się do obu ścieżek rejestracji.
-- **Kadencja władz:** ustawa — Prawo o stowarzyszeniach nie określa ani minimalnej, ani maksymalnej długości kadencji Zarządu i Komisji Rewizyjnej — to w całości swoboda statutowa (może to być np. 2, 3, 4, 5 lat albo kadencja bezterminowa). Ten wzór przyjmuje rozwiązanie najdalej idące w kierunku stabilności: **kadencja bezterminowa** (§ 19 ust. 2) — władze nie muszą być cyklicznie wybierane na nowo, a pełnią funkcję do rezygnacji, odwołania lub ustania członkostwa. Walne Zebranie Członków zachowuje przy tym pełne prawo odwołania Zarządu lub Komisji Rewizyjnej w każdym czasie (§ 19 ust. 3), więc mechanizm demokratycznej kontroli nie znika — po prostu nie wymusza automatycznych reelekcji. Niezależnie od długości kadencji, każdą zmianę osobową we władzach trzeba zgłosić do KRS w terminie 7 dni od jej dokonania.
-- **Reprezentacja jednoosobowa a dwuosobowa:** ustawa — Prawo o stowarzyszeniach nie wymaga, by do reprezentowania stowarzyszenia lub zaciągania zobowiązań majątkowych potrzeba było dwóch podpisów, ani by w Zarządzie musiała zasiadać konkretna liczba osób czy funkcja „prezesa” — to w całości kwestia zapisów statutowych (art. 10 ust. 1 pkt 4–5 ustawy). Ten wzór przyjmuje rozwiązanie pośrednie: **Prezes Zarządu działa samodzielnie** (może sam podpisać umowę, otworzyć konto, złożyć oświadczenie do PZSS/WPA lub wydać zaświadczenie kolekcjonerskie), a pozostali członkowie Zarządu — jeśli zostali powołani — działają dwójkami. Zarząd może też być jednoosobowy (§ 21 ust. 2) — wtedy jedna osoba pełni funkcję Prezesa i reprezentuje Stowarzyszenie całkowicie samodzielnie we wszystkich sprawach, w tym majątkowych.
+- Do założenia stowarzyszenia potrzeba **co najmniej 7 osób fizycznych** — niezależnie od wybranej ścieżki rejestracji (zebranie założycielskie, uchwała o powołaniu, uchwalenie statutu, wybór władz).
+- **Tryb uproszczony (zalecany przez ten wzór):** ponieważ § 11 statutu wprost wyłącza prowadzenie działalności gospodarczej, Stowarzyszenie kwalifikuje się do wpisu do **ewidencji klubów sportowych prowadzonej przez starostę** właściwego dla siedziby klubu (art. 4 ust. 7 w zw. z ust. 2 i 4–6 ustawy o sporcie) — zamiast pełnej rejestracji w KRS. Ta ścieżka jest szybsza i tańsza (opłata skarbowa ok. 10 zł, decyzja w ciągu 30 dni, a brak decyzji w tym terminie oznacza automatyczne „milczące” załatwienie wniosku na korzyść klubu), a do wniosku o wpis dołącza się statut, listę założycieli, protokół zebrania założycielskiego oraz uchwały o powołaniu klubu, przyjęciu statutu i wyborze Prezesa Zarządu i Komisji Rewizyjnej. PZSS honoruje taki wpis na równi z KRS — regulamin licencyjny dopuszcza „wypis z KRS **lub innego rejestru albo ewidencji**”.
+- Alternatywnie Stowarzyszenie może zostać zarejestrowane na zasadach ogólnych w **KRS** (również bezpłatnie, skoro statut nie przewiduje działalności gospodarczej) — ten sam tekst statutu nadaje się do obu ścieżek, zmienia się tylko organ, do którego składa się wniosek.
+- Jeżeli w przyszłości okaże się, że Stowarzyszenie jednak potrzebuje prowadzić działalność gospodarczą (np. odpłatny wynajem własnej strzelnicy na większą skalę), § 11 trzeba będzie zmienić, a samo Stowarzyszenie przerejestrować z ewidencji starosty do KRS — to więcej formalności niż przy wyborze KRS od początku, więc warto to rozważyć już na etapie zakładania klubu.
+- **Kadencja władz:** ustawa — Prawo o stowarzyszeniach nie określa ani minimalnej, ani maksymalnej długości kadencji Prezesa Zarządu i Komisji Rewizyjnej — to w całości swoboda statutowa. Ten wzór przyjmuje rozwiązanie najdalej idące w kierunku stabilności: **kadencja bezterminowa** (§ 19 ust. 3) — władze nie muszą być cyklicznie wybierane na nowo, a pełnią funkcję do rezygnacji, odwołania lub ustania członkostwa. Walne Zebranie Członków zachowuje przy tym pełne prawo odwołania Prezesa Zarządu lub Komisji Rewizyjnej w każdym czasie (§ 19 ust. 4). Niezależnie od długości kadencji, każdą zmianę osobową we władzach trzeba zgłosić do właściwego rejestru/ewidencji w terminie 7 dni od jej dokonania.
+- **Pełnia władzy Prezesa:** ustawa — Prawo o stowarzyszeniach wymaga tylko, by stowarzyszenie posiadało Walne Zebranie Członków (jako najwyższą władzę — art. 11 ust. 1) oraz odrębny organ kontroli wewnętrznej (art. 11 ust. 3); poza tym pozostawia pełną swobodę co do struktury i podziału kompetencji. Ten wzór wykorzystuje tę swobodę maksymalnie: Zarząd jest **jednoosobowy** i tożsamy z Prezesem (§ 19 ust. 2, § 21), który samodzielnie reprezentuje Stowarzyszenie i prowadzi wszystkie jego sprawy — w tym majątkowe — bez konieczności współdziałania z kimkolwiek innym (§ 21 ust. 2–3). Walne Zebranie Członków zachowuje wyłącznie te kompetencje, które muszą pozostać przy najwyższej władzy stowarzyszenia z mocy prawa lub dobrej praktyki (zmiana statutu, wybór/odwołanie Prezesa i Komisji Rewizyjnej, absolutorium, rozwiązanie Stowarzyszenia) — § 20 ust. 4 wprost oddaje Prezesowi wszystkie pozostałe sprawy. Dodatkowo uchwały Walnego Zebrania można podejmować w **trybie uproszczonym**, korespondencyjnie lub elektronicznie, bez zwoływania fizycznego zebrania (§ 20 ust. 6) — to ułatwia prowadzenie klubu nawet przy niewielkiej liczbie aktywnych członków.
 
 ---
 
@@ -240,11 +243,11 @@ Statut to tylko jeden z kilku wymaganych załączników. Zgodnie z § 4 ust. 2 r
 - Zgodnie z **art. 10 ust. 3 pkt 5 ustawy z dnia 21 maja 1999 r. o broni i amunicji**, ważną przyczyną uzyskania pozwolenia na broń do celów kolekcjonerskich jest **udokumentowane członkostwo w stowarzyszeniu o charakterze kolekcjonerskim** — ustawa nie stawia tu żadnych dodatkowych warunków (w odróżnieniu np. od pozwolenia sportowego, które wymaga dodatkowo licencji zawodniczej i kwalifikacji sportowych).
 - **§ 6 statutu** wprost stwierdza, że Stowarzyszenie ma charakter kolekcjonerski w rozumieniu tego przepisu, a udokumentowane członkostwo stanowi ważną przyczynę ubiegania się o pozwolenie kolekcjonerskie — członek nie musi więc niczego dodatkowo wywodzić ani interpretować z ogólnych celów statutowych.
 - Cele i sposoby działania (**§ 9 pkt 3–5, § 10 pkt 3 i 6–7**) opisują działalność kolekcjonerską jako realny, statutowy przedmiot działania Stowarzyszenia, a nie wzmiankę poboczną. Zgodnie z utrwalonym orzecznictwem sądów administracyjnych (np. wyrok WSA w Warszawie, sygn. II SA/Wa 1286/13) to właśnie **treść statutu oraz wpis w rejestrze** przesądzają o „charakterze kolekcjonerskim” stowarzyszenia — organ Policji nie jest uprawniony ani do oceny faktycznego dorobku kolekcjonerskiego klubu, ani do kwestionowania, czy sąd rejestrowy prawidłowo nadał mu taki charakter na podstawie statutu.
-- **§ 10 pkt 7 oraz § 21 ust. 3–4** upoważniają Zarząd do wydawania członkom zaświadczeń potwierdzających członkostwo i czynny udział w działalności kolekcjonerskiej; zgodnie z przyjętymi zasadami reprezentacji może je podpisać samodzielnie Prezes Zarządu. To właśnie taki dokument, wraz z odpisem z KRS i statutem, członek dołącza do podania o pozwolenie na broń do celów kolekcjonerskich składanego w komendzie wojewódzkiej/stołecznej Policji (WPA).
+- **§ 10 pkt 7 oraz § 21 ust. 2–3** upoważniają Prezesa Zarządu do samodzielnego wydawania i podpisywania członkom zaświadczeń potwierdzających członkostwo i czynny udział w działalności kolekcjonerskiej. To właśnie taki dokument, wraz z odpisem z ewidencji/KRS i statutem, członek dołącza do podania o pozwolenie na broń do celów kolekcjonerskich składanego w komendzie wojewódzkiej/stołecznej Policji (WPA).
 
 ### Co jeszcze warto zrobić po zarejestrowaniu Stowarzyszenia, dla pewności uzyskania pozwolenia kolekcjonerskiego przez członków
 
-1. **Przyjąć uchwałą Zarządu wzór zaświadczenia** (upoważnienie do tego daje § 6 ust. 3) — zawierający dane członka, datę przyjęcia do Stowarzyszenia, informację o czynnym udziale w działalności kolekcjonerskiej (np. w sekcji kolekcjonerskiej) oraz podpisy dwóch członków Zarządu i pieczęć Stowarzyszenia.
-2. **Zadbać, by „przedmiot działalności” w KRS (kod PKD)** obejmował kolekcjonerstwo — zwykle PKD 94.99.Z „Działalność pozostałych organizacji członkowskich, gdzie indziej niesklasyfikowana”, z opisem przedmiotu działalności w formularzu KRS-W wyraźnie wskazującym kolekcjonerstwo broni. To dodatkowo wzmacnia podstawę do wydania pozwolenia kolekcjonerskiego, zgodnie z cytowanym orzecznictwem opartym na danych rejestrowych.
+1. **Przyjąć wzór zaświadczenia** (upoważnienie do tego daje § 6 ust. 3) — zawierający dane członka, datę przyjęcia do Stowarzyszenia, informację o czynnym udziale w działalności kolekcjonerskiej (np. w sekcji kolekcjonerskiej) oraz podpis Prezesa Zarządu i pieczęć Stowarzyszenia.
+2. **Zadbać, by przedmiot działalności w ewidencji starosty / KRS** obejmował kolekcjonerstwo — w KRS zwykle kod PKD 94.99.Z „Działalność pozostałych organizacji członkowskich, gdzie indziej niesklasyfikowana”, z opisem przedmiotu działalności wyraźnie wskazującym kolekcjonerstwo broni. To dodatkowo wzmacnia podstawę do wydania pozwolenia kolekcjonerskiego, zgodnie z cytowanym orzecznictwem opartym na danych rejestrowych.
 3. **Prowadzić realną działalność sekcji kolekcjonerskiej** (spotkania, wystawy, dokumentacja zbiorów) i protokołować ją — mimo że formalnie Policja nie powinna oceniać dorobku, w praktyce udokumentowana aktywność ułatwia postępowanie i ogranicza ryzyko sporu.
 4. Rozważyć uwzględnienie w pełnej nazwie Stowarzyszenia określenia wskazującego na charakter kolekcjonerski (np. „Stowarzyszenie Strzelecko-Kolekcjonerskie […]”) — nie jest to wymóg ustawowy (decyduje treść statutu, nie nazwa), ale ułatwia urzędnikom szybką kwalifikację wniosku przy pierwszym kontakcie.
