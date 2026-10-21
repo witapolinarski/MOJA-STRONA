@@ -21,7 +21,7 @@ Stowarzyszenie jest dobrowolnym, samorządnym i trwałym zrzeszeniem o celach ni
 
 **§ 4**
 1. Stowarzyszenie jest zawiązane na czas nieokreślony.
-2. Stowarzyszenie nie prowadzi działalności gospodarczej, w związku z czym podlega wpisowi do ewidencji klubów sportowych prowadzonej przez starostę właściwego ze względu na siedzibę Stowarzyszenia, w uproszczonym trybie określonym w art. 4 ust. 7 w zw. z ust. 2 i 4–6 ustawy z dnia 25 czerwca 2010 r. o sporcie; Stowarzyszenie może też, według wyboru założycieli, zostać zarejestrowane na zasadach ogólnych w Krajowym Rejestrze Sądowym. Stowarzyszenie uzyskuje osobowość prawną z chwilą dokonania właściwego wpisu.
+2. Stowarzyszenie nie prowadzi działalności gospodarczej, w związku z czym — według wyboru założycieli — podlega wpisowi albo do Krajowego Rejestru Sądowego na zasadach ogólnych, albo do ewidencji klubów sportowych prowadzonej przez starostę właściwego ze względu na siedzibę Stowarzyszenia, w uproszczonym trybie określonym w art. 4 ust. 7 w zw. z ust. 2 i 4–6 ustawy z dnia 25 czerwca 2010 r. o sporcie. Stowarzyszenie uzyskuje osobowość prawną z chwilą dokonania właściwego wpisu.
 3. Stowarzyszenie działa na podstawie ustawy z dnia 7 kwietnia 1989 r. — Prawo o stowarzyszeniach, ustawy z dnia 25 czerwca 2010 r. o sporcie, ustawy z dnia 21 maja 1999 r. o broni i amunicji oraz niniejszego Statutu.
 
 **§ 5**
