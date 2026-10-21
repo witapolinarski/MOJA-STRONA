@@ -21,7 +21,7 @@ Stowarzyszenie jest dobrowolnym, samorządnym i trwałym zrzeszeniem o celach ni
 
 **§ 4**
 1. Stowarzyszenie jest zawiązane na czas nieokreślony.
-2. Stowarzyszenie nie prowadzi działalności gospodarczej, w związku z czym — według wyboru założycieli — podlega wpisowi albo do Krajowego Rejestru Sądowego na zasadach ogólnych, albo do ewidencji klubów sportowych prowadzonej przez starostę właściwego ze względu na siedzibę Stowarzyszenia, w uproszczonym trybie określonym w art. 4 ust. 7 w zw. z ust. 2 i 4–6 ustawy z dnia 25 czerwca 2010 r. o sporcie. Stowarzyszenie uzyskuje osobowość prawną z chwilą dokonania właściwego wpisu.
+2. Stowarzyszenie nie prowadzi działalności gospodarczej. Stowarzyszenie podlega wpisowi do Krajowego Rejestru Sądowego na zasadach ogólnych i uzyskuje osobowość prawną z chwilą dokonania tego wpisu.
 3. Stowarzyszenie działa na podstawie ustawy z dnia 7 kwietnia 1989 r. — Prawo o stowarzyszeniach, ustawy z dnia 25 czerwca 2010 r. o sporcie, ustawy z dnia 21 maja 1999 r. o broni i amunicji oraz niniejszego Statutu.
 
 **§ 5**
@@ -31,7 +31,7 @@ Stowarzyszenie jest dobrowolnym, samorządnym i trwałym zrzeszeniem o celach ni
 
 **§ 6**
 1. Stowarzyszenie posiada charakter kolekcjonerski w rozumieniu art. 10 ust. 3 pkt 5 ustawy z dnia 21 maja 1999 r. o broni i amunicji.
-2. Udokumentowane członkostwo w Stowarzyszeniu oraz czynny udział w jego działalności kolekcjonerskiej stanowią ważną przyczynę ubiegania się przez członka Stowarzyszenia o pozwolenie na broń do celów kolekcjonerskich, zgodnie z przepisami ustawy, o której mowa w ust. 1.
+2. Udokumentowane członkostwo w Stowarzyszeniu stanowi ważną przyczynę ubiegania się przez członka Stowarzyszenia o pozwolenie na broń do celów kolekcjonerskich, zgodnie z przepisami ustawy, o której mowa w ust. 1.
 3. Zasady, tryb oraz wzór wydawania przez Stowarzyszenie zaświadczeń, o których mowa w ust. 2 oraz w § 10 pkt 7, określa Zarząd w drodze uchwały.
 
 **§ 7**
@@ -65,7 +65,7 @@ Stowarzyszenie realizuje swoje cele poprzez:
 4. prowadzenie, dzierżawę lub udostępnianie strzelnic oraz obiektów szkoleniowych spełniających wymogi regulaminowe PZSS;
 5. współpracę z PZSS, właściwym WZSS, muzeami i instytucjami kultury, jednostkami samorządu terytorialnego, szkołami oraz służbami mundurowymi;
 6. prowadzenie ewidencji członków, dokumentowanie ich działalności kolekcjonerskiej, prowadzenie klasyfikacji sportowej zawodników oraz innej dokumentacji wymaganej przepisami prawa i PZSS;
-7. wydawanie członkom — na zasadach określonych w § 6 ust. 3 — zaświadczeń potwierdzających członkostwo oraz czynny udział w działalności statutowej Stowarzyszenia, w tym w działalności kolekcjonerskiej, w celu udokumentowania ważnej przyczyny posiadania broni, o której mowa w § 6 ust. 2;
+7. wydawanie członkom — na zasadach określonych w § 6 ust. 3 — zaświadczeń potwierdzających członkostwo w Stowarzyszeniu, w celu udokumentowania ważnej przyczyny posiadania broni, o której mowa w § 6 ust. 2;
 8. pozyskiwanie środków na działalność statutową, w tym ze składek, darowizn, dotacji i sponsoringu;
 9. prowadzenie działalności informacyjnej i wydawniczej w zakresie celów statutowych;
 10. powoływanie sekcji tematycznych, w tym sekcji strzeleckiej i sekcji kolekcjonerskiej, działających na podstawie regulaminów uchwalonych przez Zarząd;
@@ -89,7 +89,7 @@ Członkowie Stowarzyszenia dzielą się na:
    1. posiada pełną zdolność do czynności prawnych i korzysta z pełni praw publicznych — w przypadku osób pełnoletnich, lub posiada ograniczoną zdolność do czynności prawnych — w przypadku małoletnich w wieku od 16 do 18 lat, z zastrzeżeniem § 14;
    2. jest zainteresowana strzelectwem sportowym lub kolekcjonerstwem broni i akceptuje cele Stowarzyszenia określone w niniejszym Statucie;
    3. złoży deklarację członkowską oraz uiści wpisowe i składkę członkowską;
-   4. nie była skazana prawomocnym wyrokiem za przestępstwo umyślne, chyba że posiada legalne pozwolenie na broń lub pełni służbę w formacji mundurowej uprawnionej do posiadania broni.
+   4. nie była skazana prawomocnym wyrokiem za przestępstwo umyślne.
 2. O przyjęciu w poczet członków decyduje Zarząd w drodze uchwały.
 
 **§ 14**
@@ -105,7 +105,7 @@ Członkowie zwyczajni mają prawo do:
 1. czynnego i biernego uczestnictwa w wyborach do władz Stowarzyszenia;
 2. udziału w zawodach, szkoleniach i innych formach działalności statutowej, w tym w działalności sekcji kolekcjonerskiej;
 3. korzystania z majątku i urządzeń Stowarzyszenia na zasadach określonych przez Zarząd;
-4. uzyskiwania zaświadczeń, o których mowa w § 10 pkt 7, potwierdzających członkostwo i czynny udział w działalności kolekcjonerskiej Stowarzyszenia;
+4. uzyskiwania zaświadczeń, o których mowa w § 10 pkt 7, potwierdzających członkostwo w Stowarzyszeniu;
 5. zgłaszania wniosków dotyczących działalności Stowarzyszenia.
 
 **§ 17**
@@ -121,7 +121,7 @@ Członkowie zwyczajni mają obowiązek:
    2. wykluczenia uchwałą Zarządu z powodu rażącego naruszenia Statutu, nieprzestrzegania przepisów bezpieczeństwa lub zalegania ze składkami przez okres co najmniej 3 miesięcy;
    3. prawomocnego skazania za przestępstwo umyślne lub utraty praw publicznych;
    4. śmierci członka lub utraty osobowości prawnej przez członka wspierającego będącego osobą prawną.
-2. Od uchwały Zarządu o wykluczeniu przysługuje odwołanie do Walnego Zebrania Członków w terminie 14 dni; uchwała Walnego Zebrania jest ostateczna.
+2. Od uchwały Zarządu o wykluczeniu przysługuje odwołanie do Walnego Zebrania Członków w terminie 14 dni; uchwała Walnego Zebrania jest ostateczna. Wniesienie odwołania nie wstrzymuje wykonania uchwały o wykluczeniu — wykluczenie jest skuteczne z chwilą podjęcia uchwały przez Zarząd.
 3. Utrata członkostwa powoduje utratę prawa do posługiwania się zaświadczeniami, o których mowa w § 10 pkt 7; Zarząd zawiadamia o tym fakcie właściwy organ Policji, jeżeli zaświadczenie takie posłużyło byłemu członkowi do uzyskania pozwolenia na broń.
 
 ---
@@ -149,19 +149,20 @@ Członkowie zwyczajni mają obowiązek:
    1. złożenia Przewodniczącemu Komisji Rewizyjnej pisemnego, uzasadnionego wniosku o odwołanie Prezesa Zarządu — przez Komisję Rewizyjną albo przez co najmniej połowę ogółu członków zwyczajnych uprawnionych do głosowania;
    2. zwołania przez Komisję Rewizyjną — z wyłączeniem w tym zakresie kompetencji Prezesa Zarządu do zwoływania Walnego Zebrania Członków, o której mowa w ust. 2–3 — Nadzwyczajnego Walnego Zebrania Członków z odrębnym punktem porządku obrad dotyczącym odwołania Prezesa Zarządu; zawiadomienie o tym punkcie wraz z treścią wniosku i jego uzasadnieniem doręcza się wszystkim członkom co najmniej 30 dni przed terminem Zebrania, a Prezesowi Zarządu umożliwia się złożenie pisemnych lub ustnych wyjaśnień przed głosowaniem;
    3. podjęcia uchwały o odwołaniu w głosowaniu tajnym większością co najmniej 3/4 głosów liczoną od ogółu członków zwyczajnych uprawnionych do głosowania, a nie tylko od osób obecnych na Zebraniu.
-8. Do uchwały o odwołaniu Prezesa Zarządu nie stosuje się ust. 5 w zakresie dopuszczającym podjęcie uchwały w drugim terminie zwykłą większością głosów bez względu na liczbę obecnych — wymóg kworum i większości określony w ust. 7 pkt 3 obowiązuje niezależnie od terminu Zebrania, a nieuzyskanie wymaganej większości oznacza nieodwołanie Prezesa Zarządu.
+8. Do uchwały o odwołaniu Prezesa Zarządu nie stosuje się ust. 5. Większość określona w ust. 7 pkt 3, liczona od ogółu członków zwyczajnych uprawnionych do głosowania, zastępuje wymóg kworum i obowiązuje niezależnie od terminu Zebrania oraz liczby obecnych; nieuzyskanie tej większości oznacza nieodwołanie Prezesa Zarządu.
 9. Zasady określone w ust. 7–8 stosuje się odpowiednio do uchwały zmieniającej postanowienia Rozdziału IV Statutu (Władze Stowarzyszenia) w zakresie dotyczącym liczby, sposobu wyboru, kompetencji lub trybu odwołania Prezesa Zarządu.
 
 **§ 21**
 1. Zarząd Stowarzyszenia jest jednoosobowy; funkcję tę pełni Prezes Zarządu, wybierany przez Walne Zebranie Członków spośród członków zwyczajnych.
 2. Prezes Zarządu kieruje całością bieżącej działalności Stowarzyszenia i samodzielnie podejmuje wszelkie decyzje niezastrzeżone niniejszym Statutem do wyłącznej kompetencji Walnego Zebrania Członków lub Komisji Rewizyjnej, a w szczególności: realizuje cele statutowe; zarządza majątkiem i finansami Stowarzyszenia; przyjmuje i wyklucza członków w drodze decyzji; ustala wysokość wpisowego i składek członkowskich, chyba że Walne Zebranie Członków postanowi inaczej; zwołuje Walne Zebranie Członków; reprezentuje Stowarzyszenie wobec PZSS, właściwego WZSS, organów administracji publicznej oraz osób trzecich; wydaje zaświadczenia, o których mowa w § 10 pkt 7; składa Walnemu Zebraniu Członków i Komisji Rewizyjnej wymagane sprawozdania.
 3. Prezes Zarządu reprezentuje Stowarzyszenie na zewnątrz oraz składa w jego imieniu oświadczenia woli, w tym w sprawach majątkowych i przy podpisywaniu zaświadczeń, o których mowa w ust. 2 — **samodzielnie i jednoosobowo**.
-4. Prezes Zarządu może, w drodze pisemnego pełnomocnictwa, upoważnić inną osobę do dokonywania w jego imieniu określonych czynności lub do zastępowania go w czasie nieobecności.
-5. Jeżeli funkcja Prezesa Zarządu pozostaje nieobsadzona lub Prezes Zarządu jest trwale niezdolny do jej pełnienia, Walne Zebranie Członków niezwłocznie wybiera nowego Prezesa; do czasu wyboru Stowarzyszenie — wyłącznie w zakresie niezbędnym do zwołania Walnego Zebrania Członków — reprezentuje Przewodniczący Komisji Rewizyjnej.
+4. W umowach między Stowarzyszeniem a Prezesem Zarządu oraz w sporach między Stowarzyszeniem a Prezesem Zarządu Stowarzyszenie reprezentuje Przewodniczący Komisji Rewizyjnej.
+5. Prezes Zarządu może, w drodze pisemnego pełnomocnictwa, upoważnić inną osobę do dokonywania w jego imieniu określonych czynności lub do zastępowania go w czasie nieobecności.
+6. Jeżeli funkcja Prezesa Zarządu pozostaje nieobsadzona lub Prezes Zarządu jest trwale niezdolny do jej pełnienia, Walne Zebranie Członków niezwłocznie wybiera nowego Prezesa; do czasu wyboru Stowarzyszenie — wyłącznie w zakresie niezbędnym do zwołania Walnego Zebrania Członków — reprezentuje Przewodniczący Komisji Rewizyjnej.
 
 **§ 22**
 1. Komisja Rewizyjna jest organem kontroli wewnętrznej Stowarzyszenia, odrębnym od Prezesa Zarządu i niepodlegającym mu; jej powołanie jest obowiązkowe zgodnie z art. 11 ust. 3 ustawy — Prawo o stowarzyszeniach.
-2. Komisja Rewizyjna składa się z 1 do 3 osób wybieranych przez Walne Zebranie Członków spośród członków zwyczajnych niebędących Prezesem Zarządu; jeżeli jest wieloosobowa, wybiera spośród siebie przewodniczącego.
+2. Komisja Rewizyjna składa się z liczby członków określonej uchwałą Walnego Zebrania Członków przed każdym wyborem, w granicach od 1 do 3 osób, wybieranych spośród członków zwyczajnych niebędących Prezesem Zarządu. Jeżeli Komisja Rewizyjna jest jednoosobowa, jej członek pełni funkcję Przewodniczącego Komisji Rewizyjnej z mocy niniejszego Statutu; jeżeli jest wieloosobowa, wybiera przewodniczącego spośród swoich członków.
 3. Do kompetencji Komisji Rewizyjnej należy: kontrola działalności i gospodarki finansowej Stowarzyszenia co najmniej raz w roku, składanie sprawozdań Walnemu Zebraniu Członków oraz wnioskowanie o udzielenie Prezesowi Zarządu absolutorium.
 4. Członkiem Komisji Rewizyjnej nie może być Prezes Zarządu.
 5. W razie zmniejszenia się składu wieloosobowej Komisji Rewizyjnej w wyniku rezygnacji, odwołania lub ustania członkostwa, jej pozostali członkowie mogą dokooptować nowych członków spośród członków zwyczajnych, w liczbie nieprzekraczającej 1/3 dotychczasowego składu pochodzącego z wyboru; jeżeli Komisja Rewizyjna jest jednoosobowa i jej funkcja pozostaje nieobsadzona, Walne Zebranie Członków niezwłocznie wybiera nową osobę pełniącą tę funkcję.
