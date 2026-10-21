@@ -2,7 +2,7 @@
 
 ## „[NAZWA STOWARZYSZENIA]”
 
-> **Wzór uproszczony** — przygotowany na bazie struktury statutu Towarzystwa Miłośników Strzelectwa „Sagittarius” (Gogolin, KRS 0000591210), zgodny z wymogami art. 10 ustawy — Prawo o stowarzyszeniach, a jednocześnie zaprojektowany tak, aby: (1) został bezproblemowo przyjęty niezależnie od wybranej ścieżki rejestracji — **Krajowego Rejestru Sądowego (KRS)** albo uproszczonej **ewidencji starosty** — oraz uzyskał licencję klubową **PZSS**, (2) nadał Stowarzyszeniu wyraźny **charakter kolekcjonerski**, dzięki czemu udokumentowane członkostwo w nim stanowi samodzielną, ustawową podstawę do uzyskania przez członka pozwolenia na broń do celów kolekcjonerskich (WPA), (3) maksymalnie uprościł zarządzanie i zapewnił **Prezesowi Zarządu** pełnię bieżącej władzy wykonawczej i wyłączną reprezentację, przy zachowaniu jedynie dwóch organów wymaganych ustawowo — Walnego Zebrania Członków (jako najwyższej władzy) i Komisji Rewizyjnej (jako organu kontroli), oraz (4) **maksymalnie ograniczył możliwość zmiany na funkcji Prezesa Zarządu** wbrew jego woli — odwołanie wymaga kwalifikowanej większości głosów całego składu członkowskiego, a nie tylko osób obecnych na zebraniu, a ochrony tej nie można obejść poprzez zwykłą zmianę statutu (§ 20 ust. 7–9). Pola w nawiasach kwadratowych `[...]` należy uzupełnić przed uchwaleniem statutu.
+> Pola w nawiasach kwadratowych `[...]` należy uzupełnić przed uchwaleniem statutu.
 
 ---
 
@@ -134,9 +134,9 @@ Członkowie zwyczajni mają obowiązek:
    2. Prezes Zarządu (Zarząd jednoosobowy),
    3. Komisja Rewizyjna.
 2. Ilekroć w niniejszym Statucie jest mowa o „Zarządzie”, rozumie się przez to Prezesa Zarządu, który jednoosobowo wykonuje wszystkie kompetencje przypisane w Statucie Zarządowi.
-3. Kadencja Prezesa Zarządu i Komisji Rewizyjnej jest **bezterminowa** — osoby pełniące te funkcje sprawują je do czasu rezygnacji, odwołania przez Walne Zebranie Członków, utraty członkostwa w Stowarzyszeniu albo śmierci, bez konieczności dokonywania okresowych reelekcji.
+3. Kadencja Prezesa Zarządu i Komisji Rewizyjnej trwa 5 lat; dopuszcza się wielokrotny wybór na kolejne kadencje. Mandat wygasa przed upływem kadencji wskutek rezygnacji, odwołania, utraty członkostwa w Stowarzyszeniu albo śmierci.
 4. Niezależnie od ust. 3, Walne Zebranie Członków może w każdym czasie odwołać Komisję Rewizyjną lub jej poszczególnych członków w drodze uchwały podjętej na zasadach określonych w § 20 ust. 5.
-5. Odwołanie Prezesa Zarządu jest możliwe wyłącznie w szczególnym, podwyższonym trybie określonym w § 20 ust. 7–9, którego celem jest zapewnienie stabilności jednoosobowego kierowania Stowarzyszeniem i maksymalne ograniczenie możliwości zmiany na tej funkcji wbrew woli większości ogółu członków.
+5. Odwołanie Prezesa Zarządu jest możliwe wyłącznie w szczególnym trybie określonym w § 20 ust. 7–9.
 
 **§ 20**
 1. Walne Zebranie Członków jest najwyższą władzą Stowarzyszenia.
@@ -150,7 +150,7 @@ Członkowie zwyczajni mają obowiązek:
    2. zwołania przez Komisję Rewizyjną — z wyłączeniem w tym zakresie kompetencji Prezesa Zarządu do zwoływania Walnego Zebrania Członków, o której mowa w ust. 2–3 — Nadzwyczajnego Walnego Zebrania Członków z odrębnym punktem porządku obrad dotyczącym odwołania Prezesa Zarządu; zawiadomienie o tym punkcie wraz z treścią wniosku i jego uzasadnieniem doręcza się wszystkim członkom co najmniej 30 dni przed terminem Zebrania, a Prezesowi Zarządu umożliwia się złożenie pisemnych lub ustnych wyjaśnień przed głosowaniem;
    3. podjęcia uchwały o odwołaniu w głosowaniu tajnym większością co najmniej 3/4 głosów liczoną od ogółu członków zwyczajnych uprawnionych do głosowania, a nie tylko od osób obecnych na Zebraniu.
 8. Do uchwały o odwołaniu Prezesa Zarządu nie stosuje się ust. 5 w zakresie dopuszczającym podjęcie uchwały w drugim terminie zwykłą większością głosów bez względu na liczbę obecnych — wymóg kworum i większości określony w ust. 7 pkt 3 obowiązuje niezależnie od terminu Zebrania, a nieuzyskanie wymaganej większości oznacza nieodwołanie Prezesa Zarządu.
-9. Zasady określone w ust. 7–8 stosuje się odpowiednio do uchwały zmieniającej postanowienia Rozdziału IV Statutu (Władze Stowarzyszenia) w zakresie dotyczącym liczby, sposobu wyboru, kompetencji lub trybu odwołania Prezesa Zarządu — tak, aby ochrony przewidzianej w niniejszym paragrafie nie można było obejść w drodze zmiany Statutu podjętej na zasadach ogólnych określonych w § 24.
+9. Zasady określone w ust. 7–8 stosuje się odpowiednio do uchwały zmieniającej postanowienia Rozdziału IV Statutu (Władze Stowarzyszenia) w zakresie dotyczącym liczby, sposobu wyboru, kompetencji lub trybu odwołania Prezesa Zarządu.
 
 **§ 21**
 1. Zarząd Stowarzyszenia jest jednoosobowy; funkcję tę pełni Prezes Zarządu, wybierany przez Walne Zebranie Członków spośród członków zwyczajnych.
@@ -194,7 +194,7 @@ Niniejszy Statut został uchwalony przez Zebranie Założycielskie Stowarzyszeni
 
 ---
 
-Podpisy założycieli (co najmniej 7 osób fizycznych — wymóg ustawowy niezależnie od wybranej ścieżki rejestracji, czy to ewidencja starosty, czy KRS):
+Podpisy założycieli (co najmniej 7 osób fizycznych):
 
 | Lp. | Imię i nazwisko | PESEL | Podpis |
 |---|---|---|---|
@@ -205,59 +205,3 @@ Podpisy założycieli (co najmniej 7 osób fizycznych — wymóg ustawowy niezal
 | 5. |  |  |  |
 | 6. |  |  |  |
 | 7. |  |  |  |
-
----
-
-## Dlaczego ten statut ma zapewnić bezproblemową akceptację PZSS
-
-Zgodnie z *Regulaminem uzyskiwania i utraty członkostwa w PZSS oraz przyznawania licencji klubowych* (wersja obowiązująca od 28.03.2025), Komisja Licencyjna PZSS weryfikuje m.in. **odpis statutu klubu** pod kątem tego, czy klub spełnia definicję klubu sportowego z ustawy o sporcie i czy jego cele obejmują strzelectwo sportowe. Statut uwzględnia to wprost:
-
-- **§ 2, § 5 ust. 1, § 9 pkt 1–2** — jednoznacznie definiują Stowarzyszenie jako klub sportowy działający w dyscyplinie strzelectwo sportowe i wskazują udział we współzawodnictwie PZSS/WZSS jako cel statutowy (to kluczowy warunek uznania za „klub sportowy” w rozumieniu ustawy o sporcie).
-- **§ 5 ust. 2–3** — wprost przewidują członkostwo w PZSS i WZSS oraz zobowiązanie do przestrzegania statutu, regulaminów, przepisów bezpieczeństwa i dyscyplinarnych Związku oraz poddania się jego jurysdykcji dyscyplinarnej — treściowo odpowiada to oświadczeniu wymaganemu w pkt „i” wniosku licencyjnego (patrz niżej), więc nic w statucie temu nie przeczy.
-- **§ 4** — zapewnia osobowość prawną przez wpis do ewidencji starosty (tryb uproszczony) albo do KRS, co jest warunkiem koniecznym pierwszego wniosku o licencję (dokument „a” poniżej); regulamin licencyjny PZSS wprost dopuszcza „wypis z KRS lub innego rejestru albo ewidencji”.
-- Zawiera **wszystkie elementy obowiązkowe** wymagane przez art. 10 ust. 1 ustawy — Prawo o stowarzyszeniach (nazwa, teren działania i siedziba, cele i sposoby realizacji, zasady nabywania/utraty członkostwa oraz prawa i obowiązki członków, władze i tryb ich wyboru/uzupełniania/kompetencje, sposób reprezentacji i zaciągania zobowiązań majątkowych, warunki ważności uchwał, sposób pozyskiwania środków i ustanawiania składek, zasady zmiany statutu, sposób rozwiązania) — sąd rejestrowy KRS nie powinien mieć podstaw do wezwania o uzupełnienie braków formalnych statutu.
-- Nie zawiera żadnych postanowień sprzecznych ze statutem PZSS/WZSS (np. ograniczeń terytorialnych, zakazów przynależności do innych związków), co jest warunkiem przyjęcia w poczet członków Związku.
-- Dodanie celów kolekcjonerskich (§ 6, § 9 pkt 3–5) **nie koliduje** z wymogami PZSS — Związek ocenia wyłącznie, czy statut przewiduje działalność w sporcie strzeleckim; dodatkowe, równoległe cele statutowe (np. kolekcjonerstwo) są w pełni dopuszczalne i nie stanowią przesłanki odmowy licencji.
-
-### Czego statut **nie załatwia** — pozostałe dokumenty do wniosku licencyjnego PZSS (poza statutem)
-
-Statut to tylko jeden z kilku wymaganych załączników. Zgodnie z § 4 ust. 2 regulaminu licencyjnego PZSS, do pierwszego wniosku o licencję klubową trzeba dodatkowo przygotować:
-
-1. aktualny (nie starszy niż 6 miesięcy) odpis z KRS lub ewidencji potwierdzający osobowość prawną klubu;
-2. dokument określający status prawny zawodnika uczestniczącego we współzawodnictwie;
-3. **odpis tego statutu** w aktualnym brzmieniu;
-4. dokumenty potwierdzające dysponowanie bazą szkoleniową (strzelnicą) na terenie województwa siedziby klubu — np. umowa najmu/użyczenia strzelnicy lub wypis z księgi wieczystej;
-5. oświadczenie sędziego PZSS (min. kl. P) o spełnianiu przez strzelnicę wymogów regulaminowych;
-6. umowę z trenerem/instruktorem posiadającym aktualną licencję trenerską/instruktorską PZSS (pracującym tylko w jednym klubie);
-7. kopię polisy NNW dla osób uczestniczących w szkoleniu/współzawodnictwie;
-8. potwierdzenie opłaty za przyznanie licencji klubowej;
-9. pisemne oświadczenie o zobowiązaniu się do przestrzegania statutu i regulaminów PZSS oraz poddaniu się jurysdykcji dyscyplinarnej Związku (osobny formularz — nawet mimo że statut to już zapowiada w § 5 ust. 3);
-10. potwierdzenie przynależności klubu do właściwego miejscowo WZSS — **klub musi najpierw zostać przyjęty do WZSS**, dopiero potem może złożyć wniosek do PZSS w systemie SOZ.
-
-### Uwagi praktyczne dot. rejestracji samego stowarzyszenia
-
-- Do założenia stowarzyszenia potrzeba **co najmniej 7 osób fizycznych** — niezależnie od wybranej ścieżki rejestracji (zebranie założycielskie, uchwała o powołaniu, uchwalenie statutu, wybór władz).
-- **Ten sam tekst statutu nadaje się do obu równoważnych ścieżek rejestracji** — zmienia się tylko organ, do którego składa się wniosek:
-  1. **Krajowy Rejestr Sądowy (KRS)** — rejestracja na zasadach ogólnych, bezpłatna, skoro statut (§ 11) nie przewiduje działalności gospodarczej. Postępowanie trwa z reguły dłużej niż w ewidencji starosty (zwykle kilka tygodni, czasem z wezwaniami sądu do uzupełnienia braków formalnych — stąd kompletność statutu wobec art. 10 ust. 1 ustawy jest tu szczególnie istotna), ale wpis do KRS jest najszerzej rozpoznawanym potwierdzeniem osobowości prawnej — przyjmowanym bez dodatkowych wyjaśnień przez banki, urzędy, PZSS oraz Policję (WPA) przy wniosku o pozwolenie na broń.
-  2. **Ewidencja klubów sportowych prowadzona przez starostę** (art. 4 ust. 7 w zw. z ust. 2 i 4–6 ustawy o sporcie) — szybsza i tańsza (opłata skarbowa ok. 10 zł, decyzja w ciągu 30 dni, a brak decyzji w tym terminie oznacza automatyczne „milczące” załatwienie wniosku na korzyść klubu); do wniosku o wpis dołącza się statut, listę założycieli, protokół zebrania założycielskiego oraz uchwały o powołaniu klubu, przyjęciu statutu i wyborze Prezesa Zarządu i Komisji Rewizyjnej. PZSS honoruje taki wpis na równi z KRS — regulamin licencyjny dopuszcza „wypis z KRS **lub innego rejestru albo ewidencji**”.
-- Statut zawiera **wszystkie elementy obowiązkowe** z art. 10 ust. 1 Prawa o stowarzyszeniach (patrz wyżej), więc niezależnie od wybranej ścieżki organ rejestrowy nie powinien mieć podstaw do wezwania o uzupełnienie braków formalnych.
-- Jeżeli w przyszłości okaże się, że Stowarzyszenie jednak potrzebuje prowadzić działalność gospodarczą (np. odpłatny wynajem własnej strzelnicy na większą skalę), § 11 trzeba będzie zmienić, a Stowarzyszenie zarejestrowane w ewidencji starosty — przerejestrować do KRS; przy rejestracji od razu w KRS tego dodatkowego kroku unika się w ogóle.
-- **Kadencja władz:** ustawa — Prawo o stowarzyszeniach nie określa ani minimalnej, ani maksymalnej długości kadencji Prezesa Zarządu i Komisji Rewizyjnej — to w całości swoboda statutowa. Ten wzór przyjmuje rozwiązanie najdalej idące w kierunku stabilności: **kadencja bezterminowa** (§ 19 ust. 3) — władze nie muszą być cyklicznie wybierane na nowo, a pełnią funkcję do rezygnacji, odwołania lub ustania członkostwa. Walne Zebranie Członków zachowuje przy tym prawo odwołania Komisji Rewizyjnej w każdym czasie na zasadach ogólnych (§ 19 ust. 4), a Prezesa Zarządu — w podwyższonym, znacznie trudniejszym do uruchomienia trybie opisanym niżej (§ 19 ust. 5, § 20 ust. 7–9). Niezależnie od długości kadencji, każdą zmianę osobową we władzach trzeba zgłosić do właściwego rejestru/ewidencji w terminie 7 dni od jej dokonania.
-- **Pełnia władzy Prezesa:** ustawa — Prawo o stowarzyszeniach wymaga tylko, by stowarzyszenie posiadało Walne Zebranie Członków (jako najwyższą władzę — art. 11 ust. 1) oraz odrębny organ kontroli wewnętrznej (art. 11 ust. 3); poza tym pozostawia pełną swobodę co do struktury i podziału kompetencji. Ten wzór wykorzystuje tę swobodę maksymalnie: Zarząd jest **jednoosobowy** i tożsamy z Prezesem (§ 19 ust. 2, § 21), który samodzielnie reprezentuje Stowarzyszenie i prowadzi wszystkie jego sprawy — w tym majątkowe — bez konieczności współdziałania z kimkolwiek innym (§ 21 ust. 2–3). Walne Zebranie Członków zachowuje wyłącznie te kompetencje, które muszą pozostać przy najwyższej władzy stowarzyszenia z mocy prawa lub dobrej praktyki (zmiana statutu, wybór/odwołanie Prezesa i Komisji Rewizyjnej, absolutorium, rozwiązanie Stowarzyszenia) — § 20 ust. 4 wprost oddaje Prezesowi wszystkie pozostałe sprawy. Dodatkowo uchwały Walnego Zebrania można podejmować w **trybie uproszczonym**, korespondencyjnie lub elektronicznie, bez zwoływania fizycznego zebrania (§ 20 ust. 6) — to ułatwia prowadzenie klubu nawet przy niewielkiej liczbie aktywnych członków.
-- **Maksymalne ograniczenie zmiany na funkcji Prezesa:** art. 11 ust. 1 Prawa o stowarzyszeniach czyni Walne Zebranie Członków najwyższą władzą, co w praktyce sądów rejestrowych oznacza, że statut nie może **całkowicie** odebrać mu prawa do odwołania Zarządu — taki zapis groziłby odmową wpisu jako sprzeczny z ustawą. Ten wzór tego prawa więc nie wyłącza, ale obwarowuje je najdalej idącymi, w pełni dozwolonymi w ramach swobody statutowej warunkami formalnymi (§ 20 ust. 7–9): wniosek o odwołanie musi pochodzić od Komisji Rewizyjnej albo od co najmniej połowy ogółu członków; wymaga 30-dniowego wyprzedzenia w zawiadomieniu o zebraniu oraz możliwości złożenia wyjaśnień przez Prezesa; a sama uchwała zapada większością **3/4 głosów liczoną od całego składu członkowskiego** — nie tylko od osób obecnych na zebraniu — i to bez odstępstwa na wypadek niskiej frekwencji w drugim terminie. Tej samej, podwyższonej procedury wymaga również zmiana Statutu w części dotyczącej władz (§ 20 ust. 9, § 24), co zamyka furtkę obejścia tej ochrony poprzez zwykłą zmianę statutu zwykłą większością 2/3. W praktyce odwołanie Prezesa wymaga więc realnego, szerokiego konsensusu całej społeczności klubu, a nie tylko większości osób, które akurat przyszły na zebranie w drugim terminie.
-
----
-
-## Dlaczego ten statut pomaga też uzyskać pozwolenie na broń do celów kolekcjonerskich
-
-- Zgodnie z **art. 10 ust. 3 pkt 5 ustawy z dnia 21 maja 1999 r. o broni i amunicji**, ważną przyczyną uzyskania pozwolenia na broń do celów kolekcjonerskich jest **udokumentowane członkostwo w stowarzyszeniu o charakterze kolekcjonerskim** — ustawa nie stawia tu żadnych dodatkowych warunków (w odróżnieniu np. od pozwolenia sportowego, które wymaga dodatkowo licencji zawodniczej i kwalifikacji sportowych).
-- **§ 6 statutu** wprost stwierdza, że Stowarzyszenie ma charakter kolekcjonerski w rozumieniu tego przepisu, a udokumentowane członkostwo stanowi ważną przyczynę ubiegania się o pozwolenie kolekcjonerskie — członek nie musi więc niczego dodatkowo wywodzić ani interpretować z ogólnych celów statutowych.
-- Cele i sposoby działania (**§ 9 pkt 3–5, § 10 pkt 3 i 6–7**) opisują działalność kolekcjonerską jako realny, statutowy przedmiot działania Stowarzyszenia, a nie wzmiankę poboczną. Zgodnie z utrwalonym orzecznictwem sądów administracyjnych (np. wyrok WSA w Warszawie, sygn. II SA/Wa 1286/13) to właśnie **treść statutu oraz wpis w rejestrze** przesądzają o „charakterze kolekcjonerskim” stowarzyszenia — organ Policji nie jest uprawniony ani do oceny faktycznego dorobku kolekcjonerskiego klubu, ani do kwestionowania, czy sąd rejestrowy prawidłowo nadał mu taki charakter na podstawie statutu.
-- **§ 10 pkt 7 oraz § 21 ust. 2–3** upoważniają Prezesa Zarządu do samodzielnego wydawania i podpisywania członkom zaświadczeń potwierdzających członkostwo i czynny udział w działalności kolekcjonerskiej. To właśnie taki dokument, wraz z odpisem z ewidencji/KRS i statutem, członek dołącza do podania o pozwolenie na broń do celów kolekcjonerskich składanego w komendzie wojewódzkiej/stołecznej Policji (WPA).
-
-### Co jeszcze warto zrobić po zarejestrowaniu Stowarzyszenia, dla pewności uzyskania pozwolenia kolekcjonerskiego przez członków
-
-1. **Przyjąć wzór zaświadczenia** (upoważnienie do tego daje § 6 ust. 3) — zawierający dane członka, datę przyjęcia do Stowarzyszenia, informację o czynnym udziale w działalności kolekcjonerskiej (np. w sekcji kolekcjonerskiej) oraz podpis Prezesa Zarządu i pieczęć Stowarzyszenia.
-2. **Zadbać, by przedmiot działalności w ewidencji starosty / KRS** obejmował kolekcjonerstwo — w KRS zwykle kod PKD 94.99.Z „Działalność pozostałych organizacji członkowskich, gdzie indziej niesklasyfikowana”, z opisem przedmiotu działalności wyraźnie wskazującym kolekcjonerstwo broni. To dodatkowo wzmacnia podstawę do wydania pozwolenia kolekcjonerskiego, zgodnie z cytowanym orzecznictwem opartym na danych rejestrowych.
-3. **Prowadzić realną działalność sekcji kolekcjonerskiej** (spotkania, wystawy, dokumentacja zbiorów) i protokołować ją — mimo że formalnie Policja nie powinna oceniać dorobku, w praktyce udokumentowana aktywność ułatwia postępowanie i ogranicza ryzyko sporu.
-4. Rozważyć uwzględnienie w pełnej nazwie Stowarzyszenia określenia wskazującego na charakter kolekcjonerski (np. „Stowarzyszenie Strzelecko-Kolekcjonerskie […]”) — nie jest to wymóg ustawowy (decyduje treść statutu, nie nazwa), ale ułatwia urzędnikom szybką kwalifikację wniosku przy pierwszym kontakcie.
