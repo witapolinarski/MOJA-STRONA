@@ -11,9 +11,12 @@ potrzeba).
 - **Klub zrzeszony** loguje się kodem i hasłem (nadanym przez biuro) i zgłasza
   zawody formularzem: nazwa, dyscyplina (można zaznaczyć kilka naraz, np.
   karabin i strzelba jednocześnie), termin, miejsce, regulamin (PDF), oraz
-  **obsadę wymaganą przez regulamin PZSS** (sędzia główny, sekretarz zawodów,
-  kierownik strzelania itd. — klub wpisuje ją parami funkcja/osoba, od razu
-  albo później, gdy już wie, kto prowadzi zawody).
+  **obsadę wymaganą przez regulamin PZSS** — klub wybiera z rozwijanej listy
+  funkcje zgodne z Regulaminem Kolegium Sędziów PZSS (sędzia główny zawodów,
+  przewodniczący komisji RTS, sędzia główny strzelania, kierownik biura
+  obliczeń, sędzia stanowiskowy/tarczowy itd., z opcją „Inna funkcja…” na
+  wszystko, czego nie przewiduje lista), parami funkcja/osoba, od razu albo
+  później, gdy już wie, kto prowadzi zawody.
 - **Biuro związku** widzi zgłoszenia (w tym obsadę PZSS zgłoszoną przez klub,
   tylko do odczytu), zatwierdza je albo odsyła z uwagą (z historią wersji
   regulaminu), przypisuje własną obsadę związkową (sędzia główny, delegat

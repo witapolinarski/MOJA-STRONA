@@ -44,14 +44,31 @@ export const DISCIPLINES = Object.freeze([
   "Inne",
 ]);
 
-// Podpowiedzi funkcji obsady wymaganej przez regulamin PZSS — klub może też
-// wpisać własną nazwę funkcji, więc to tylko lista podpowiedzi, nie zamknięty zbiór.
+// Funkcje sędziowskie obsady zawodów zgodnie z Regulaminem Kolegium Sędziów PZSS
+// (§ 23 ust. 9–10: "Kierownicze funkcje sędziowskie na zawodach" oraz "Pozostałe
+// funkcje sędziowskie") — klub może też wpisać własną nazwę funkcji (np. gdyby
+// regulamin konkretnych zawodów przewidywał coś dodatkowego), więc to lista
+// podpowiedzi zgodna z regulaminem, nie zamknięty zbiór. Delegat techniczny PZSS
+// jest tu pominięty, bo to funkcja wyznaczana przez związek, nie przez klub —
+// odpowiada jej pole `obsada.delegatTechniczny` przypisywane przez biuro.
 export const PZSS_ROLES = Object.freeze([
-  "Sędzia Główny",
-  "Zastępca Sędziego Głównego",
-  "Sekretarz Zawodów",
-  "Kierownik Strzelania",
-  "Lekarz zawodów / ratownik medyczny",
+  // Kierownicze funkcje sędziowskie — strzelanie statyczne
+  "Sędzia Główny Zawodów",
+  "Przewodniczący Komisji RTS",
+  "Sędzia Główny Strzelania (konkurencji)",
+  "Kierownik Biura Obliczeń",
+  "Przewodniczący Sekcji Kontroli Broni i Wyposażenia",
+  // Pozostałe funkcje sędziowskie
+  "Sędzia Stanowiskowy",
+  "Sędzia Tarczowy",
+  "Sędzia Biura Obliczeń",
+  "Sędzia RTS",
+  "Sędzia Sekcji Kontroli Broni i Wyposażenia",
+  // Strzelanie dynamiczne — odpowiedniki funkcji kierowniczych i pozostałych
+  "Range Master (RM)",
+  "Chief Stats Officer (CSO)",
+  "Chief Range Officer (CRO)",
+  "Range Officer (RO)",
 ]);
 
 const REQUIRED_FIELDS = ["nazwa", "terminOd", "terminDo", "miejsce"];

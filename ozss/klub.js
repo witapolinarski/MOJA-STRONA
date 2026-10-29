@@ -36,20 +36,51 @@ const escapeHtml = (value) =>
 // funkcji jest "rozwiązywana" (select albo pole "inna") tuż przed wysłaniem
 // — patrz readObsadaPzssRows — więc backend (zawody.mjs, zawody-obsada-pzss.mjs)
 // zawsze dostaje gotowy tekst funkcji, niezależnie od tego, jak została wybrana.
-const PZSS_ROLE_OPTIONS = [
-  "Sędzia Główny",
-  "Zastępca Sędziego Głównego",
-  "Sekretarz Zawodów",
-  "Kierownik Strzelania",
-  "Lekarz zawodów / ratownik medyczny",
+// Funkcje sędziowskie zgodne z Regulaminem Kolegium Sędziów PZSS (§ 23 ust.
+// 9–10): "kierownicze funkcje sędziowskie" i "pozostałe funkcje sędziowskie"
+// dla strzelania statycznego, plus odpowiedniki dla strzelania dynamicznego.
+// Delegat techniczny PZSS jest pominięty — to funkcja wyznaczana przez związek
+// (pole `obsada.delegatTechniczny` przypisywane przez biuro), nie przez klub.
+const PZSS_ROLE_GROUPS = [
+  {
+    label: "Kierownicze funkcje sędziowskie",
+    roles: [
+      "Sędzia Główny Zawodów",
+      "Przewodniczący Komisji RTS",
+      "Sędzia Główny Strzelania (konkurencji)",
+      "Kierownik Biura Obliczeń",
+      "Przewodniczący Sekcji Kontroli Broni i Wyposażenia",
+    ],
+  },
+  {
+    label: "Pozostałe funkcje sędziowskie",
+    roles: [
+      "Sędzia Stanowiskowy",
+      "Sędzia Tarczowy",
+      "Sędzia Biura Obliczeń",
+      "Sędzia RTS",
+      "Sędzia Sekcji Kontroli Broni i Wyposażenia",
+    ],
+  },
+  {
+    label: "Strzelanie dynamiczne",
+    roles: ["Range Master (RM)", "Chief Stats Officer (CSO)", "Chief Range Officer (CRO)", "Range Officer (RO)"],
+  },
 ];
+const PZSS_ROLE_OPTIONS = PZSS_ROLE_GROUPS.flatMap((group) => group.roles);
 const OBSADA_PZSS_INNA = "__inna__";
 
 const obsadaPzssRowHtml = (funkcja = "", osoba = "") => {
   const isKnownRole = PZSS_ROLE_OPTIONS.includes(funkcja);
   const isCustomRole = Boolean(funkcja) && !isKnownRole;
-  const optionsHtml = PZSS_ROLE_OPTIONS.map(
-    (role) => `<option value="${escapeHtml(role)}" ${role === funkcja ? "selected" : ""}>${escapeHtml(role)}</option>`,
+  const optionsHtml = PZSS_ROLE_GROUPS.map(
+    (group) => `
+      <optgroup label="${escapeHtml(group.label)}">
+        ${group.roles
+          .map((role) => `<option value="${escapeHtml(role)}" ${role === funkcja ? "selected" : ""}>${escapeHtml(role)}</option>`)
+          .join("")}
+      </optgroup>
+    `,
   ).join("");
 
   return `
