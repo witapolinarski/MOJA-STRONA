@@ -190,6 +190,49 @@ main {
 
 .checkbox-option input { width: auto; }
 
+.obsada-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 8px;
+}
+
+.obsada-fieldset legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+.obsada-pzss-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obsada-pzss-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.obsada-pzss-row input {
+  width: 100%;
+}
+
+.obsada-pzss-list {
+  margin: 8px 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.button.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
 .button {
   display: inline-flex;
   align-items: center;

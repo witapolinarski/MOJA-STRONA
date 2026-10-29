@@ -44,6 +44,16 @@ export const DISCIPLINES = Object.freeze([
   "Inne",
 ]);
 
+// Podpowiedzi funkcji obsady wymaganej przez regulamin PZSS — klub może też
+// wpisać własną nazwę funkcji, więc to tylko lista podpowiedzi, nie zamknięty zbiór.
+export const PZSS_ROLES = Object.freeze([
+  "Sędzia Główny",
+  "Zastępca Sędziego Głównego",
+  "Sekretarz Zawodów",
+  "Kierownik Strzelania",
+  "Lekarz zawodów / ratownik medyczny",
+]);
+
 const REQUIRED_FIELDS = ["nazwa", "terminOd", "terminDo", "miejsce"];
 
 const isValidDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")) && !Number.isNaN(Date.parse(value));
@@ -61,6 +71,26 @@ export const normalizeDisciplines = (value) => {
   }
   return unique;
 };
+
+// Obsada organizacyjna zawodów wymagana przez regulamin PZSS (np. sędzia główny,
+// sekretarz zawodów, kierownik strzelania) — wpisuje ją klub, bo to on wie, kto
+// prowadzi zawody. To coś innego niż `obsada` niżej, którą przypisuje biuro
+// związku z rejestru sędziów (delegat techniczny, obserwator związkowy).
+export const normalizeObsadaPzss = (entries) => {
+  const list = Array.isArray(entries) ? entries : [];
+  return list
+    .map((entry) => ({
+      funkcja: String(entry?.funkcja || "").trim(),
+      osoba: String(entry?.osoba || "").trim(),
+    }))
+    .filter((entry) => entry.funkcja && entry.osoba);
+};
+
+export const setObsadaPzss = (competition, obsadaPzss, now = new Date()) => ({
+  ...competition,
+  obsadaPzss: normalizeObsadaPzss(obsadaPzss),
+  updatedAt: now.toISOString(),
+});
 
 export const validateCompetitionInput = (input = {}) => {
   const errors = [];
@@ -102,6 +132,7 @@ export const createCompetitionRecord = ({ id, input, klub, now = new Date() }) =
   status: STATUSES.ZGLOSZONE,
   uwagi: [],
   regulamin: [],
+  obsadaPzss: normalizeObsadaPzss(input.obsadaPzss),
   obsada: { sedziaGlowny: null, delegatTechniczny: null, obserwator: null },
   wyniki: { status: "brak", link: "", opis: "", uploadedAt: null },
   createdAt: now.toISOString(),

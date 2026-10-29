@@ -29,6 +29,14 @@
       </div>
     </header>
 
+    <datalist id="pzss-roles-list">
+      <option value="Sędzia Główny"></option>
+      <option value="Zastępca Sędziego Głównego"></option>
+      <option value="Sekretarz Zawodów"></option>
+      <option value="Kierownik Strzelania"></option>
+      <option value="Lekarz zawodów / ratownik medyczny"></option>
+    </datalist>
+
     <main>
       <section class="login-shell" id="login-section">
         <div class="card">
@@ -92,6 +100,11 @@
               Regulamin zawodów (PDF)
               <input type="file" name="regulamin" accept="application/pdf" />
             </label>
+            <fieldset class="field obsada-fieldset">
+              <legend>Obsada wymagana przez regulamin PZSS (opcjonalnie — można dopisać później)</legend>
+              <div class="obsada-pzss-rows" id="create-obsada-pzss-rows"></div>
+              <button type="button" class="button outline small add-obsada-pzss-row">+ Dodaj funkcję</button>
+            </fieldset>
             <button class="button gold" type="submit">Zgłoś zawody do związku</button>
             <p class="form-note" id="create-note" role="status"></p>
           </form>

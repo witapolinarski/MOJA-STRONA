@@ -15,6 +15,7 @@ const klubNazwaEl = document.getElementById("klub-nazwa");
 const createForm = document.getElementById("create-form");
 const createNote = document.getElementById("create-note");
 const ownList = document.getElementById("own-list");
+const createObsadaPzssRows = document.getElementById("create-obsada-pzss-rows");
 
 const getToken = () => localStorage.getItem("ozss-klub-token") || "";
 const getKlub = () => JSON.parse(localStorage.getItem("ozss-klub") || "null");
@@ -27,6 +28,42 @@ const escapeHtml = (value) =>
     '"': "&quot;",
     "'": "&#39;",
   }[char]));
+
+// Obsada wymagana przez regulamin PZSS (sędzia główny, sekretarz zawodów,
+// kierownik strzelania…) — klub wpisuje ją parami "funkcja" + "osoba" w
+// dynamicznie dodawanych wierszach. Wiersze mają takie samo name="…" w każdym
+// formularzu, więc backend łączy je po indeksie (formData.getAll zachowuje
+// porządek DOM) — patrz netlify/functions/zawody.mjs i zawody-obsada-pzss.mjs.
+const obsadaPzssRowHtml = (funkcja = "", osoba = "") => `
+  <div class="obsada-pzss-row">
+    <input type="text" name="obsadaPzssRola" list="pzss-roles-list" placeholder="Funkcja (np. Sędzia Główny)" value="${escapeHtml(funkcja)}" />
+    <input type="text" name="obsadaPzssOsoba" placeholder="Imię i nazwisko" value="${escapeHtml(osoba)}" />
+    <button type="button" class="button outline small remove-obsada-pzss-row" aria-label="Usuń pozycję">✕</button>
+  </div>
+`;
+
+const addObsadaPzssRow = (container, funkcja = "", osoba = "") => {
+  if (!container) return;
+  container.insertAdjacentHTML("beforeend", obsadaPzssRowHtml(funkcja, osoba));
+};
+
+const resetCreateObsadaPzssRows = () => {
+  createObsadaPzssRows.innerHTML = "";
+  addObsadaPzssRow(createObsadaPzssRows);
+  addObsadaPzssRow(createObsadaPzssRows);
+  addObsadaPzssRow(createObsadaPzssRows);
+};
+
+document.addEventListener("click", (event) => {
+  if (event.target.classList.contains("add-obsada-pzss-row")) {
+    const rows = event.target.closest(".obsada-fieldset, .obsada-pzss-edit-form")?.querySelector(".obsada-pzss-rows");
+    addObsadaPzssRow(rows);
+  } else if (event.target.classList.contains("remove-obsada-pzss-row")) {
+    event.target.closest(".obsada-pzss-row")?.remove();
+  }
+});
+
+resetCreateObsadaPzssRows();
 
 const apiFetch = async (url, options = {}) => {
   const response = await fetch(url, {
@@ -105,6 +142,7 @@ createForm.addEventListener("submit", async (event) => {
     createNote.textContent = "Zgłoszono zawody. Czekają na akceptację związku.";
     createNote.classList.add("ok");
     createForm.reset();
+    resetCreateObsadaPzssRows();
     loadOwnCompetitions();
   } catch (error) {
     createNote.textContent = error.message;
@@ -163,6 +201,41 @@ const renderRegulationLink = (competition) => {
   )}&t=${encodeURIComponent(getToken())}" target="_blank" rel="noopener">Regulamin (wersja ${latest.version}) ↗</a></p>`;
 };
 
+// Obsada wymagana przez regulamin PZSS — klub wpisuje ją przy zgłaszaniu albo
+// (częściej) później, gdy wie już, kto będzie prowadził zawody. Dlatego poza
+// polami na formularzu zgłoszenia jest też edytowalna sekcja na każdej karcie
+// własnego zgłoszenia, dopóki zawody nie są odwołane/zrealizowane.
+const renderObsadaPzssSection = (competition) => {
+  const list = competition.obsadaPzss || [];
+  const listHtml = list.length
+    ? `<ul class="obsada-pzss-list">${list
+        .map((entry) => `<li>${escapeHtml(entry.funkcja)}: ${escapeHtml(entry.osoba)}</li>`)
+        .join("")}</ul>`
+    : `<p class="competition-meta">Nie podano jeszcze obsady wymaganej przez regulamin PZSS.</p>`;
+
+  const editable = !["odwolane", "zrealizowane"].includes(competition.status);
+  if (!editable) {
+    return `<div class="obsada-pzss-section"><strong>Obsada wymagana przez regulamin PZSS</strong>${listHtml}</div>`;
+  }
+
+  const rows = list.length
+    ? list.map((entry) => obsadaPzssRowHtml(entry.funkcja, entry.osoba)).join("")
+    : obsadaPzssRowHtml();
+
+  return `
+    <details class="obsada-pzss-section">
+      <summary><strong>Obsada wymagana przez regulamin PZSS</strong> (kliknij, aby edytować)</summary>
+      ${listHtml}
+      <form class="obsada-pzss-edit-form" data-id="${competition.id}">
+        <div class="obsada-pzss-rows">${rows}</div>
+        <button type="button" class="button outline small add-obsada-pzss-row">+ Dodaj funkcję</button>
+        <button class="button outline" type="submit">Zapisz obsadę PZSS</button>
+      </form>
+      <p class="form-note obsada-pzss-note"></p>
+    </details>
+  `;
+};
+
 const renderCard = (competition) => `
   <article class="competition-card">
     <div class="competition-card-head">
@@ -175,6 +248,7 @@ const renderCard = (competition) => `
     </div>
     ${renderRegulationLink(competition)}
     ${renderNotes(competition.uwagi)}
+    ${renderObsadaPzssSection(competition)}
     ${renderActions(competition)}
   </article>
 `;
@@ -196,6 +270,30 @@ const attachCardHandlers = () => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Błąd.");
         note.textContent = "Zgłoszono ponownie.";
+        note.classList.add("ok");
+        loadOwnCompetitions();
+      } catch (error) {
+        note.textContent = error.message;
+      }
+    });
+  });
+
+  document.querySelectorAll(".obsada-pzss-edit-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const note = form.nextElementSibling;
+      note.textContent = "Zapisywanie…";
+      try {
+        const funkcje = [...form.querySelectorAll('[name="obsadaPzssRola"]')].map((input) => input.value);
+        const osoby = [...form.querySelectorAll('[name="obsadaPzssOsoba"]')].map((input) => input.value);
+        const obsadaPzss = funkcje.map((funkcja, index) => ({ funkcja, osoba: osoby[index] }));
+
+        await apiFetch("/.netlify/functions/zawody-obsada-pzss", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: form.dataset.id, obsadaPzss }),
+        });
+        note.textContent = "Zapisano obsadę PZSS.";
         note.classList.add("ok");
         loadOwnCompetitions();
       } catch (error) {
