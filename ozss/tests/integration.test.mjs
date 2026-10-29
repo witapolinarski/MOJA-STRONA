@@ -293,7 +293,7 @@ test("zgłoszenie bez zaznaczonej dyscypliny jest odrzucane, a kilka dyscyplin n
   const threeDisciplinesForm = new FormData();
   threeDisciplinesForm.set("nazwa", "Zawody wielodyscyplinowe");
   threeDisciplinesForm.append("dyscyplina", "Karabin");
-  threeDisciplinesForm.append("dyscyplina", "Strzelba (brokowe)");
+  threeDisciplinesForm.append("dyscyplina", "Strzelba");
   threeDisciplinesForm.append("dyscyplina", "Pistolet");
   threeDisciplinesForm.set("terminOd", "2026-09-05");
   threeDisciplinesForm.set("terminDo", "2026-09-05");
@@ -308,5 +308,5 @@ test("zgłoszenie bez zaznaczonej dyscypliny jest odrzucane, a kilka dyscyplin n
   );
   assert.equal(accepted.status, 201);
   const { competition } = await accepted.json();
-  assert.deepEqual(competition.dyscypliny, ["Karabin", "Strzelba (brokowe)", "Pistolet"]);
+  assert.deepEqual(competition.dyscypliny, ["Karabin", "Strzelba", "Pistolet"]);
 });

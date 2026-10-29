@@ -39,7 +39,7 @@ export const canTransition = (from, to) => (ALLOWED_TRANSITIONS[from] || []).inc
 export const DISCIPLINES = Object.freeze([
   "Pistolet",
   "Karabin",
-  "Strzelba (brokowe)",
+  "Strzelba",
   "Broń czarnoprochowa",
   "Inne",
 ]);

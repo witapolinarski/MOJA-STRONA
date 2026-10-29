@@ -50,7 +50,7 @@ test("validateCompetitionInput wymaga co najmniej jednej dyscypliny", () => {
 });
 
 test("validateCompetitionInput akceptuje kilka dyscyplin naraz", () => {
-  const errors = validateCompetitionInput({ ...validInput(), dyscypliny: ["Karabin", "Strzelba (brokowe)"] });
+  const errors = validateCompetitionInput({ ...validInput(), dyscypliny: ["Karabin", "Strzelba"] });
   assert.deepEqual(errors, []);
 });
 
@@ -63,13 +63,13 @@ test("normalizeDisciplines usuwa duplikaty i puste wartości, przyjmuje też poj
 test("createCompetitionRecord startuje w statusie zgloszone, liczy rok z terminu i zapisuje wiele dyscyplin", () => {
   const competition = createCompetitionRecord({
     id: "zawody-1",
-    input: { ...validInput(), dyscypliny: ["Karabin", "Strzelba (brokowe)"] },
+    input: { ...validInput(), dyscypliny: ["Karabin", "Strzelba"] },
     klub,
   });
   assert.equal(competition.status, STATUSES.ZGLOSZONE);
   assert.equal(competition.rok, 2026);
   assert.equal(competition.klubId, klub.id);
-  assert.deepEqual(competition.dyscypliny, ["Karabin", "Strzelba (brokowe)"]);
+  assert.deepEqual(competition.dyscypliny, ["Karabin", "Strzelba"]);
   assert.deepEqual(competition.obsada, { sedziaGlowny: null, delegatTechniczny: null, obserwator: null });
 });
 
