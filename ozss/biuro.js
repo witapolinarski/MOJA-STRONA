@@ -153,6 +153,21 @@ const renderRegulationLink = (competition) => {
   return `<p class="competition-meta"><a href="/.netlify/functions/zawody-plik?key=${encodeURIComponent(latest.key)}&t=${getToken()}" target="_blank" rel="noopener">Regulamin (wersja ${latest.version}) ↗</a></p>`;
 };
 
+// Obsadę wymaganą przez regulamin PZSS wpisuje klub (patrz klub.js) — biuro
+// widzi ją tylko do odczytu, obok obsady sędziowskiej, którą przypisuje samo.
+const renderObsadaPzss = (competition) => {
+  const list = competition.obsadaPzss || [];
+  if (!list.length) return "";
+  return `
+    <div class="obsada-pzss-section">
+      <strong>Obsada wymagana przez regulamin PZSS (wpisana przez klub):</strong>
+      <ul class="obsada-pzss-list">${list
+        .map((entry) => `<li>${escapeHtml(entry.funkcja)}: ${escapeHtml(entry.osoba)}</li>`)
+        .join("")}</ul>
+    </div>
+  `;
+};
+
 const renderNotes = (uwagi = []) => {
   if (!uwagi.length) return "";
   return `<div class="notes-list">${uwagi
@@ -168,13 +183,14 @@ const renderCompetitionCard = (competition) => `
     <div class="competition-card-head">
       <div>
         <h3>${escapeHtml(competition.nazwa)}</h3>
-        <p class="competition-meta">${escapeHtml(competition.klubNazwa)} · ${escapeHtml(competition.dyscyplina)} · ${escapeHtml(competition.miejsce)}</p>
+        <p class="competition-meta">${escapeHtml(competition.klubNazwa)} · ${escapeHtml((competition.dyscypliny || []).join(", "))} · ${escapeHtml(competition.miejsce)}</p>
         <p class="competition-meta">${competition.terminOd} – ${competition.terminDo}</p>
       </div>
       <span class="badge ${competition.status}">${STATUS_LABELS[competition.status] || competition.status}</span>
     </div>
     ${renderRegulationLink(competition)}
     ${renderNotes(competition.uwagi)}
+    ${renderObsadaPzss(competition)}
     ${renderStatusActions(competition)}
     ${renderObsadaForm(competition)}
     ${renderResultsForm(competition)}

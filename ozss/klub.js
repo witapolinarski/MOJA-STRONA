@@ -15,6 +15,7 @@ const klubNazwaEl = document.getElementById("klub-nazwa");
 const createForm = document.getElementById("create-form");
 const createNote = document.getElementById("create-note");
 const ownList = document.getElementById("own-list");
+const createObsadaPzssRows = document.getElementById("create-obsada-pzss-rows");
 
 const getToken = () => localStorage.getItem("ozss-klub-token") || "";
 const getKlub = () => JSON.parse(localStorage.getItem("ozss-klub") || "null");
@@ -27,6 +28,180 @@ const escapeHtml = (value) =>
     '"': "&quot;",
     "'": "&#39;",
   }[char]));
+
+// Obsada wymagana przez regulamin PZSS (sędzia główny, sekretarz zawodów,
+// kierownik strzelania…) — klub wybiera funkcję z rozwijanej listy (albo
+// "Inna funkcja…", co odkrywa pole do wpisania własnej nazwy) i wpisuje
+// osobę. Wiersze mają takie samo name="…" w każdym formularzu, a wartość
+// funkcji jest "rozwiązywana" (select albo pole "inna") tuż przed wysłaniem
+// — patrz readObsadaPzssRows — więc backend (zawody.mjs, zawody-obsada-pzss.mjs)
+// zawsze dostaje gotowy tekst funkcji, niezależnie od tego, jak została wybrana.
+// Funkcje sędziowskie zgodne z Regulaminem Kolegium Sędziów PZSS (§ 23 ust.
+// 9–10): "kierownicze funkcje sędziowskie" i "pozostałe funkcje sędziowskie"
+// dla strzelania statycznego, plus odpowiedniki dla strzelania dynamicznego.
+// Delegat techniczny PZSS jest pominięty — to funkcja wyznaczana przez związek
+// (pole `obsada.delegatTechniczny` przypisywane przez biuro), nie przez klub.
+//
+// Obserwator WZSS/OZSS jest też wyznaczany przez związek (prezes WZSS/OZSS
+// albo z jego upoważnienia przewodniczący Kolegium Sędziów — "Obserwator WZSS
+// - zasady", archiwum PZSS), ale — tak jak przy innych funkcjach kierowniczych
+// — klub może zaproponować kandydata, a związek zatwierdza albo wyznacza kogoś
+// innego (ostateczne przypisanie widać w sekcji "Obsada przydzielona przez
+// związek" — patrz renderObsadaZwiazku). Dlatego jest w osobnej grupie, nie
+// wśród zwykłych funkcji sędziowskich, z adnotacją o wymaganej klasie.
+const PZSS_ROLE_GROUPS = [
+  {
+    label: "Kierownicze funkcje sędziowskie",
+    roles: [
+      "Sędzia Główny Zawodów",
+      "Przewodniczący Komisji RTS",
+      "Sędzia Główny Strzelania (konkurencji)",
+      "Kierownik Biura Obliczeń",
+      "Przewodniczący Sekcji Kontroli Broni i Wyposażenia",
+    ],
+  },
+  {
+    label: "Obserwator związkowy — kandydat proponowany przez klub",
+    roles: ["Obserwator WZSS/OZSS"],
+  },
+  {
+    label: "Pozostałe funkcje sędziowskie",
+    roles: [
+      "Sędzia Stanowiskowy",
+      "Sędzia Tarczowy",
+      "Sędzia Biura Obliczeń",
+      "Sędzia RTS",
+      "Sędzia Sekcji Kontroli Broni i Wyposażenia",
+    ],
+  },
+  {
+    label: "Strzelanie dynamiczne",
+    roles: ["Range Master (RM)", "Chief Stats Officer (CSO)", "Chief Range Officer (CRO)", "Range Officer (RO)"],
+  },
+];
+const PZSS_ROLE_OPTIONS = PZSS_ROLE_GROUPS.flatMap((group) => group.roles);
+const OBSADA_PZSS_INNA = "__inna__";
+
+// Adnotacje o wymaganej klasie sędziowskiej — pokazują się pod wierszem, gdy
+// klub wybierze daną funkcję, żeby wiedział, kogo realnie może zaproponować.
+// Klasa trzecia nie uprawnia do funkcji kierowniczych (Regulamin Kolegium
+// Sędziów PZSS/WZSS § 7 pkt 1), a klasa druga (w strzelaniu dynamicznym:
+// Range Officer II) już uprawnia do funkcji kierowniczych na zawodach rangi
+// WZSS/OZSS (czyli poza centralnym kalendarzem PZSS) — tej samej klasy
+// wymaga się więc od obserwatora, bo pod nieobecność innego wyznaczonego
+// obserwatora jego funkcję wypełnia sędzia główny zawodów (patrz "Obserwator
+// WZSS - zasady"). Przykład z realnych zawodów WZSS (portal.wzss.pl) też
+// potwierdza obsadę obserwatora sędzią klasy II (Range Officer II).
+const PZSS_ROLE_HINTS = {
+  "Obserwator WZSS/OZSS":
+    "Wymagana min. II klasa sędziowska (w strzelaniu dynamicznym: Range Officer – klasa II). " +
+    "Klasa trzecia nie uprawnia do funkcji kierowniczych. Związek i tak zatwierdza albo wyznacza " +
+    "obserwatora samodzielnie — to tylko propozycja klubu.",
+};
+
+const obsadaPzssRowHtml = (funkcja = "", osoba = "") => {
+  const isKnownRole = PZSS_ROLE_OPTIONS.includes(funkcja);
+  const isCustomRole = Boolean(funkcja) && !isKnownRole;
+  const hint = PZSS_ROLE_HINTS[funkcja] || "";
+  const optionsHtml = PZSS_ROLE_GROUPS.map(
+    (group) => `
+      <optgroup label="${escapeHtml(group.label)}">
+        ${group.roles
+          .map((role) => `<option value="${escapeHtml(role)}" ${role === funkcja ? "selected" : ""}>${escapeHtml(role)}</option>`)
+          .join("")}
+      </optgroup>
+    `,
+  ).join("");
+
+  return `
+    <div class="obsada-pzss-row">
+      <div class="obsada-pzss-rola-wrap">
+        <select name="obsadaPzssRola" class="obsada-pzss-rola-select">
+          <option value="" ${funkcja ? "" : "selected"}>— wybierz funkcję —</option>
+          ${optionsHtml}
+          <option value="${OBSADA_PZSS_INNA}" ${isCustomRole ? "selected" : ""}>Inna funkcja…</option>
+        </select>
+        <input
+          type="text"
+          class="obsada-pzss-rola-inna"
+          placeholder="Wpisz nazwę funkcji"
+          value="${escapeHtml(isCustomRole ? funkcja : "")}"
+          ${isCustomRole ? "" : "hidden"}
+        />
+        <p class="obsada-pzss-rola-hint" ${hint ? "" : "hidden"}>${escapeHtml(hint)}</p>
+      </div>
+      <input type="text" name="obsadaPzssOsoba" placeholder="Imię i nazwisko" value="${escapeHtml(osoba)}" />
+      <button type="button" class="button outline small remove-obsada-pzss-row" aria-label="Usuń pozycję">✕</button>
+    </div>
+  `;
+};
+
+const addObsadaPzssRow = (container, funkcja = "", osoba = "") => {
+  if (!container) return;
+  container.insertAdjacentHTML("beforeend", obsadaPzssRowHtml(funkcja, osoba));
+};
+
+const resetCreateObsadaPzssRows = () => {
+  createObsadaPzssRows.innerHTML = "";
+  addObsadaPzssRow(createObsadaPzssRows);
+  addObsadaPzssRow(createObsadaPzssRows);
+  addObsadaPzssRow(createObsadaPzssRows);
+};
+
+// Czyta aktualną wartość "funkcji" z wiersza: wartość rozwijanej listy, albo —
+// gdy wybrano "Inna funkcja…" — treść towarzyszącego jej pola tekstowego.
+const readObsadaPzssRowFunkcja = (row) => {
+  const select = row.querySelector(".obsada-pzss-rola-select");
+  if (!select) return "";
+  if (select.value === OBSADA_PZSS_INNA) {
+    return row.querySelector(".obsada-pzss-rola-inna")?.value || "";
+  }
+  return select.value;
+};
+
+const readObsadaPzssRows = (container) =>
+  [...(container?.querySelectorAll(".obsada-pzss-row") || [])].map((row) => ({
+    funkcja: readObsadaPzssRowFunkcja(row),
+    osoba: row.querySelector('[name="obsadaPzssOsoba"]')?.value || "",
+  }));
+
+document.addEventListener("click", (event) => {
+  if (event.target.classList.contains("add-obsada-pzss-row")) {
+    const rows = event.target.closest(".obsada-fieldset, .obsada-pzss-edit-form")?.querySelector(".obsada-pzss-rows");
+    addObsadaPzssRow(rows);
+  } else if (event.target.classList.contains("remove-obsada-pzss-row")) {
+    event.target.closest(".obsada-pzss-row")?.remove();
+  }
+});
+
+// Wybranie "Inna funkcja…" odkrywa pole tekstowe do wpisania własnej nazwy;
+// powrót do znanej funkcji z listy chowa je i czyści, żeby nie wysłać śmieci.
+// Wybranie funkcji z adnotacją (np. "Obserwator WZSS/OZSS") pokazuje pod
+// wierszem informację o wymaganej klasie sędziowskiej — patrz PZSS_ROLE_HINTS.
+document.addEventListener("change", (event) => {
+  if (!event.target.classList.contains("obsada-pzss-rola-select")) return;
+  const wrap = event.target.closest(".obsada-pzss-rola-wrap");
+  const innaInput = wrap?.querySelector(".obsada-pzss-rola-inna");
+  const hintEl = wrap?.querySelector(".obsada-pzss-rola-hint");
+
+  if (innaInput) {
+    if (event.target.value === OBSADA_PZSS_INNA) {
+      innaInput.hidden = false;
+      innaInput.focus();
+    } else {
+      innaInput.hidden = true;
+      innaInput.value = "";
+    }
+  }
+
+  if (hintEl) {
+    const hint = PZSS_ROLE_HINTS[event.target.value] || "";
+    hintEl.textContent = hint;
+    hintEl.hidden = !hint;
+  }
+});
+
+resetCreateObsadaPzssRows();
 
 const apiFetch = async (url, options = {}) => {
   const response = await fetch(url, {
@@ -91,6 +266,20 @@ createForm.addEventListener("submit", async (event) => {
 
   try {
     const formData = new FormData(createForm);
+    if (!formData.getAll("dyscyplina").length) {
+      throw new Error("Wybierz co najmniej jedną dyscyplinę.");
+    }
+
+    // formData.getAll("obsadaPzssRola") złapałoby surową wartość <select>
+    // (np. sentinel "__inna__"), więc funkcję liczymy osobno przez
+    // readObsadaPzssRows i nadpisujemy pary rola/osoba gotowym tekstem.
+    formData.delete("obsadaPzssRola");
+    formData.delete("obsadaPzssOsoba");
+    for (const { funkcja, osoba } of readObsadaPzssRows(createObsadaPzssRows)) {
+      formData.append("obsadaPzssRola", funkcja);
+      formData.append("obsadaPzssOsoba", osoba);
+    }
+
     const response = await fetch("/.netlify/functions/zawody", {
       method: "POST",
       headers: { Authorization: `Bearer ${getToken()}` },
@@ -102,6 +291,7 @@ createForm.addEventListener("submit", async (event) => {
     createNote.textContent = "Zgłoszono zawody. Czekają na akceptację związku.";
     createNote.classList.add("ok");
     createForm.reset();
+    resetCreateObsadaPzssRows();
     loadOwnCompetitions();
   } catch (error) {
     createNote.textContent = error.message;
@@ -160,18 +350,77 @@ const renderRegulationLink = (competition) => {
   )}&t=${encodeURIComponent(getToken())}" target="_blank" rel="noopener">Regulamin (wersja ${latest.version}) ↗</a></p>`;
 };
 
+// Obsada przydzielona przez związek (sędzia główny, delegat techniczny PZSS,
+// obserwator WZSS/OZSS) — to biuro przypisuje te funkcje z rejestru sędziów
+// (zawody-obsada.mjs), nie klub. Klub musi jednak widzieć wynik tego
+// przypisania na własnym zgłoszeniu, tak samo jak widzi to publiczny
+// kalendarz (patrz script.js, renderObsada) — inaczej np. obserwator
+// przydzielony przez związek byłby dla klubu niewidoczny we własnym panelu.
+const renderObsadaZwiazku = (competition) => {
+  const entries = [
+    ["Sędzia główny", competition.obsada?.sedziaGlowny],
+    ["Delegat techniczny", competition.obsada?.delegatTechniczny],
+    ["Obserwator", competition.obsada?.obserwator],
+  ].filter(([, person]) => person);
+
+  const listHtml = entries.length
+    ? `<div class="obsada-list">${entries
+        .map(([role, person]) => `<span><strong>${escapeHtml(role)}:</strong> ${escapeHtml(person.imieNazwisko)}</span>`)
+        .join("")}</div>`
+    : `<p class="competition-meta">Związek nie przydzielił jeszcze obsady sędziowskiej (sędzia główny / delegat techniczny / obserwator).</p>`;
+
+  return `<div class="obsada-section"><strong>Obsada przydzielona przez związek</strong>${listHtml}</div>`;
+};
+
+// Obsada wymagana przez regulamin PZSS — klub wpisuje ją przy zgłaszaniu albo
+// (częściej) później, gdy wie już, kto będzie prowadził zawody. Dlatego poza
+// polami na formularzu zgłoszenia jest też edytowalna sekcja na każdej karcie
+// własnego zgłoszenia, dopóki zawody nie są odwołane/zrealizowane.
+const renderObsadaPzssSection = (competition) => {
+  const list = competition.obsadaPzss || [];
+  const listHtml = list.length
+    ? `<ul class="obsada-pzss-list">${list
+        .map((entry) => `<li>${escapeHtml(entry.funkcja)}: ${escapeHtml(entry.osoba)}</li>`)
+        .join("")}</ul>`
+    : `<p class="competition-meta">Nie podano jeszcze obsady wymaganej przez regulamin PZSS.</p>`;
+
+  const editable = !["odwolane", "zrealizowane"].includes(competition.status);
+  if (!editable) {
+    return `<div class="obsada-pzss-section"><strong>Obsada wymagana przez regulamin PZSS</strong>${listHtml}</div>`;
+  }
+
+  const rows = list.length
+    ? list.map((entry) => obsadaPzssRowHtml(entry.funkcja, entry.osoba)).join("")
+    : obsadaPzssRowHtml();
+
+  return `
+    <details class="obsada-pzss-section">
+      <summary><strong>Obsada wymagana przez regulamin PZSS</strong> (kliknij, aby edytować)</summary>
+      ${listHtml}
+      <form class="obsada-pzss-edit-form" data-id="${competition.id}">
+        <div class="obsada-pzss-rows">${rows}</div>
+        <button type="button" class="button outline small add-obsada-pzss-row">+ Dodaj funkcję</button>
+        <button class="button outline" type="submit">Zapisz obsadę PZSS</button>
+      </form>
+      <p class="form-note obsada-pzss-note"></p>
+    </details>
+  `;
+};
+
 const renderCard = (competition) => `
   <article class="competition-card">
     <div class="competition-card-head">
       <div>
         <h3>${escapeHtml(competition.nazwa)}</h3>
-        <p class="competition-meta">${escapeHtml(competition.dyscyplina)} · ${escapeHtml(competition.miejsce)}</p>
+        <p class="competition-meta">${escapeHtml((competition.dyscypliny || []).join(", "))} · ${escapeHtml(competition.miejsce)}</p>
         <p class="competition-meta">${competition.terminOd} – ${competition.terminDo}</p>
       </div>
       <span class="badge ${competition.status}">${STATUS_LABELS[competition.status] || competition.status}</span>
     </div>
     ${renderRegulationLink(competition)}
     ${renderNotes(competition.uwagi)}
+    ${renderObsadaZwiazku(competition)}
+    ${renderObsadaPzssSection(competition)}
     ${renderActions(competition)}
   </article>
 `;
@@ -193,6 +442,28 @@ const attachCardHandlers = () => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Błąd.");
         note.textContent = "Zgłoszono ponownie.";
+        note.classList.add("ok");
+        loadOwnCompetitions();
+      } catch (error) {
+        note.textContent = error.message;
+      }
+    });
+  });
+
+  document.querySelectorAll(".obsada-pzss-edit-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const note = form.nextElementSibling;
+      note.textContent = "Zapisywanie…";
+      try {
+        const obsadaPzss = readObsadaPzssRows(form.querySelector(".obsada-pzss-rows"));
+
+        await apiFetch("/.netlify/functions/zawody-obsada-pzss", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: form.dataset.id, obsadaPzss }),
+        });
+        note.textContent = "Zapisano obsadę PZSS.";
         note.classList.add("ok");
         loadOwnCompetitions();
       } catch (error) {

@@ -165,6 +165,100 @@ main {
 
 .field textarea { resize: vertical; min-height: 70px; }
 
+.discipline-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 6px;
+}
+
+.discipline-fieldset legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  color: var(--text);
+  flex-direction: row;
+}
+
+.checkbox-option input { width: auto; }
+
+.obsada-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 8px;
+}
+
+.obsada-fieldset legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+.obsada-pzss-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obsada-pzss-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.obsada-pzss-row input {
+  width: 100%;
+}
+
+.obsada-pzss-rola-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obsada-pzss-rola-wrap select,
+.obsada-pzss-rola-wrap input {
+  width: 100%;
+}
+
+.obsada-pzss-rola-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--status-do_poprawy);
+  background: #fff8ec;
+  border: 1px solid var(--gold-light);
+  border-radius: 6px;
+  padding: 6px 9px;
+}
+
+.obsada-pzss-row .remove-obsada-pzss-row {
+  margin-top: 1px;
+}
+
+.obsada-pzss-list {
+  margin: 8px 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.button.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -248,6 +342,15 @@ main {
 }
 
 .obsada-list strong { color: var(--text); }
+
+.obsada-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: 14px;
+}
+
+.obsada-section > strong { display: block; margin-bottom: 2px; }
 
 .notes-list {
   margin-top: 10px;

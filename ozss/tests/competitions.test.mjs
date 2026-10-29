@@ -13,6 +13,9 @@ import {
   filterForPublic,
   groupByYear,
   InvalidTransitionError,
+  normalizeDisciplines,
+  normalizeObsadaPzss,
+  setObsadaPzss,
   sortByTermin,
   transitionStatus,
   validateCompetitionInput,
@@ -23,7 +26,7 @@ const klub = { id: "klub-test", nazwa: "KS Testowy" };
 
 const validInput = () => ({
   nazwa: "Mistrzostwa Województwa",
-  dyscyplina: "Pistolet",
+  dyscypliny: ["Pistolet"],
   terminOd: "2026-05-10",
   terminDo: "2026-05-11",
   miejsce: "Strzelnica Opole",
@@ -43,11 +46,32 @@ test("validateCompetitionInput przepuszcza poprawne dane", () => {
   assert.deepEqual(validateCompetitionInput(validInput()), []);
 });
 
-test("createCompetitionRecord startuje w statusie zgloszone i liczy rok z terminu", () => {
-  const competition = createCompetitionRecord({ id: "zawody-1", input: validInput(), klub });
+test("validateCompetitionInput wymaga co najmniej jednej dyscypliny", () => {
+  const errors = validateCompetitionInput({ ...validInput(), dyscypliny: [] });
+  assert.ok(errors.some((error) => error.includes("dyscyplinę")));
+});
+
+test("validateCompetitionInput akceptuje kilka dyscyplin naraz", () => {
+  const errors = validateCompetitionInput({ ...validInput(), dyscypliny: ["Karabin", "Strzelba"] });
+  assert.deepEqual(errors, []);
+});
+
+test("normalizeDisciplines usuwa duplikaty i puste wartości, przyjmuje też pojedynczy string", () => {
+  assert.deepEqual(normalizeDisciplines(["Karabin", "Pistolet", "Karabin", ""]), ["Karabin", "Pistolet"]);
+  assert.deepEqual(normalizeDisciplines("Pistolet"), ["Pistolet"]);
+  assert.deepEqual(normalizeDisciplines([]), []);
+});
+
+test("createCompetitionRecord startuje w statusie zgloszone, liczy rok z terminu i zapisuje wiele dyscyplin", () => {
+  const competition = createCompetitionRecord({
+    id: "zawody-1",
+    input: { ...validInput(), dyscypliny: ["Karabin", "Strzelba"] },
+    klub,
+  });
   assert.equal(competition.status, STATUSES.ZGLOSZONE);
   assert.equal(competition.rok, 2026);
   assert.equal(competition.klubId, klub.id);
+  assert.deepEqual(competition.dyscypliny, ["Karabin", "Strzelba"]);
   assert.deepEqual(competition.obsada, { sedziaGlowny: null, delegatTechniczny: null, obserwator: null });
 });
 
@@ -146,4 +170,45 @@ test("addNote odfiltrowuje puste uwagi", () => {
   const competition = createCompetitionRecord({ id: "zawody-7", input: validInput(), klub });
   const next = addNote(competition, { autor: "klub", tekst: "   " });
   assert.equal(next.uwagi.length, 0);
+});
+
+test("normalizeObsadaPzss odfiltrowuje niekompletne wiersze (brak funkcji lub osoby)", () => {
+  assert.deepEqual(
+    normalizeObsadaPzss([
+      { funkcja: "Sędzia Główny", osoba: "Jan Kowalski" },
+      { funkcja: "  ", osoba: "Pusta Funkcja" },
+      { funkcja: "Sekretarz Zawodów", osoba: "" },
+      { funkcja: " Kierownik Strzelania ", osoba: " Anna Nowak " },
+    ]),
+    [
+      { funkcja: "Sędzia Główny", osoba: "Jan Kowalski" },
+      { funkcja: "Kierownik Strzelania", osoba: "Anna Nowak" },
+    ],
+  );
+  assert.deepEqual(normalizeObsadaPzss(), []);
+  assert.deepEqual(normalizeObsadaPzss(undefined), []);
+});
+
+test("createCompetitionRecord zapisuje obsadę PZSS podaną przy zgłoszeniu", () => {
+  const competition = createCompetitionRecord({
+    id: "zawody-8",
+    input: { ...validInput(), obsadaPzss: [{ funkcja: "Sędzia Główny", osoba: "Jan Kowalski" }] },
+    klub,
+  });
+  assert.deepEqual(competition.obsadaPzss, [{ funkcja: "Sędzia Główny", osoba: "Jan Kowalski" }]);
+});
+
+test("createCompetitionRecord domyślnie zapisuje pustą obsadę PZSS, gdy klub jej nie podał", () => {
+  const competition = createCompetitionRecord({ id: "zawody-9", input: validInput(), klub });
+  assert.deepEqual(competition.obsadaPzss, []);
+});
+
+test("setObsadaPzss zastępuje całą obsadę PZSS i normalizuje wpisy", () => {
+  const competition = createCompetitionRecord({ id: "zawody-10", input: validInput(), klub });
+  const next = setObsadaPzss(competition, [
+    { funkcja: "Sędzia Główny", osoba: "Jan Kowalski" },
+    { funkcja: "", osoba: "Bez funkcji" },
+  ]);
+  assert.deepEqual(next.obsadaPzss, [{ funkcja: "Sędzia Główny", osoba: "Jan Kowalski" }]);
+  assert.ok(!Number.isNaN(Date.parse(next.updatedAt)));
 });

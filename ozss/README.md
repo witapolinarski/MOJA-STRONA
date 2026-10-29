@@ -9,10 +9,21 @@ potrzeba).
 ## Co robi
 
 - **Klub zrzeszony** loguje się kodem i hasłem (nadanym przez biuro) i zgłasza
-  zawody formularzem: nazwa, dyscyplina, termin, miejsce, regulamin (PDF).
-- **Biuro związku** widzi zgłoszenia, zatwierdza je albo odsyła z uwagą
-  (z historią wersji regulaminu), przypisuje obsadę sędziowską (sędzia
-  główny, delegat techniczny, obserwator) z rejestru sędziów, odwołuje zawody.
+  zawody formularzem: nazwa, dyscyplina (można zaznaczyć kilka naraz, np.
+  karabin i strzelba jednocześnie), termin, miejsce, regulamin (PDF), oraz
+  **obsadę wymaganą przez regulamin PZSS** — klub wybiera z rozwijanej listy
+  funkcje zgodne z Regulaminem Kolegium Sędziów PZSS (sędzia główny zawodów,
+  przewodniczący komisji RTS, sędzia główny strzelania, kierownik biura
+  obliczeń, sędzia stanowiskowy/tarczowy itd., z opcją „Inna funkcja…” na
+  wszystko, czego nie przewiduje lista), parami funkcja/osoba, od razu albo
+  później, gdy już wie, kto prowadzi zawody. Klub może tu też **zaproponować
+  kandydata na obserwatora WZSS/OZSS** — formularz pokazuje wtedy adnotację
+  o wymaganej min. II klasie sędziowskiej (w strzelaniu dynamicznym: Range
+  Officer – klasa II); ostateczne przypisanie i tak należy do związku.
+- **Biuro związku** widzi zgłoszenia (w tym obsadę PZSS zgłoszoną przez klub,
+  tylko do odczytu), zatwierdza je albo odsyła z uwagą (z historią wersji
+  regulaminu), przypisuje własną obsadę związkową (sędzia główny, delegat
+  techniczny, obserwator) z rejestru sędziów, odwołuje zawody.
 - Po zawodach klub albo biuro dodaje **link do wyników** — zawody przechodzą
   w status „zrealizowane”.
 - **Kalendarz publiczny** (strona główna, bez logowania) pokazuje zawody
@@ -68,7 +79,8 @@ cd ozss
 npm test
 ```
 
-27 testów: logika maszyny stanów zgłoszenia, autoryzacja, rejestr klubów oraz
+36 testów: logika maszyny stanów zgłoszenia, autoryzacja, rejestr klubów,
+obsada wymagana przez regulamin PZSS (wpisywana i poprawiana przez klub) oraz
 pełny test integracyjny przez prawdziwe handlery HTTP (logowanie biura →
 utworzenie klubu → zgłoszenie zawodów z plikiem → akceptacja → obsada →
 wyniki → widoczność publiczna), na magazynie lokalnym.
@@ -116,7 +128,7 @@ moduł — najlepiej dodawać je pojedynczo, gdy kalendarz już działa w praniu
 | `klub.html`, `klub.js` | Panel klubu zrzeszonego |
 | `biuro.html`, `biuro.js` | Panel biura związku |
 | `styles.css` | Wspólne style |
-| `netlify/functions/` | API (logowanie, zawody, sędziowie, kluby, pliki) |
+| `netlify/functions/` | API (logowanie, zawody, obsada PZSS, sędziowie, kluby, pliki) |
 | `netlify/functions/lib/` | Logika domenowa i magazyn danych |
 | `tests/` | Testy (`node --test`) |
 | `dev-server.mjs` | Serwer do podglądu lokalnego bez Netlify CLI |
