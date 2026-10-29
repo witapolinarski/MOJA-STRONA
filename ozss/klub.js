@@ -91,6 +91,9 @@ createForm.addEventListener("submit", async (event) => {
 
   try {
     const formData = new FormData(createForm);
+    if (!formData.getAll("dyscyplina").length) {
+      throw new Error("Wybierz co najmniej jedną dyscyplinę.");
+    }
     const response = await fetch("/.netlify/functions/zawody", {
       method: "POST",
       headers: { Authorization: `Bearer ${getToken()}` },
@@ -165,7 +168,7 @@ const renderCard = (competition) => `
     <div class="competition-card-head">
       <div>
         <h3>${escapeHtml(competition.nazwa)}</h3>
-        <p class="competition-meta">${escapeHtml(competition.dyscyplina)} · ${escapeHtml(competition.miejsce)}</p>
+        <p class="competition-meta">${escapeHtml((competition.dyscypliny || []).join(", "))} · ${escapeHtml(competition.miejsce)}</p>
         <p class="competition-meta">${competition.terminOd} – ${competition.terminDo}</p>
       </div>
       <span class="badge ${competition.status}">${STATUS_LABELS[competition.status] || competition.status}</span>

@@ -168,7 +168,7 @@ const renderCompetitionCard = (competition) => `
     <div class="competition-card-head">
       <div>
         <h3>${escapeHtml(competition.nazwa)}</h3>
-        <p class="competition-meta">${escapeHtml(competition.klubNazwa)} · ${escapeHtml(competition.dyscyplina)} · ${escapeHtml(competition.miejsce)}</p>
+        <p class="competition-meta">${escapeHtml(competition.klubNazwa)} · ${escapeHtml((competition.dyscypliny || []).join(", "))} · ${escapeHtml(competition.miejsce)}</p>
         <p class="competition-meta">${competition.terminOd} – ${competition.terminDo}</p>
       </div>
       <span class="badge ${competition.status}">${STATUS_LABELS[competition.status] || competition.status}</span>

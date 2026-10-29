@@ -73,10 +73,12 @@ test("pełny przepływ: logowanie biura, utworzenie klubu, zgłoszenie zawodów,
   );
   assert.equal(badLogin.status, 401);
 
-  // 4. Klub zgłasza zawody z regulaminem PDF.
+  // 4. Klub zgłasza zawody z regulaminem PDF, zaznaczając dwie dyscypliny naraz
+  // (checkboxy wysyłają wielokrotne pola o tej samej nazwie).
   const formData = new FormData();
   formData.set("nazwa", "Wojewódzkie Zawody Pistoletowe");
-  formData.set("dyscyplina", "Pistolet");
+  formData.append("dyscyplina", "Pistolet");
+  formData.append("dyscyplina", "Karabin");
   formData.set("terminOd", "2026-06-10");
   formData.set("terminDo", "2026-06-11");
   formData.set("miejsce", "Strzelnica OZSS Opole");
@@ -93,6 +95,7 @@ test("pełny przepływ: logowanie biura, utworzenie klubu, zgłoszenie zawodów,
   const { competition: created } = await createCompetitionResponse.json();
   assert.equal(created.status, "zgloszone");
   assert.equal(created.regulamin.length, 1);
+  assert.deepEqual(created.dyscypliny, ["Pistolet", "Karabin"]);
 
   // 5. Zawody w statusie "zgłoszone" nie są widoczne publicznie.
   const publicBeforeApproval = await zawody(getRequest("https://ozss.test/zawody"));
@@ -207,7 +210,7 @@ test("odesłanie do poprawy wymaga uwagi i blokuje dostęp publiczny do regulami
 
   const formData = new FormData();
   formData.set("nazwa", "Zawody Testowe");
-  formData.set("dyscyplina", "Karabin");
+  formData.append("dyscyplina", "Karabin");
   formData.set("terminOd", "2026-09-01");
   formData.set("terminDo", "2026-09-01");
   formData.set("miejsce", "Strzelnica X");
@@ -252,4 +255,58 @@ test("odesłanie do poprawy wymaga uwagi i blokuje dostęp publiczny do regulami
     ),
   );
   assert.equal(invalidResultsAttempt.status, 409);
+});
+
+test("zgłoszenie bez zaznaczonej dyscypliny jest odrzucane, a kilka dyscyplin naraz jest akceptowane", async () => {
+  const biuroLoginResponse = await biuroLogin(
+    jsonRequest("https://ozss.test/biuro-login", "POST", { password: "sekret-biura-testowego" }),
+  );
+  const { token: biuroToken } = await biuroLoginResponse.json();
+
+  const createClubResponse = await biuroKluby(
+    jsonRequest("https://ozss.test/biuro-kluby", "POST", { nazwa: "Klub Wielodyscyplinowy", password: "haslo123456" }, biuroToken),
+  );
+  const { club } = await createClubResponse.json();
+
+  const klubLoginResponse = await klubLogin(
+    jsonRequest("https://ozss.test/klub-login", "POST", { klubId: club.id, password: "haslo123456" }),
+  );
+  const { token: klubToken } = await klubLoginResponse.json();
+
+  const noDisciplineForm = new FormData();
+  noDisciplineForm.set("nazwa", "Zawody bez dyscypliny");
+  noDisciplineForm.set("terminOd", "2026-09-01");
+  noDisciplineForm.set("terminDo", "2026-09-01");
+  noDisciplineForm.set("miejsce", "Strzelnica X");
+
+  const rejected = await zawody(
+    new Request("https://ozss.test/zawody", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${klubToken}` },
+      body: noDisciplineForm,
+    }),
+  );
+  assert.equal(rejected.status, 400);
+  const rejectedBody = await rejected.json();
+  assert.ok(rejectedBody.error.includes("dyscyplinę"));
+
+  const threeDisciplinesForm = new FormData();
+  threeDisciplinesForm.set("nazwa", "Zawody wielodyscyplinowe");
+  threeDisciplinesForm.append("dyscyplina", "Karabin");
+  threeDisciplinesForm.append("dyscyplina", "Strzelba (brokowe)");
+  threeDisciplinesForm.append("dyscyplina", "Pistolet");
+  threeDisciplinesForm.set("terminOd", "2026-09-05");
+  threeDisciplinesForm.set("terminDo", "2026-09-05");
+  threeDisciplinesForm.set("miejsce", "Strzelnica Y");
+
+  const accepted = await zawody(
+    new Request("https://ozss.test/zawody", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${klubToken}` },
+      body: threeDisciplinesForm,
+    }),
+  );
+  assert.equal(accepted.status, 201);
+  const { competition } = await accepted.json();
+  assert.deepEqual(competition.dyscypliny, ["Karabin", "Strzelba (brokowe)", "Pistolet"]);
 });

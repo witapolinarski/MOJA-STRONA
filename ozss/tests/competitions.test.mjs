@@ -13,6 +13,7 @@ import {
   filterForPublic,
   groupByYear,
   InvalidTransitionError,
+  normalizeDisciplines,
   sortByTermin,
   transitionStatus,
   validateCompetitionInput,
@@ -23,7 +24,7 @@ const klub = { id: "klub-test", nazwa: "KS Testowy" };
 
 const validInput = () => ({
   nazwa: "Mistrzostwa Województwa",
-  dyscyplina: "Pistolet",
+  dyscypliny: ["Pistolet"],
   terminOd: "2026-05-10",
   terminDo: "2026-05-11",
   miejsce: "Strzelnica Opole",
@@ -43,11 +44,32 @@ test("validateCompetitionInput przepuszcza poprawne dane", () => {
   assert.deepEqual(validateCompetitionInput(validInput()), []);
 });
 
-test("createCompetitionRecord startuje w statusie zgloszone i liczy rok z terminu", () => {
-  const competition = createCompetitionRecord({ id: "zawody-1", input: validInput(), klub });
+test("validateCompetitionInput wymaga co najmniej jednej dyscypliny", () => {
+  const errors = validateCompetitionInput({ ...validInput(), dyscypliny: [] });
+  assert.ok(errors.some((error) => error.includes("dyscyplinę")));
+});
+
+test("validateCompetitionInput akceptuje kilka dyscyplin naraz", () => {
+  const errors = validateCompetitionInput({ ...validInput(), dyscypliny: ["Karabin", "Strzelba (brokowe)"] });
+  assert.deepEqual(errors, []);
+});
+
+test("normalizeDisciplines usuwa duplikaty i puste wartości, przyjmuje też pojedynczy string", () => {
+  assert.deepEqual(normalizeDisciplines(["Karabin", "Pistolet", "Karabin", ""]), ["Karabin", "Pistolet"]);
+  assert.deepEqual(normalizeDisciplines("Pistolet"), ["Pistolet"]);
+  assert.deepEqual(normalizeDisciplines([]), []);
+});
+
+test("createCompetitionRecord startuje w statusie zgloszone, liczy rok z terminu i zapisuje wiele dyscyplin", () => {
+  const competition = createCompetitionRecord({
+    id: "zawody-1",
+    input: { ...validInput(), dyscypliny: ["Karabin", "Strzelba (brokowe)"] },
+    klub,
+  });
   assert.equal(competition.status, STATUSES.ZGLOSZONE);
   assert.equal(competition.rok, 2026);
   assert.equal(competition.klubId, klub.id);
+  assert.deepEqual(competition.dyscypliny, ["Karabin", "Strzelba (brokowe)"]);
   assert.deepEqual(competition.obsada, { sedziaGlowny: null, delegatTechniczny: null, obserwator: null });
 });
 

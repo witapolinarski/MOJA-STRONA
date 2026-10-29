@@ -165,6 +165,31 @@ main {
 
 .field textarea { resize: vertical; min-height: 70px; }
 
+.discipline-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 6px;
+}
+
+.discipline-fieldset legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  color: var(--text);
+  flex-direction: row;
+}
+
+.checkbox-option input { width: auto; }
+
 .button {
   display: inline-flex;
   align-items: center;

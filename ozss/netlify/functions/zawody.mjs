@@ -49,7 +49,7 @@ export default async (request) => {
       const formData = await request.formData();
       const input = {
         nazwa: formData.get("nazwa"),
-        dyscyplina: formData.get("dyscyplina"),
+        dyscypliny: formData.getAll("dyscyplina"),
         terminOd: formData.get("terminOd"),
         terminDo: formData.get("terminDo"),
         miejsce: formData.get("miejsce"),
