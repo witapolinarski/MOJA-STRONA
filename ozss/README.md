@@ -9,7 +9,8 @@ potrzeba).
 ## Co robi
 
 - **Klub zrzeszony** loguje się kodem i hasłem (nadanym przez biuro) i zgłasza
-  zawody formularzem: nazwa, dyscyplina, termin, miejsce, regulamin (PDF).
+  zawody formularzem: nazwa, dyscyplina (można zaznaczyć kilka naraz, np.
+  karabin i strzelba jednocześnie), termin, miejsce, regulamin (PDF).
 - **Biuro związku** widzi zgłoszenia, zatwierdza je albo odsyła z uwagą
   (z historią wersji regulaminu), przypisuje obsadę sędziowską (sędzia
   główny, delegat techniczny, obserwator) z rejestru sędziów, odwołuje zawody.

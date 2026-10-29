@@ -44,15 +44,33 @@ export const DISCIPLINES = Object.freeze([
   "Inne",
 ]);
 
-const REQUIRED_FIELDS = ["nazwa", "dyscyplina", "terminOd", "terminDo", "miejsce"];
+const REQUIRED_FIELDS = ["nazwa", "terminOd", "terminDo", "miejsce"];
 
 const isValidDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")) && !Number.isNaN(Date.parse(value));
+
+// Zawody mogą obejmować kilka dyscyplin na raz (np. karabin i strzelba
+// jednocześnie), więc "dyscyplina" jest zawsze tablicą — przyjmujemy
+// zarówno tablicę (checkboxy / formData.getAll), jak i pojedynczy string,
+// dla wygody wywołań programistycznych i testów.
+export const normalizeDisciplines = (value) => {
+  const values = Array.isArray(value) ? value : [value];
+  const unique = [];
+  for (const raw of values) {
+    const trimmed = String(raw || "").trim();
+    if (trimmed && !unique.includes(trimmed)) unique.push(trimmed);
+  }
+  return unique;
+};
 
 export const validateCompetitionInput = (input = {}) => {
   const errors = [];
 
   for (const field of REQUIRED_FIELDS) {
     if (!String(input[field] || "").trim()) errors.push(`Brakuje pola: ${field}`);
+  }
+
+  if (normalizeDisciplines(input.dyscypliny).length === 0) {
+    errors.push("Wybierz co najmniej jedną dyscyplinę.");
   }
 
   if (isValidDate(input.terminOd) && isValidDate(input.terminDo)) {
@@ -74,7 +92,7 @@ export const createCompetitionRecord = ({ id, input, klub, now = new Date() }) =
   id,
   rok: yearOfCompetition(input),
   nazwa: String(input.nazwa).trim(),
-  dyscyplina: String(input.dyscyplina).trim(),
+  dyscypliny: normalizeDisciplines(input.dyscypliny),
   klubId: klub.id,
   klubNazwa: klub.nazwa,
   terminOd: input.terminOd,

@@ -62,17 +62,14 @@
               Nazwa zawodów
               <input type="text" name="nazwa" required />
             </label>
-            <label class="field">
-              Dyscyplina
-              <select name="dyscyplina" required>
-                <option value="">Wybierz…</option>
-                <option>Pistolet</option>
-                <option>Karabin</option>
-                <option>Strzelba (brokowe)</option>
-                <option>Broń czarnoprochowa</option>
-                <option>Inne</option>
-              </select>
-            </label>
+            <fieldset class="field discipline-fieldset">
+              <legend>Dyscyplina (można wybrać kilka)</legend>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Pistolet" /> Pistolet</label>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Karabin" /> Karabin</label>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Strzelba (brokowe)" /> Strzelba (brokowe)</label>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Broń czarnoprochowa" /> Broń czarnoprochowa</label>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Inne" /> Inne</label>
+            </fieldset>
             <div class="inline-form">
               <label class="field">
                 Termin od
