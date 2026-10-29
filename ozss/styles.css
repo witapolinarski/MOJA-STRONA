@@ -214,11 +214,26 @@ main {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: 8px;
-  align-items: center;
+  align-items: start;
 }
 
 .obsada-pzss-row input {
   width: 100%;
+}
+
+.obsada-pzss-rola-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obsada-pzss-rola-wrap select,
+.obsada-pzss-rola-wrap input {
+  width: 100%;
+}
+
+.obsada-pzss-row .remove-obsada-pzss-row {
+  margin-top: 1px;
 }
 
 .obsada-pzss-list {

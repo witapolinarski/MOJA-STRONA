@@ -30,17 +30,49 @@ const escapeHtml = (value) =>
   }[char]));
 
 // Obsada wymagana przez regulamin PZSS (sędzia główny, sekretarz zawodów,
-// kierownik strzelania…) — klub wpisuje ją parami "funkcja" + "osoba" w
-// dynamicznie dodawanych wierszach. Wiersze mają takie samo name="…" w każdym
-// formularzu, więc backend łączy je po indeksie (formData.getAll zachowuje
-// porządek DOM) — patrz netlify/functions/zawody.mjs i zawody-obsada-pzss.mjs.
-const obsadaPzssRowHtml = (funkcja = "", osoba = "") => `
-  <div class="obsada-pzss-row">
-    <input type="text" name="obsadaPzssRola" list="pzss-roles-list" placeholder="Funkcja (np. Sędzia Główny)" value="${escapeHtml(funkcja)}" />
-    <input type="text" name="obsadaPzssOsoba" placeholder="Imię i nazwisko" value="${escapeHtml(osoba)}" />
-    <button type="button" class="button outline small remove-obsada-pzss-row" aria-label="Usuń pozycję">✕</button>
-  </div>
-`;
+// kierownik strzelania…) — klub wybiera funkcję z rozwijanej listy (albo
+// "Inna funkcja…", co odkrywa pole do wpisania własnej nazwy) i wpisuje
+// osobę. Wiersze mają takie samo name="…" w każdym formularzu, a wartość
+// funkcji jest "rozwiązywana" (select albo pole "inna") tuż przed wysłaniem
+// — patrz readObsadaPzssRows — więc backend (zawody.mjs, zawody-obsada-pzss.mjs)
+// zawsze dostaje gotowy tekst funkcji, niezależnie od tego, jak została wybrana.
+const PZSS_ROLE_OPTIONS = [
+  "Sędzia Główny",
+  "Zastępca Sędziego Głównego",
+  "Sekretarz Zawodów",
+  "Kierownik Strzelania",
+  "Lekarz zawodów / ratownik medyczny",
+];
+const OBSADA_PZSS_INNA = "__inna__";
+
+const obsadaPzssRowHtml = (funkcja = "", osoba = "") => {
+  const isKnownRole = PZSS_ROLE_OPTIONS.includes(funkcja);
+  const isCustomRole = Boolean(funkcja) && !isKnownRole;
+  const optionsHtml = PZSS_ROLE_OPTIONS.map(
+    (role) => `<option value="${escapeHtml(role)}" ${role === funkcja ? "selected" : ""}>${escapeHtml(role)}</option>`,
+  ).join("");
+
+  return `
+    <div class="obsada-pzss-row">
+      <div class="obsada-pzss-rola-wrap">
+        <select name="obsadaPzssRola" class="obsada-pzss-rola-select">
+          <option value="" ${funkcja ? "" : "selected"}>— wybierz funkcję —</option>
+          ${optionsHtml}
+          <option value="${OBSADA_PZSS_INNA}" ${isCustomRole ? "selected" : ""}>Inna funkcja…</option>
+        </select>
+        <input
+          type="text"
+          class="obsada-pzss-rola-inna"
+          placeholder="Wpisz nazwę funkcji"
+          value="${escapeHtml(isCustomRole ? funkcja : "")}"
+          ${isCustomRole ? "" : "hidden"}
+        />
+      </div>
+      <input type="text" name="obsadaPzssOsoba" placeholder="Imię i nazwisko" value="${escapeHtml(osoba)}" />
+      <button type="button" class="button outline small remove-obsada-pzss-row" aria-label="Usuń pozycję">✕</button>
+    </div>
+  `;
+};
 
 const addObsadaPzssRow = (container, funkcja = "", osoba = "") => {
   if (!container) return;
@@ -54,12 +86,45 @@ const resetCreateObsadaPzssRows = () => {
   addObsadaPzssRow(createObsadaPzssRows);
 };
 
+// Czyta aktualną wartość "funkcji" z wiersza: wartość rozwijanej listy, albo —
+// gdy wybrano "Inna funkcja…" — treść towarzyszącego jej pola tekstowego.
+const readObsadaPzssRowFunkcja = (row) => {
+  const select = row.querySelector(".obsada-pzss-rola-select");
+  if (!select) return "";
+  if (select.value === OBSADA_PZSS_INNA) {
+    return row.querySelector(".obsada-pzss-rola-inna")?.value || "";
+  }
+  return select.value;
+};
+
+const readObsadaPzssRows = (container) =>
+  [...(container?.querySelectorAll(".obsada-pzss-row") || [])].map((row) => ({
+    funkcja: readObsadaPzssRowFunkcja(row),
+    osoba: row.querySelector('[name="obsadaPzssOsoba"]')?.value || "",
+  }));
+
 document.addEventListener("click", (event) => {
   if (event.target.classList.contains("add-obsada-pzss-row")) {
     const rows = event.target.closest(".obsada-fieldset, .obsada-pzss-edit-form")?.querySelector(".obsada-pzss-rows");
     addObsadaPzssRow(rows);
   } else if (event.target.classList.contains("remove-obsada-pzss-row")) {
     event.target.closest(".obsada-pzss-row")?.remove();
+  }
+});
+
+// Wybranie "Inna funkcja…" odkrywa pole tekstowe do wpisania własnej nazwy;
+// powrót do znanej funkcji z listy chowa je i czyści, żeby nie wysłać śmieci.
+document.addEventListener("change", (event) => {
+  if (!event.target.classList.contains("obsada-pzss-rola-select")) return;
+  const wrap = event.target.closest(".obsada-pzss-rola-wrap");
+  const innaInput = wrap?.querySelector(".obsada-pzss-rola-inna");
+  if (!innaInput) return;
+  if (event.target.value === OBSADA_PZSS_INNA) {
+    innaInput.hidden = false;
+    innaInput.focus();
+  } else {
+    innaInput.hidden = true;
+    innaInput.value = "";
   }
 });
 
@@ -131,6 +196,17 @@ createForm.addEventListener("submit", async (event) => {
     if (!formData.getAll("dyscyplina").length) {
       throw new Error("Wybierz co najmniej jedną dyscyplinę.");
     }
+
+    // formData.getAll("obsadaPzssRola") złapałoby surową wartość <select>
+    // (np. sentinel "__inna__"), więc funkcję liczymy osobno przez
+    // readObsadaPzssRows i nadpisujemy pary rola/osoba gotowym tekstem.
+    formData.delete("obsadaPzssRola");
+    formData.delete("obsadaPzssOsoba");
+    for (const { funkcja, osoba } of readObsadaPzssRows(createObsadaPzssRows)) {
+      formData.append("obsadaPzssRola", funkcja);
+      formData.append("obsadaPzssOsoba", osoba);
+    }
+
     const response = await fetch("/.netlify/functions/zawody", {
       method: "POST",
       headers: { Authorization: `Bearer ${getToken()}` },
@@ -284,9 +360,7 @@ const attachCardHandlers = () => {
       const note = form.nextElementSibling;
       note.textContent = "Zapisywanie…";
       try {
-        const funkcje = [...form.querySelectorAll('[name="obsadaPzssRola"]')].map((input) => input.value);
-        const osoby = [...form.querySelectorAll('[name="obsadaPzssOsoba"]')].map((input) => input.value);
-        const obsadaPzss = funkcje.map((funkcja, index) => ({ funkcja, osoba: osoby[index] }));
+        const obsadaPzss = readObsadaPzssRows(form.querySelector(".obsada-pzss-rows"));
 
         await apiFetch("/.netlify/functions/zawody-obsada-pzss", {
           method: "PATCH",
