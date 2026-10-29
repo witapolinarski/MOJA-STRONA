@@ -4,3 +4,7 @@ tmp/
 # Local Netlify folder
 .netlify
 scripts/
+
+# Kalendarz OZSS — lokalny magazyn zastępczy (patrz ozss/netlify/functions/lib/store.mjs)
+ozss/.data/
+ozss/.data-test-*/

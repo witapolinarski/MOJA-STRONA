@@ -1,0 +1,58 @@
+name: Deploy kalendarz OZSS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "ozss/**"
+      - ".github/workflows/deploy-ozss.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.OZSS_NETLIFY_AUTH_TOKEN != '' && secrets.OZSS_NETLIFY_SITE_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ozss/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ozss
+        run: npm install
+
+      - name: Run tests
+        working-directory: ozss
+        run: npm test
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: ./ozss
+          functions-dir: ./ozss/netlify/functions
+          production-branch: main
+          production-deploy: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy kalendarz OZSS z ${{ github.sha }}"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.OZSS_NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.OZSS_NETLIFY_SITE_ID }}
+        timeout-minutes: 10
+
+  notify-missing-secrets:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.OZSS_NETLIFY_AUTH_TOKEN == '' || secrets.OZSS_NETLIFY_SITE_ID == '' }}
+    steps:
+      - name: Netlify secrets missing
+        run: |
+          echo "::error::Brak OZSS_NETLIFY_AUTH_TOKEN lub OZSS_NETLIFY_SITE_ID w sekretach repozytorium GitHub."
+          echo "Dodaj je w Settings -> Secrets -> Actions, albo wdrażaj kalendarz OZSS bezpośrednio z Netlify (Base directory = ozss)."
+          exit 1

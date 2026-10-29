@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel klubu | Kalendarz OZSS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="app-header-inner">
+        <a class="brand" href="/">
+          <span class="brand-mark">OZSS</span>
+          <span>
+            <strong>Opolski Związek Strzelectwa Sportowego</strong>
+            <small>Panel klubu</small>
+          </span>
+        </a>
+        <nav class="app-nav">
+          <a href="/">Kalendarz</a>
+          <a href="/klub.html" class="active">Panel klubu</a>
+          <a href="/biuro.html">Panel związku</a>
+          <button type="button" id="logout-button" class="hidden">Wyloguj</button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="login-shell" id="login-section">
+        <div class="card">
+          <h1>Logowanie klubu</h1>
+          <p>Zaloguj się kodem klubu i hasłem ustalonym przez biuro związku.</p>
+          <form id="login-form" class="form-grid">
+            <label class="field">
+              Kod klubu
+              <input type="text" id="login-klubid" required autocomplete="username" placeholder="np. ks-opole" />
+            </label>
+            <label class="field">
+              Hasło
+              <input type="password" id="login-password" required autocomplete="current-password" />
+            </label>
+            <button class="button primary" type="submit">Zaloguj się</button>
+            <p class="form-note" id="login-note" role="status"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="hidden" id="panel-section">
+        <div class="hero">
+          <h1>Witaj, <span id="klub-nazwa">klubie</span></h1>
+          <p>Zgłaszaj zawody do kalendarza wojewódzkiego i śledź status rozpatrzenia przez związek.</p>
+        </div>
+
+        <div class="panel-section card">
+          <h2>Zgłoś nowe zawody</h2>
+          <form id="create-form" class="form-grid">
+            <label class="field">
+              Nazwa zawodów
+              <input type="text" name="nazwa" required />
+            </label>
+            <label class="field">
+              Dyscyplina
+              <select name="dyscyplina" required>
+                <option value="">Wybierz…</option>
+                <option>Pistolet</option>
+                <option>Karabin</option>
+                <option>Strzelba (brokowe)</option>
+                <option>Broń czarnoprochowa</option>
+                <option>Inne</option>
+              </select>
+            </label>
+            <div class="inline-form">
+              <label class="field">
+                Termin od
+                <input type="date" name="terminOd" required />
+              </label>
+              <label class="field">
+                Termin do
+                <input type="date" name="terminDo" required />
+              </label>
+            </div>
+            <label class="field">
+              Miejsce
+              <input type="text" name="miejsce" required placeholder="Strzelnica, miasto" />
+            </label>
+            <label class="field">
+              Opis / uwagi (opcjonalnie)
+              <textarea name="opis"></textarea>
+            </label>
+            <label class="field">
+              Regulamin zawodów (PDF)
+              <input type="file" name="regulamin" accept="application/pdf" />
+            </label>
+            <button class="button gold" type="submit">Zgłoś zawody do związku</button>
+            <p class="form-note" id="create-note" role="status"></p>
+          </form>
+        </div>
+
+        <div class="panel-section">
+          <h2>Moje zgłoszenia</h2>
+          <div id="own-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">Opolski Związek Strzelectwa Sportowego — panel klubu zrzeszonego</footer>
+
+    <script type="module" src="klub.js"></script>
+  </body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel biura związku | Kalendarz OZSS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="app-header-inner">
+        <a class="brand" href="/">
+          <span class="brand-mark">OZSS</span>
+          <span>
+            <strong>Opolski Związek Strzelectwa Sportowego</strong>
+            <small>Panel biura związku</small>
+          </span>
+        </a>
+        <nav class="app-nav">
+          <a href="/">Kalendarz</a>
+          <a href="/klub.html">Panel klubu</a>
+          <a href="/biuro.html" class="active">Panel związku</a>
+          <button type="button" id="logout-button" class="hidden">Wyloguj</button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="login-shell" id="login-section">
+        <div class="card">
+          <h1>Logowanie biura związku</h1>
+          <p>Dostęp dla zarządu i biura OZSS.</p>
+          <form id="login-form" class="form-grid">
+            <label class="field">
+              Hasło
+              <input type="password" id="login-password" required autocomplete="current-password" />
+            </label>
+            <button class="button primary" type="submit">Zaloguj się</button>
+            <p class="form-note" id="login-note" role="status"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="hidden" id="panel-section">
+        <div class="hero">
+          <h1>Panel biura związku</h1>
+          <p>Zgłoszenia zawodów, obsada sędziowska, rejestr sędziów i kluby zrzeszone.</p>
+        </div>
+
+        <nav class="tabs" id="tabs">
+          <button type="button" data-tab="zgloszenia" class="is-active">Zgłoszenia zawodów</button>
+          <button type="button" data-tab="sedziowie">Sędziowie</button>
+          <button type="button" data-tab="kluby">Kluby zrzeszone</button>
+        </nav>
+
+        <section id="tab-zgloszenia" class="tab-panel">
+          <div class="toolbar">
+            <label class="field">
+              Status
+              <select id="zgloszenia-filter">
+                <option value="">Wszystkie</option>
+                <option value="zgloszone">Zgłoszone</option>
+                <option value="do_poprawy">Do poprawy</option>
+                <option value="zaakceptowane">Zaakceptowane</option>
+                <option value="zrealizowane">Zrealizowane</option>
+                <option value="odwolane">Odwołane</option>
+              </select>
+            </label>
+          </div>
+          <div id="zgloszenia-list"></div>
+        </section>
+
+        <section id="tab-sedziowie" class="tab-panel hidden">
+          <div class="panel-section card">
+            <h2>Nowy sędzia</h2>
+            <form id="judge-form" class="inline-form">
+              <label class="field">Imię <input type="text" name="imie" required /></label>
+              <label class="field">Nazwisko <input type="text" name="nazwisko" required /></label>
+              <label class="field">
+                Klasa sędziowska
+                <select name="klasa">
+                  <option value="">—</option>
+                  <option>Sędzia klasy III</option>
+                  <option>Sędzia klasy II</option>
+                  <option>Sędzia klasy I</option>
+                  <option>Sędzia klasy państwowej</option>
+                </select>
+              </label>
+              <label class="field">Telefon <input type="text" name="telefon" /></label>
+              <label class="field">E-mail <input type="email" name="email" /></label>
+              <label class="field">
+                Ważność licencji
+                <input type="date" name="licencjaDo" />
+              </label>
+              <button class="button gold" type="submit">Dodaj sędziego</button>
+            </form>
+            <p class="form-note" id="judge-note"></p>
+          </div>
+          <div id="judges-table"></div>
+        </section>
+
+        <section id="tab-kluby" class="tab-panel hidden">
+          <div class="panel-section card">
+            <h2>Nowy klub zrzeszony</h2>
+            <form id="club-form" class="inline-form">
+              <label class="field">Nazwa klubu <input type="text" name="nazwa" required /></label>
+              <label class="field">Miejscowość <input type="text" name="miejscowosc" /></label>
+              <label class="field">E-mail <input type="email" name="kontaktEmail" /></label>
+              <label class="field">Telefon <input type="text" name="kontaktTelefon" /></label>
+              <label class="field">Hasło do logowania klubu <input type="text" name="password" required minlength="6" /></label>
+              <button class="button gold" type="submit">Utwórz konto klubu</button>
+            </form>
+            <p class="form-note" id="club-note"></p>
+          </div>
+          <div id="clubs-table"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="app-footer">Opolski Związek Strzelectwa Sportowego — panel biura</footer>
+
+    <script type="module" src="biuro.js"></script>
+  </body>
+</html>
