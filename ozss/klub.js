@@ -308,6 +308,28 @@ const renderRegulationLink = (competition) => {
   )}&t=${encodeURIComponent(getToken())}" target="_blank" rel="noopener">Regulamin (wersja ${latest.version}) ↗</a></p>`;
 };
 
+// Obsada przydzielona przez związek (sędzia główny, delegat techniczny PZSS,
+// obserwator WZSS/OZSS) — to biuro przypisuje te funkcje z rejestru sędziów
+// (zawody-obsada.mjs), nie klub. Klub musi jednak widzieć wynik tego
+// przypisania na własnym zgłoszeniu, tak samo jak widzi to publiczny
+// kalendarz (patrz script.js, renderObsada) — inaczej np. obserwator
+// przydzielony przez związek byłby dla klubu niewidoczny we własnym panelu.
+const renderObsadaZwiazku = (competition) => {
+  const entries = [
+    ["Sędzia główny", competition.obsada?.sedziaGlowny],
+    ["Delegat techniczny", competition.obsada?.delegatTechniczny],
+    ["Obserwator", competition.obsada?.obserwator],
+  ].filter(([, person]) => person);
+
+  const listHtml = entries.length
+    ? `<div class="obsada-list">${entries
+        .map(([role, person]) => `<span><strong>${escapeHtml(role)}:</strong> ${escapeHtml(person.imieNazwisko)}</span>`)
+        .join("")}</div>`
+    : `<p class="competition-meta">Związek nie przydzielił jeszcze obsady sędziowskiej (sędzia główny / delegat techniczny / obserwator).</p>`;
+
+  return `<div class="obsada-section"><strong>Obsada przydzielona przez związek</strong>${listHtml}</div>`;
+};
+
 // Obsada wymagana przez regulamin PZSS — klub wpisuje ją przy zgłaszaniu albo
 // (częściej) później, gdy wie już, kto będzie prowadził zawody. Dlatego poza
 // polami na formularzu zgłoszenia jest też edytowalna sekcja na każdej karcie
@@ -355,6 +377,7 @@ const renderCard = (competition) => `
     </div>
     ${renderRegulationLink(competition)}
     ${renderNotes(competition.uwagi)}
+    ${renderObsadaZwiazku(competition)}
     ${renderObsadaPzssSection(competition)}
     ${renderActions(competition)}
   </article>

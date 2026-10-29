@@ -332,6 +332,15 @@ main {
 
 .obsada-list strong { color: var(--text); }
 
+.obsada-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: 14px;
+}
+
+.obsada-section > strong { display: block; margin-bottom: 2px; }
+
 .notes-list {
   margin-top: 10px;
   padding-top: 10px;
