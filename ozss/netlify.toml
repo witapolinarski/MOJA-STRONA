@@ -1,0 +1,45 @@
+# Kalendarz zawodów OZSS — samodzielna aplikacja w katalogu ozss/.
+#
+# Ten plik jest używany, gdy w Netlify (nowa witryna) ustawiono:
+#   Base directory = ozss
+# Wtedy "publish" i "functions" poniżej są liczone względnie od ozss/,
+# czyli ten sam wzorzec co w strzelam/netlify.toml dla drugiej podstrony
+# tego repozytorium.
+
+[build]
+  publish = "."
+  command = "npm install"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/biuro"
+  to = "/biuro.html"
+  status = 200
+
+[[redirects]]
+  from = "/klub"
+  to = "/klub.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/biuro.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/klub.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
