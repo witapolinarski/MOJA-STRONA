@@ -51,6 +51,15 @@ export const DISCIPLINES = Object.freeze([
 // podpowiedzi zgodna z regulaminem, nie zamknięty zbiór. Delegat techniczny PZSS
 // jest tu pominięty, bo to funkcja wyznaczana przez związek, nie przez klub —
 // odpowiada jej pole `obsada.delegatTechniczny` przypisywane przez biuro.
+// Obserwator WZSS/OZSS jest też wyznaczany przez związek (patrz
+// `obsada.obserwator`), ale — podobnie jak przy funkcjach kierowniczych — klub
+// może zaproponować kandydata; związek i tak zatwierdza albo wyznacza kogoś
+// innego. Kandydat na obserwatora powinien mieć min. II klasę sędziowską
+// (w strzelaniu dynamicznym: Range Officer — klasa II), bo klasa trzecia nie
+// uprawnia do funkcji kierowniczych (§ 7 pkt 1 regulaminu), a to minimalna
+// klasa wymagana dla funkcji kierowniczych na zawodach rangi WZSS/OZSS —
+// potwierdza to też rzeczywista obsada z zawodów WZSS (portal.wzss.pl), gdzie
+// obserwatora wypełnił sędzia klasy II (Range Officer II).
 export const PZSS_ROLES = Object.freeze([
   // Kierownicze funkcje sędziowskie — strzelanie statyczne
   "Sędzia Główny Zawodów",
@@ -58,6 +67,8 @@ export const PZSS_ROLES = Object.freeze([
   "Sędzia Główny Strzelania (konkurencji)",
   "Kierownik Biura Obliczeń",
   "Przewodniczący Sekcji Kontroli Broni i Wyposażenia",
+  // Obserwator związkowy — kandydat proponowany przez klub, min. II klasa
+  "Obserwator WZSS/OZSS",
   // Pozostałe funkcje sędziowskie
   "Sędzia Stanowiskowy",
   "Sędzia Tarczowy",

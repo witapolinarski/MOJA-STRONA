@@ -232,6 +232,17 @@ main {
   width: 100%;
 }
 
+.obsada-pzss-rola-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--status-do_poprawy);
+  background: #fff8ec;
+  border: 1px solid var(--gold-light);
+  border-radius: 6px;
+  padding: 6px 9px;
+}
+
 .obsada-pzss-row .remove-obsada-pzss-row {
   margin-top: 1px;
 }

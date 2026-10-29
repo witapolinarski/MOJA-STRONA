@@ -41,6 +41,14 @@ const escapeHtml = (value) =>
 // dla strzelania statycznego, plus odpowiedniki dla strzelania dynamicznego.
 // Delegat techniczny PZSS jest pominięty — to funkcja wyznaczana przez związek
 // (pole `obsada.delegatTechniczny` przypisywane przez biuro), nie przez klub.
+//
+// Obserwator WZSS/OZSS jest też wyznaczany przez związek (prezes WZSS/OZSS
+// albo z jego upoważnienia przewodniczący Kolegium Sędziów — "Obserwator WZSS
+// - zasady", archiwum PZSS), ale — tak jak przy innych funkcjach kierowniczych
+// — klub może zaproponować kandydata, a związek zatwierdza albo wyznacza kogoś
+// innego (ostateczne przypisanie widać w sekcji "Obsada przydzielona przez
+// związek" — patrz renderObsadaZwiazku). Dlatego jest w osobnej grupie, nie
+// wśród zwykłych funkcji sędziowskich, z adnotacją o wymaganej klasie.
 const PZSS_ROLE_GROUPS = [
   {
     label: "Kierownicze funkcje sędziowskie",
@@ -51,6 +59,10 @@ const PZSS_ROLE_GROUPS = [
       "Kierownik Biura Obliczeń",
       "Przewodniczący Sekcji Kontroli Broni i Wyposażenia",
     ],
+  },
+  {
+    label: "Obserwator związkowy — kandydat proponowany przez klub",
+    roles: ["Obserwator WZSS/OZSS"],
   },
   {
     label: "Pozostałe funkcje sędziowskie",
@@ -70,9 +82,27 @@ const PZSS_ROLE_GROUPS = [
 const PZSS_ROLE_OPTIONS = PZSS_ROLE_GROUPS.flatMap((group) => group.roles);
 const OBSADA_PZSS_INNA = "__inna__";
 
+// Adnotacje o wymaganej klasie sędziowskiej — pokazują się pod wierszem, gdy
+// klub wybierze daną funkcję, żeby wiedział, kogo realnie może zaproponować.
+// Klasa trzecia nie uprawnia do funkcji kierowniczych (Regulamin Kolegium
+// Sędziów PZSS/WZSS § 7 pkt 1), a klasa druga (w strzelaniu dynamicznym:
+// Range Officer II) już uprawnia do funkcji kierowniczych na zawodach rangi
+// WZSS/OZSS (czyli poza centralnym kalendarzem PZSS) — tej samej klasy
+// wymaga się więc od obserwatora, bo pod nieobecność innego wyznaczonego
+// obserwatora jego funkcję wypełnia sędzia główny zawodów (patrz "Obserwator
+// WZSS - zasady"). Przykład z realnych zawodów WZSS (portal.wzss.pl) też
+// potwierdza obsadę obserwatora sędzią klasy II (Range Officer II).
+const PZSS_ROLE_HINTS = {
+  "Obserwator WZSS/OZSS":
+    "Wymagana min. II klasa sędziowska (w strzelaniu dynamicznym: Range Officer – klasa II). " +
+    "Klasa trzecia nie uprawnia do funkcji kierowniczych. Związek i tak zatwierdza albo wyznacza " +
+    "obserwatora samodzielnie — to tylko propozycja klubu.",
+};
+
 const obsadaPzssRowHtml = (funkcja = "", osoba = "") => {
   const isKnownRole = PZSS_ROLE_OPTIONS.includes(funkcja);
   const isCustomRole = Boolean(funkcja) && !isKnownRole;
+  const hint = PZSS_ROLE_HINTS[funkcja] || "";
   const optionsHtml = PZSS_ROLE_GROUPS.map(
     (group) => `
       <optgroup label="${escapeHtml(group.label)}">
@@ -98,6 +128,7 @@ const obsadaPzssRowHtml = (funkcja = "", osoba = "") => {
           value="${escapeHtml(isCustomRole ? funkcja : "")}"
           ${isCustomRole ? "" : "hidden"}
         />
+        <p class="obsada-pzss-rola-hint" ${hint ? "" : "hidden"}>${escapeHtml(hint)}</p>
       </div>
       <input type="text" name="obsadaPzssOsoba" placeholder="Imię i nazwisko" value="${escapeHtml(osoba)}" />
       <button type="button" class="button outline small remove-obsada-pzss-row" aria-label="Usuń pozycję">✕</button>
@@ -145,17 +176,28 @@ document.addEventListener("click", (event) => {
 
 // Wybranie "Inna funkcja…" odkrywa pole tekstowe do wpisania własnej nazwy;
 // powrót do znanej funkcji z listy chowa je i czyści, żeby nie wysłać śmieci.
+// Wybranie funkcji z adnotacją (np. "Obserwator WZSS/OZSS") pokazuje pod
+// wierszem informację o wymaganej klasie sędziowskiej — patrz PZSS_ROLE_HINTS.
 document.addEventListener("change", (event) => {
   if (!event.target.classList.contains("obsada-pzss-rola-select")) return;
   const wrap = event.target.closest(".obsada-pzss-rola-wrap");
   const innaInput = wrap?.querySelector(".obsada-pzss-rola-inna");
-  if (!innaInput) return;
-  if (event.target.value === OBSADA_PZSS_INNA) {
-    innaInput.hidden = false;
-    innaInput.focus();
-  } else {
-    innaInput.hidden = true;
-    innaInput.value = "";
+  const hintEl = wrap?.querySelector(".obsada-pzss-rola-hint");
+
+  if (innaInput) {
+    if (event.target.value === OBSADA_PZSS_INNA) {
+      innaInput.hidden = false;
+      innaInput.focus();
+    } else {
+      innaInput.hidden = true;
+      innaInput.value = "";
+    }
+  }
+
+  if (hintEl) {
+    const hint = PZSS_ROLE_HINTS[event.target.value] || "";
+    hintEl.textContent = hint;
+    hintEl.hidden = !hint;
   }
 });
 

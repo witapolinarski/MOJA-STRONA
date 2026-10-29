@@ -16,7 +16,10 @@ potrzeba).
   przewodniczący komisji RTS, sędzia główny strzelania, kierownik biura
   obliczeń, sędzia stanowiskowy/tarczowy itd., z opcją „Inna funkcja…” na
   wszystko, czego nie przewiduje lista), parami funkcja/osoba, od razu albo
-  później, gdy już wie, kto prowadzi zawody.
+  później, gdy już wie, kto prowadzi zawody. Klub może tu też **zaproponować
+  kandydata na obserwatora WZSS/OZSS** — formularz pokazuje wtedy adnotację
+  o wymaganej min. II klasie sędziowskiej (w strzelaniu dynamicznym: Range
+  Officer – klasa II); ostateczne przypisanie i tak należy do związku.
 - **Biuro związku** widzi zgłoszenia (w tym obsadę PZSS zgłoszoną przez klub,
   tylko do odczytu), zatwierdza je albo odsyła z uwagą (z historią wersji
   regulaminu), przypisuje własną obsadę związkową (sędzia główny, delegat
