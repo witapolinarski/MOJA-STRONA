@@ -16,7 +16,7 @@
 Stowarzyszenie jest dobrowolnym, samorządnym i trwałym zrzeszeniem o celach niezarobkowych, powołanym w szczególności dla rozwoju i upowszechniania sportu strzeleckiego oraz **kolekcjonerstwa broni**, a także zrzeszania osób zainteresowanych strzelectwem i kolekcjonerstwem broni.
 
 **§ 3**
-1. Siedzibą Stowarzyszenia jest miejscowość [MIEJSCOWOŚĆ], woj. [WOJEWÓDZTWO].
+1. Siedzibą Stowarzyszenia jest miejscowość Izbicko, woj. opolskie.
 2. Terenem działania Stowarzyszenia jest obszar Rzeczypospolitej Polskiej; dla realizacji celów statutowych Stowarzyszenie może także działać poza jej granicami, zgodnie z obowiązującym tam prawem.
 
 **§ 4**
@@ -191,7 +191,7 @@ Podejmując uchwałę o rozwiązaniu Stowarzyszenia, Walne Zebranie Członków p
 W sprawach nieuregulowanych niniejszym Statutem zastosowanie mają przepisy powszechnie obowiązującego prawa, w szczególności ustawy — Prawo o stowarzyszeniach, ustawy o sporcie oraz ustawy o broni i amunicji w zakresie dotyczącym kolekcjonerstwa broni przez członków Stowarzyszenia, a także statut i regulaminy Polskiego Związku Strzelectwa Sportowego w zakresie dotyczącym udziału Stowarzyszenia we współzawodnictwie sportowym.
 
 **§ 27**
-Niniejszy Statut został uchwalony przez Zebranie Założycielskie Stowarzyszenia w dniu [DATA], w [MIEJSCOWOŚĆ].
+Niniejszy Statut został uchwalony przez Zebranie Założycielskie Stowarzyszenia w dniu 5 listopada 2026 r., w Izbicku.
 
 ---
 
