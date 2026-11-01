@@ -1,6 +1,6 @@
 # STATUT STOWARZYSZENIA
 
-## „[NAZWA STOWARZYSZENIA]”
+## „Strzelec Izbicko”
 
 > Pola w nawiasach kwadratowych `[...]` należy uzupełnić przed uchwaleniem statutu.
 
@@ -9,7 +9,7 @@
 ## ROZDZIAŁ I. POSTANOWIENIA OGÓLNE
 
 **§ 1**
-1. Stowarzyszenie nosi nazwę „[NAZWA STOWARZYSZENIA]”, zwane dalej „Stowarzyszeniem”.
+1. Stowarzyszenie nosi nazwę „Strzelec Izbicko”, zwane dalej „Stowarzyszeniem”.
 2. Stowarzyszenie może używać nazwy skróconej „[SKRÓT]” oraz jej tłumaczeń na języki obce dla celów współpracy zagranicznej.
 
 **§ 2**
