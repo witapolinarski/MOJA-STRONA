@@ -4,3 +4,8 @@ tmp/
 # Local Netlify folder
 .netlify
 scripts/
+
+# Dane osobowe (PESEL, adresy) – nigdy nie trafiają do publicznego repo
+dokumenty/prywatne/
+dokumenty/*DANE-POUFNE*
+dokumenty/*dane-poufne*
