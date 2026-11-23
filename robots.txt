@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /strefa.html
+Disallow: /strefa.js
+Disallow: /admin.js
+Disallow: /admin.css
+
+Sitemap: https://strzelamy.org.pl/sitemap.xml
