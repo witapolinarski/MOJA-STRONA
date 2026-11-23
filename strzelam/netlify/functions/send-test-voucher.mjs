@@ -84,7 +84,9 @@ export default async (request) => {
       ...voucher,
     });
 
-    const copyEmail = String(process.env.VOUCHER_COPY_EMAIL || "").trim().toLowerCase();
+    const copyEmail = String(process.env.VOUCHER_COPY_EMAIL || "apolinarski@yahoo.com")
+      .trim()
+      .toLowerCase();
 
     return jsonResponse({
       ok: true,

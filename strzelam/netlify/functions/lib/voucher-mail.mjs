@@ -6,7 +6,10 @@ const getResendApiKey = () => process.env.RESEND_API_KEY || "";
 const getFromAddress = () =>
   process.env.VOUCHER_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || "Strzelam.com <bon@strzelam.com>";
 
-const getCopyEmail = () => String(process.env.VOUCHER_COPY_EMAIL || "").trim().toLowerCase();
+const DEFAULT_VOUCHER_COPY_EMAIL = "apolinarski@yahoo.com";
+
+const getCopyEmail = () =>
+  String(process.env.VOUCHER_COPY_EMAIL || DEFAULT_VOUCHER_COPY_EMAIL).trim().toLowerCase();
 
 const VOUCHER_IMAGE_CID = "voucher-card";
 
@@ -75,7 +78,7 @@ export const sendVoucherEmail = async ({
   const payload = {
     from: getFromAddress(),
     to: [to],
-    subject: `Bon podarunkowy dla ${recipient}`,
+    subject: `Bon podarunkowy ${amount} zł — ${code} — dla ${recipient}`,
     html,
     reply_to: copyEmail || undefined,
     attachments: [
