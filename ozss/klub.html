@@ -62,17 +62,14 @@
               Nazwa zawodów
               <input type="text" name="nazwa" required />
             </label>
-            <label class="field">
-              Dyscyplina
-              <select name="dyscyplina" required>
-                <option value="">Wybierz…</option>
-                <option>Pistolet</option>
-                <option>Karabin</option>
-                <option>Strzelba (brokowe)</option>
-                <option>Broń czarnoprochowa</option>
-                <option>Inne</option>
-              </select>
-            </label>
+            <fieldset class="field discipline-fieldset">
+              <legend>Dyscyplina (można wybrać kilka)</legend>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Pistolet" /> Pistolet</label>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Karabin" /> Karabin</label>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Strzelba" /> Strzelba</label>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Broń czarnoprochowa" /> Broń czarnoprochowa</label>
+              <label class="checkbox-option"><input type="checkbox" name="dyscyplina" value="Inne" /> Inne</label>
+            </fieldset>
             <div class="inline-form">
               <label class="field">
                 Termin od
@@ -95,6 +92,11 @@
               Regulamin zawodów (PDF)
               <input type="file" name="regulamin" accept="application/pdf" />
             </label>
+            <fieldset class="field obsada-fieldset">
+              <legend>Obsada wymagana przez regulamin PZSS (opcjonalnie — można dopisać później)</legend>
+              <div class="obsada-pzss-rows" id="create-obsada-pzss-rows"></div>
+              <button type="button" class="button outline small add-obsada-pzss-row">+ Dodaj funkcję</button>
+            </fieldset>
             <button class="button gold" type="submit">Zgłoś zawody do związku</button>
             <p class="form-note" id="create-note" role="status"></p>
           </form>

@@ -39,20 +39,96 @@ export const canTransition = (from, to) => (ALLOWED_TRANSITIONS[from] || []).inc
 export const DISCIPLINES = Object.freeze([
   "Pistolet",
   "Karabin",
-  "Strzelba (brokowe)",
+  "Strzelba",
   "Broń czarnoprochowa",
   "Inne",
 ]);
 
-const REQUIRED_FIELDS = ["nazwa", "dyscyplina", "terminOd", "terminDo", "miejsce"];
+// Funkcje sędziowskie obsady zawodów zgodnie z Regulaminem Kolegium Sędziów PZSS
+// (§ 23 ust. 9–10: "Kierownicze funkcje sędziowskie na zawodach" oraz "Pozostałe
+// funkcje sędziowskie") — klub może też wpisać własną nazwę funkcji (np. gdyby
+// regulamin konkretnych zawodów przewidywał coś dodatkowego), więc to lista
+// podpowiedzi zgodna z regulaminem, nie zamknięty zbiór. Delegat techniczny PZSS
+// jest tu pominięty, bo to funkcja wyznaczana przez związek, nie przez klub —
+// odpowiada jej pole `obsada.delegatTechniczny` przypisywane przez biuro.
+// Obserwator WZSS/OZSS jest też wyznaczany przez związek (patrz
+// `obsada.obserwator`), ale — podobnie jak przy funkcjach kierowniczych — klub
+// może zaproponować kandydata; związek i tak zatwierdza albo wyznacza kogoś
+// innego. Kandydat na obserwatora powinien mieć min. II klasę sędziowską
+// (w strzelaniu dynamicznym: Range Officer — klasa II), bo klasa trzecia nie
+// uprawnia do funkcji kierowniczych (§ 7 pkt 1 regulaminu), a to minimalna
+// klasa wymagana dla funkcji kierowniczych na zawodach rangi WZSS/OZSS —
+// potwierdza to też rzeczywista obsada z zawodów WZSS (portal.wzss.pl), gdzie
+// obserwatora wypełnił sędzia klasy II (Range Officer II).
+export const PZSS_ROLES = Object.freeze([
+  // Kierownicze funkcje sędziowskie — strzelanie statyczne
+  "Sędzia Główny Zawodów",
+  "Przewodniczący Komisji RTS",
+  "Sędzia Główny Strzelania (konkurencji)",
+  "Kierownik Biura Obliczeń",
+  "Przewodniczący Sekcji Kontroli Broni i Wyposażenia",
+  // Obserwator związkowy — kandydat proponowany przez klub, min. II klasa
+  "Obserwator WZSS/OZSS",
+  // Pozostałe funkcje sędziowskie
+  "Sędzia Stanowiskowy",
+  "Sędzia Tarczowy",
+  "Sędzia Biura Obliczeń",
+  "Sędzia RTS",
+  "Sędzia Sekcji Kontroli Broni i Wyposażenia",
+  // Strzelanie dynamiczne — odpowiedniki funkcji kierowniczych i pozostałych
+  "Range Master (RM)",
+  "Chief Stats Officer (CSO)",
+  "Chief Range Officer (CRO)",
+  "Range Officer (RO)",
+]);
+
+const REQUIRED_FIELDS = ["nazwa", "terminOd", "terminDo", "miejsce"];
 
 const isValidDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")) && !Number.isNaN(Date.parse(value));
+
+// Zawody mogą obejmować kilka dyscyplin na raz (np. karabin i strzelba
+// jednocześnie), więc "dyscyplina" jest zawsze tablicą — przyjmujemy
+// zarówno tablicę (checkboxy / formData.getAll), jak i pojedynczy string,
+// dla wygody wywołań programistycznych i testów.
+export const normalizeDisciplines = (value) => {
+  const values = Array.isArray(value) ? value : [value];
+  const unique = [];
+  for (const raw of values) {
+    const trimmed = String(raw || "").trim();
+    if (trimmed && !unique.includes(trimmed)) unique.push(trimmed);
+  }
+  return unique;
+};
+
+// Obsada organizacyjna zawodów wymagana przez regulamin PZSS (np. sędzia główny,
+// sekretarz zawodów, kierownik strzelania) — wpisuje ją klub, bo to on wie, kto
+// prowadzi zawody. To coś innego niż `obsada` niżej, którą przypisuje biuro
+// związku z rejestru sędziów (delegat techniczny, obserwator związkowy).
+export const normalizeObsadaPzss = (entries) => {
+  const list = Array.isArray(entries) ? entries : [];
+  return list
+    .map((entry) => ({
+      funkcja: String(entry?.funkcja || "").trim(),
+      osoba: String(entry?.osoba || "").trim(),
+    }))
+    .filter((entry) => entry.funkcja && entry.osoba);
+};
+
+export const setObsadaPzss = (competition, obsadaPzss, now = new Date()) => ({
+  ...competition,
+  obsadaPzss: normalizeObsadaPzss(obsadaPzss),
+  updatedAt: now.toISOString(),
+});
 
 export const validateCompetitionInput = (input = {}) => {
   const errors = [];
 
   for (const field of REQUIRED_FIELDS) {
     if (!String(input[field] || "").trim()) errors.push(`Brakuje pola: ${field}`);
+  }
+
+  if (normalizeDisciplines(input.dyscypliny).length === 0) {
+    errors.push("Wybierz co najmniej jedną dyscyplinę.");
   }
 
   if (isValidDate(input.terminOd) && isValidDate(input.terminDo)) {
@@ -74,7 +150,7 @@ export const createCompetitionRecord = ({ id, input, klub, now = new Date() }) =
   id,
   rok: yearOfCompetition(input),
   nazwa: String(input.nazwa).trim(),
-  dyscyplina: String(input.dyscyplina).trim(),
+  dyscypliny: normalizeDisciplines(input.dyscypliny),
   klubId: klub.id,
   klubNazwa: klub.nazwa,
   terminOd: input.terminOd,
@@ -84,6 +160,7 @@ export const createCompetitionRecord = ({ id, input, klub, now = new Date() }) =
   status: STATUSES.ZGLOSZONE,
   uwagi: [],
   regulamin: [],
+  obsadaPzss: normalizeObsadaPzss(input.obsadaPzss),
   obsada: { sedziaGlowny: null, delegatTechniczny: null, obserwator: null },
   wyniki: { status: "brak", link: "", opis: "", uploadedAt: null },
   createdAt: now.toISOString(),

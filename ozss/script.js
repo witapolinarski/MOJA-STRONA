@@ -60,7 +60,7 @@ const renderCard = (competition) => {
       <div class="competition-card-head">
         <div>
           <h3>${escapeHtml(competition.nazwa)}</h3>
-          <p class="competition-meta">${escapeHtml(competition.dyscyplina)} · ${escapeHtml(competition.klubNazwa)}</p>
+          <p class="competition-meta">${escapeHtml((competition.dyscypliny || []).join(", "))} · ${escapeHtml(competition.klubNazwa)}</p>
           <p class="competition-meta">${formatDateRange(competition.terminOd, competition.terminDo)} · ${escapeHtml(competition.miejsce)}</p>
         </div>
         <span class="badge ${statusClass}">${STATUS_LABELS[competition.status] || competition.status}</span>
@@ -80,7 +80,9 @@ const populateFilterOptions = (groups) => {
 
   const disciplines = new Set();
   for (const group of groups) {
-    for (const competition of group.competitions) disciplines.add(competition.dyscyplina);
+    for (const competition of group.competitions) {
+      for (const dyscyplina of competition.dyscypliny || []) disciplines.add(dyscyplina);
+    }
   }
   filterDyscyplina.innerHTML =
     `<option value="">Wszystkie</option>` +
@@ -98,7 +100,7 @@ const applyFiltersAndRender = () => {
       year: group.year,
       competitions: group.competitions.filter(
         (competition) =>
-          (!dyscyplina || competition.dyscyplina === dyscyplina) &&
+          (!dyscyplina || (competition.dyscypliny || []).includes(dyscyplina)) &&
           (!status || competition.status === status),
       ),
     }))

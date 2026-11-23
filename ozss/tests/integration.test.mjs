@@ -17,6 +17,7 @@ const sedziowie = (await import("../netlify/functions/sedziowie.mjs")).default;
 const zawody = (await import("../netlify/functions/zawody.mjs")).default;
 const zawodyStatus = (await import("../netlify/functions/zawody-status.mjs")).default;
 const zawodyObsada = (await import("../netlify/functions/zawody-obsada.mjs")).default;
+const zawodyObsadaPzss = (await import("../netlify/functions/zawody-obsada-pzss.mjs")).default;
 const zawodyWyniki = (await import("../netlify/functions/zawody-wyniki.mjs")).default;
 const zawodyPlik = (await import("../netlify/functions/zawody-plik.mjs")).default;
 
@@ -73,10 +74,12 @@ test("pełny przepływ: logowanie biura, utworzenie klubu, zgłoszenie zawodów,
   );
   assert.equal(badLogin.status, 401);
 
-  // 4. Klub zgłasza zawody z regulaminem PDF.
+  // 4. Klub zgłasza zawody z regulaminem PDF, zaznaczając dwie dyscypliny naraz
+  // (checkboxy wysyłają wielokrotne pola o tej samej nazwie).
   const formData = new FormData();
   formData.set("nazwa", "Wojewódzkie Zawody Pistoletowe");
-  formData.set("dyscyplina", "Pistolet");
+  formData.append("dyscyplina", "Pistolet");
+  formData.append("dyscyplina", "Karabin");
   formData.set("terminOd", "2026-06-10");
   formData.set("terminDo", "2026-06-11");
   formData.set("miejsce", "Strzelnica OZSS Opole");
@@ -93,6 +96,7 @@ test("pełny przepływ: logowanie biura, utworzenie klubu, zgłoszenie zawodów,
   const { competition: created } = await createCompetitionResponse.json();
   assert.equal(created.status, "zgloszone");
   assert.equal(created.regulamin.length, 1);
+  assert.deepEqual(created.dyscypliny, ["Pistolet", "Karabin"]);
 
   // 5. Zawody w statusie "zgłoszone" nie są widoczne publicznie.
   const publicBeforeApproval = await zawody(getRequest("https://ozss.test/zawody"));
@@ -207,7 +211,7 @@ test("odesłanie do poprawy wymaga uwagi i blokuje dostęp publiczny do regulami
 
   const formData = new FormData();
   formData.set("nazwa", "Zawody Testowe");
-  formData.set("dyscyplina", "Karabin");
+  formData.append("dyscyplina", "Karabin");
   formData.set("terminOd", "2026-09-01");
   formData.set("terminDo", "2026-09-01");
   formData.set("miejsce", "Strzelnica X");
@@ -252,4 +256,152 @@ test("odesłanie do poprawy wymaga uwagi i blokuje dostęp publiczny do regulami
     ),
   );
   assert.equal(invalidResultsAttempt.status, 409);
+});
+
+test("zgłoszenie bez zaznaczonej dyscypliny jest odrzucane, a kilka dyscyplin naraz jest akceptowane", async () => {
+  const biuroLoginResponse = await biuroLogin(
+    jsonRequest("https://ozss.test/biuro-login", "POST", { password: "sekret-biura-testowego" }),
+  );
+  const { token: biuroToken } = await biuroLoginResponse.json();
+
+  const createClubResponse = await biuroKluby(
+    jsonRequest("https://ozss.test/biuro-kluby", "POST", { nazwa: "Klub Wielodyscyplinowy", password: "haslo123456" }, biuroToken),
+  );
+  const { club } = await createClubResponse.json();
+
+  const klubLoginResponse = await klubLogin(
+    jsonRequest("https://ozss.test/klub-login", "POST", { klubId: club.id, password: "haslo123456" }),
+  );
+  const { token: klubToken } = await klubLoginResponse.json();
+
+  const noDisciplineForm = new FormData();
+  noDisciplineForm.set("nazwa", "Zawody bez dyscypliny");
+  noDisciplineForm.set("terminOd", "2026-09-01");
+  noDisciplineForm.set("terminDo", "2026-09-01");
+  noDisciplineForm.set("miejsce", "Strzelnica X");
+
+  const rejected = await zawody(
+    new Request("https://ozss.test/zawody", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${klubToken}` },
+      body: noDisciplineForm,
+    }),
+  );
+  assert.equal(rejected.status, 400);
+  const rejectedBody = await rejected.json();
+  assert.ok(rejectedBody.error.includes("dyscyplinę"));
+
+  const threeDisciplinesForm = new FormData();
+  threeDisciplinesForm.set("nazwa", "Zawody wielodyscyplinowe");
+  threeDisciplinesForm.append("dyscyplina", "Karabin");
+  threeDisciplinesForm.append("dyscyplina", "Strzelba");
+  threeDisciplinesForm.append("dyscyplina", "Pistolet");
+  threeDisciplinesForm.set("terminOd", "2026-09-05");
+  threeDisciplinesForm.set("terminDo", "2026-09-05");
+  threeDisciplinesForm.set("miejsce", "Strzelnica Y");
+
+  const accepted = await zawody(
+    new Request("https://ozss.test/zawody", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${klubToken}` },
+      body: threeDisciplinesForm,
+    }),
+  );
+  assert.equal(accepted.status, 201);
+  const { competition } = await accepted.json();
+  assert.deepEqual(competition.dyscypliny, ["Karabin", "Strzelba", "Pistolet"]);
+});
+
+test("obsada wymagana przez regulamin PZSS: można ją podać przy zgłoszeniu i poprawić później, tylko przez klub-właściciela", async () => {
+  const biuroLoginResponse = await biuroLogin(
+    jsonRequest("https://ozss.test/biuro-login", "POST", { password: "sekret-biura-testowego" }),
+  );
+  const { token: biuroToken } = await biuroLoginResponse.json();
+
+  const createClubResponse = await biuroKluby(
+    jsonRequest("https://ozss.test/biuro-kluby", "POST", { nazwa: "Klub Obsadowy", password: "haslo123456" }, biuroToken),
+  );
+  const { club } = await createClubResponse.json();
+
+  const klubLoginResponse = await klubLogin(
+    jsonRequest("https://ozss.test/klub-login", "POST", { klubId: club.id, password: "haslo123456" }),
+  );
+  const { token: klubToken } = await klubLoginResponse.json();
+
+  // Formularz wysyła pary obsadaPzssRola/obsadaPzssOsoba — jedna pusta para
+  // (np. niewypełniony dodatkowy wiersz) musi zostać odfiltrowana.
+  const formData = new FormData();
+  formData.set("nazwa", "Zawody z obsadą PZSS");
+  formData.append("dyscyplina", "Pistolet");
+  formData.set("terminOd", "2026-10-01");
+  formData.set("terminDo", "2026-10-01");
+  formData.set("miejsce", "Strzelnica Z");
+  formData.append("obsadaPzssRola", "Sędzia Główny");
+  formData.append("obsadaPzssOsoba", "Jan Kowalski");
+  formData.append("obsadaPzssRola", "");
+  formData.append("obsadaPzssOsoba", "");
+
+  const createResponse = await zawody(
+    new Request("https://ozss.test/zawody", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${klubToken}` },
+      body: formData,
+    }),
+  );
+  assert.equal(createResponse.status, 201);
+  const { competition: created } = await createResponse.json();
+  assert.deepEqual(created.obsadaPzss, [{ funkcja: "Sędzia Główny", osoba: "Jan Kowalski" }]);
+
+  // Klub-właściciel uzupełnia obsadę PZSS po zgłoszeniu (np. gdy poznał nazwiska).
+  const updateResponse = await zawodyObsadaPzss(
+    jsonRequest(
+      "https://ozss.test/zawody-obsada-pzss",
+      "PATCH",
+      {
+        id: created.id,
+        obsadaPzss: [
+          { funkcja: "Sędzia Główny", osoba: "Jan Kowalski" },
+          { funkcja: "Sekretarz Zawodów", osoba: "Ewa Nowak" },
+        ],
+      },
+      klubToken,
+    ),
+  );
+  assert.equal(updateResponse.status, 200);
+  const { competition: updated } = await updateResponse.json();
+  assert.deepEqual(updated.obsadaPzss, [
+    { funkcja: "Sędzia Główny", osoba: "Jan Kowalski" },
+    { funkcja: "Sekretarz Zawodów", osoba: "Ewa Nowak" },
+  ]);
+
+  // Inny klub nie może edytować cudzej obsady PZSS.
+  const otherClubResponse = await biuroKluby(
+    jsonRequest("https://ozss.test/biuro-kluby", "POST", { nazwa: "Inny Klub Obsadowy", password: "inne-haslo-12" }, biuroToken),
+  );
+  const { club: otherClub } = await otherClubResponse.json();
+  const otherLoginResponse = await klubLogin(
+    jsonRequest("https://ozss.test/klub-login", "POST", { klubId: otherClub.id, password: "inne-haslo-12" }),
+  );
+  const { token: otherToken } = await otherLoginResponse.json();
+
+  const forbiddenResponse = await zawodyObsadaPzss(
+    jsonRequest(
+      "https://ozss.test/zawody-obsada-pzss",
+      "PATCH",
+      { id: created.id, obsadaPzss: [{ funkcja: "Ktoś", osoba: "Włamywacz" }] },
+      otherToken,
+    ),
+  );
+  assert.equal(forbiddenResponse.status, 403);
+
+  // Biuro (bez roli klub) nie ma dostępu do tego endpointu.
+  const biuroForbiddenResponse = await zawodyObsadaPzss(
+    jsonRequest(
+      "https://ozss.test/zawody-obsada-pzss",
+      "PATCH",
+      { id: created.id, obsadaPzss: [{ funkcja: "Ktoś", osoba: "Biuro" }] },
+      biuroToken,
+    ),
+  );
+  assert.equal(biuroForbiddenResponse.status, 401);
 });

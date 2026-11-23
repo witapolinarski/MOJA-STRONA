@@ -47,13 +47,19 @@ export default async (request) => {
 
     try {
       const formData = await request.formData();
+      const obsadaPzssRole = formData.getAll("obsadaPzssRola");
+      const obsadaPzssOsoby = formData.getAll("obsadaPzssOsoba");
       const input = {
         nazwa: formData.get("nazwa"),
-        dyscyplina: formData.get("dyscyplina"),
+        dyscypliny: formData.getAll("dyscyplina"),
         terminOd: formData.get("terminOd"),
         terminDo: formData.get("terminDo"),
         miejsce: formData.get("miejsce"),
         opis: formData.get("opis"),
+        // Pary pól (formData.getAll zachowuje porządek dodania w DOM), więc
+        // łączymy je po indeksie w {funkcja, osoba} — walidacja/filtr pustych
+        // pól jest w normalizeObsadaPzss.
+        obsadaPzss: obsadaPzssRole.map((funkcja, index) => ({ funkcja, osoba: obsadaPzssOsoby[index] })),
       };
 
       const errors = validateCompetitionInput(input);
