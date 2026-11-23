@@ -625,6 +625,10 @@ h3 {
   margin: 0 auto;
 }
 
+.feature-band .section-heading > p:not(.eyebrow) {
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
