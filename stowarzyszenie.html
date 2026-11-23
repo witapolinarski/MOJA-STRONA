@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Stowarzyszenie Strzeleckie — projekt założycielski. Statut, protokół zebrania założycielskiego, lista założycieli, uchwały i wniosek do KRS w jednym miejscu.">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Stowarzyszenie Strzeleckie — projekt założycielski</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="stowarzyszenie.css">
+  </head>
+  <body class="st-body">
+    <div class="st-shell">
+      <header class="st-header">
+        <a class="brand" href="/">
+          <span class="brand-mark">S</span>
+          <span>
+            <strong>Stowarzyszenie Strzeleckie</strong>
+            <small>Projekt założycielski</small>
+          </span>
+        </a>
+        <div class="st-header-actions">
+          <button class="button secondary" type="button" id="st-export-json">Eksportuj dane</button>
+          <button class="button secondary" type="button" id="st-import-json-btn">Importuj dane</button>
+          <input type="file" id="st-import-json-input" accept="application/json" class="st-hidden-input">
+          <button class="button dark" type="button" id="st-clear-all">Wyczyść dane</button>
+        </div>
+      </header>
+
+      <section class="st-intro">
+        <p class="eyebrow">Narzędzie prywatne — dane zostają w Twojej przeglądarce</p>
+        <h1>Powołanie nowego stowarzyszenia strzeleckiego</h1>
+        <p class="st-lead">
+          Tutaj przygotujesz i wydrukujesz komplet dokumentów potrzebnych do założenia i zarejestrowania
+          stowarzyszenia w Krajowym Rejestrze Sądowym (KRS): statut, protokół zebrania założycielskiego,
+          listę założycieli oraz uchwały. Uzupełnij dane w formularzu u góry każdej zakładki — automatycznie
+          podstawią się one we wszystkich dokumentach.
+        </p>
+        <p class="st-disclaimer">
+          <strong>Uwaga prawna:</strong> to są wzory robocze oparte na ustawie z 7 kwietnia 1989 r. Prawo
+          o stowarzyszeniach (Dz.U. z 2020 r. poz. 2261). Przed złożeniem wniosku do sądu zweryfikuj treść
+          ze stanem prawnym obowiązującym w dniu rejestracji — w razie wątpliwości skonsultuj się z prawnikiem
+          lub z właściwym sądem rejestrowym (Wydział Gospodarczy KRS).
+        </p>
+      </section>
+
+      <nav class="st-tabs" id="st-tabs" aria-label="Zakładki dokumentów">
+        <button type="button" class="st-tab active" data-tab="start">Start</button>
+        <button type="button" class="st-tab" data-tab="checklist">Checklista</button>
+        <button type="button" class="st-tab" data-tab="dane">Dane podstawowe</button>
+        <button type="button" class="st-tab" data-tab="zalozyciele">Lista założycieli</button>
+        <button type="button" class="st-tab" data-tab="protokol">Protokół zebrania</button>
+        <button type="button" class="st-tab" data-tab="uchwaly">Uchwały</button>
+        <button type="button" class="st-tab" data-tab="statut">Statut</button>
+        <button type="button" class="st-tab" data-tab="krs">Wniosek do KRS</button>
+        <button type="button" class="st-tab" data-tab="faq">FAQ</button>
+      </nav>
+
+      <!-- START -->
+      <section class="st-panel active" id="panel-start" data-panel="start">
+        <div class="st-card">
+          <h2>Jak korzystać z tego narzędzia</h2>
+          <ol class="st-steps">
+            <li><strong>Dane podstawowe</strong> — wpisz nazwę, siedzibę i cele stowarzyszenia oraz skład władz. Pola te zasilają automatycznie statut, protokół i uchwały.</li>
+            <li><strong>Lista założycieli</strong> — dodaj min. 7 osób (wymóg ustawowy) wraz z PESEL i adresem.</li>
+            <li><strong>Protokół zebrania</strong> — wygenerowany dokument z zebrania założycielskiego, gotowy do podpisania przez wszystkich założycieli.</li>
+            <li><strong>Uchwały</strong> — uchwały nr 1–4: o założeniu, przyjęciu statutu, wyborze Zarządu i Komisji Rewizyjnej.</li>
+            <li><strong>Statut</strong> — pełny tekst statutu zgodny z wymogami art. 10 ustawy Prawo o stowarzyszeniach.</li>
+            <li><strong>Wniosek do KRS</strong> — checklista formularzy i załączników do złożenia w Portalu Rejestrów Sądowych (PRS).</li>
+          </ol>
+          <p class="st-note">
+            Każdą zakładkę z dokumentem możesz wydrukować lub zapisać jako PDF przyciskiem
+            <strong>„Drukuj / Zapisz PDF”</strong> widocznym w jej prawym górnym rogu.
+          </p>
+          <div class="st-status-grid">
+            <div class="st-status-card">
+              <span class="st-status-num">7</span>
+              <span>minimalna liczba założycieli (art. 9 ustawy)</span>
+            </div>
+            <div class="st-status-card">
+              <span class="st-status-num">3</span>
+              <span>organy: Walne Zebranie, Zarząd, Komisja Rewizyjna</span>
+            </div>
+            <div class="st-status-card">
+              <span class="st-status-num">0 zł</span>
+              <span>rejestracja stowarzyszenia w KRS jest zwykle zwolniona z opłaty sądowej*</span>
+            </div>
+          </div>
+          <p class="st-note">* Zweryfikuj aktualne przepisy — zwolnienie dotyczy wpisu do rejestru stowarzyszeń (nie rejestru przedsiębiorców).</p>
+        </div>
+      </section>
+
+      <!-- CHECKLIST -->
+      <section class="st-panel" id="panel-checklist" data-panel="checklist">
+        <div class="st-card">
+          <div class="st-card-head">
+            <h2>Checklista rejestracji stowarzyszenia</h2>
+          </div>
+          <ul class="st-checklist" id="st-checklist-list">
+            <li data-id="c1"><label><input type="checkbox"> Zebrać minimum 7 osób-założycieli (pełnoletnich, z pełną zdolnością do czynności prawnych)</label></li>
+            <li data-id="c2"><label><input type="checkbox"> Ustalić nazwę, siedzibę, cele i sposoby działania stowarzyszenia</label></li>
+            <li data-id="c3"><label><input type="checkbox"> Przygotować i uzgodnić treść statutu</label></li>
+            <li data-id="c4"><label><input type="checkbox"> Zwołać i przeprowadzić zebranie założycielskie</label></li>
+            <li data-id="c5"><label><input type="checkbox"> Podjąć uchwałę o założeniu stowarzyszenia</label></li>
+            <li data-id="c6"><label><input type="checkbox"> Podjąć uchwałę o przyjęciu statutu</label></li>
+            <li data-id="c7"><label><input type="checkbox"> Wybrać Komitet Założycielski (lub od razu Zarząd) oraz Komisję Rewizyjną</label></li>
+            <li data-id="c8"><label><input type="checkbox"> Sporządzić i podpisać protokół z zebrania założycielskiego</label></li>
+            <li data-id="c9"><label><input type="checkbox"> Sporządzić listę założycieli z adresami i podpisami</label></li>
+            <li data-id="c10"><label><input type="checkbox"> Założyć konto i wniosek w Portalu Rejestrów Sądowych (prs.ms.gov.pl)</label></li>
+            <li data-id="c11"><label><input type="checkbox"> Wypełnić formularz KRS-W20 wraz z załącznikami (KRS-WK i inne)</label></li>
+            <li data-id="c12"><label><input type="checkbox"> Dołączyć statut, protokół, listę założycieli i uchwały jako skany/załączniki</label></li>
+            <li data-id="c13"><label><input type="checkbox"> Złożyć wniosek do właściwego sądu rejonowego (Wydział Gospodarczy KRS)</label></li>
+            <li data-id="c14"><label><input type="checkbox"> Odebrać postanowienie o wpisie do KRS i numer KRS</label></li>
+            <li data-id="c15"><label><input type="checkbox"> Wystąpić o nadanie numeru REGON i NIP (zwykle automatycznie po wpisie do KRS)</label></li>
+            <li data-id="c16"><label><input type="checkbox"> Założyć rachunek bankowy stowarzyszenia</label></li>
+            <li data-id="c17"><label><input type="checkbox"> (Opcjonalnie) Zgłosić akces do PZSS / OZSS jako klub strzelecki</label></li>
+          </ul>
+          <div class="st-progress-wrap">
+            <div class="st-progress-bar"><div class="st-progress-fill" id="st-progress-fill"></div></div>
+            <span id="st-progress-text">0 / 17 ukończone</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- DANE PODSTAWOWE -->
+      <section class="st-panel" id="panel-dane" data-panel="dane">
+        <div class="st-card">
+          <h2>Dane podstawowe stowarzyszenia</h2>
+          <p class="st-note">Te dane zasilają automatycznie statut, protokół i uchwały w pozostałych zakładkach.</p>
+          <form class="st-form" id="st-core-form">
+            <div class="st-form-grid">
+              <label>Nazwa stowarzyszenia
+                <input type="text" name="nazwa" placeholder="np. Stowarzyszenie Strzeleckie „Nazwa”">
+              </label>
+              <label>Miejscowość siedziby
+                <input type="text" name="siedziba" placeholder="np. Gogolin">
+              </label>
+              <label>Adres siedziby
+                <input type="text" name="adres" placeholder="ul. Przykładowa 1, 47-320 Gogolin">
+              </label>
+              <label>Województwo
+                <input type="text" name="wojewodztwo" placeholder="opolskie">
+              </label>
+              <label>Data zebrania założycielskiego
+                <input type="date" name="dataZebrania">
+              </label>
+              <label>Miejsce zebrania założycielskiego
+                <input type="text" name="miejsceZebrania" placeholder="np. siedziba klubu, ul. ...">
+              </label>
+              <label>Liczba członków Zarządu
+                <select name="liczbaZarzadu">
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </label>
+              <label>Kadencja władz (lata)
+                <input type="number" name="kadencja" min="1" max="10" value="4">
+              </label>
+            </div>
+
+            <h3>Władze — propozycja składu</h3>
+            <div class="st-form-grid">
+              <label>Prezes Zarządu
+                <input type="text" name="prezes" placeholder="Imię i nazwisko">
+              </label>
+              <label>Wiceprezes Zarządu
+                <input type="text" name="wiceprezes" placeholder="Imię i nazwisko">
+              </label>
+              <label>Skarbnik
+                <input type="text" name="skarbnik" placeholder="Imię i nazwisko">
+              </label>
+              <label>Sekretarz
+                <input type="text" name="sekretarz" placeholder="Imię i nazwisko (opcjonalnie)">
+              </label>
+              <label>Przewodniczący Komisji Rewizyjnej
+                <input type="text" name="przewodniczacyKR" placeholder="Imię i nazwisko">
+              </label>
+              <label>Członek Komisji Rewizyjnej
+                <input type="text" name="czlonekKR1" placeholder="Imię i nazwisko">
+              </label>
+              <label>Członek Komisji Rewizyjnej
+                <input type="text" name="czlonekKR2" placeholder="Imię i nazwisko">
+              </label>
+            </div>
+
+            <h3>Cele stowarzyszenia</h3>
+            <label class="st-full">Opisz główne cele (jeden na linię) — domyślnie wypełnione typowymi celami klubu strzeleckiego
+              <textarea name="cele" rows="6">upowszechnianie i rozwój strzelectwa sportowego oraz kultury fizycznej
+organizowanie i propagowanie bezpiecznego posługiwania się bronią
+szkolenie i doskonalenie umiejętności strzeleckich członków
+przygotowywanie zawodników do udziału we współzawodnictwie sportowym
+działalność edukacyjna i wychowawcza w zakresie strzelectwa sportowego
+integracja środowiska strzeleckiego oraz współpraca ze służbami mundurowymi</textarea>
+            </label>
+
+            <p class="st-note">Zmiany zapisują się automatycznie w przeglądarce (localStorage).</p>
+          </form>
+        </div>
+      </section>
+
+      <!-- LISTA ZALOZYCIELI -->
+      <section class="st-panel" id="panel-zalozyciele" data-panel="zalozyciele">
+        <div class="st-card st-print-card">
+          <div class="st-card-head">
+            <h2>Lista założycieli</h2>
+            <button class="button dark st-print-btn" type="button" data-print="zalozyciele">Drukuj / Zapisz PDF</button>
+          </div>
+          <p class="st-note">Ustawa wymaga co najmniej <strong>7 osób</strong>-założycieli. Dodaj wszystkich poniżej — tabela trafi też do protokołu i statutu.</p>
+          <div class="st-printable" id="print-zalozyciele">
+            <h3 class="st-print-title">Lista założycieli stowarzyszenia <span data-bind="nazwa">[NAZWA STOWARZYSZENIA]</span></h3>
+            <table class="st-table" id="st-founders-table">
+              <thead>
+                <tr><th>Lp.</th><th>Imię i nazwisko</th><th>PESEL</th><th>Adres zamieszkania</th><th>Podpis</th><th class="no-print"></th></tr>
+              </thead>
+              <tbody id="st-founders-body"></tbody>
+            </table>
+          </div>
+          <button class="button dark no-print" type="button" id="st-add-founder">+ Dodaj założyciela</button>
+          <p class="st-note no-print" id="st-founders-count"></p>
+        </div>
+      </section>
+
+      <!-- PROTOKOL -->
+      <section class="st-panel" id="panel-protokol" data-panel="protokol">
+        <div class="st-card st-print-card">
+          <div class="st-card-head">
+            <h2>Protokół zebrania założycielskiego</h2>
+            <button class="button dark st-print-btn" type="button" data-print="protokol">Drukuj / Zapisz PDF</button>
+          </div>
+          <div class="st-printable" id="print-protokol">
+            <h3 class="st-print-title">Protokół z zebrania założycielskiego</h3>
+            <p><span data-bind="nazwa">[NAZWA STOWARZYSZENIA]</span></p>
+            <p>
+              Zebranie założycielskie odbyło się w dniu <strong data-bind="dataZebrania">[DATA]</strong>
+              w miejscowości <strong data-bind="miejsceZebrania">[MIEJSCE]</strong>.
+            </p>
+            <p>W zebraniu udział wzięły osoby wymienione w załączonej liście założycieli (<span id="protokol-liczba-zalozycieli">0</span> osób), która stanowi załącznik nr 1 do niniejszego protokołu.</p>
+
+            <h4>Porządek zebrania</h4>
+            <ol>
+              <li>Otwarcie zebrania i wybór Przewodniczącego oraz Protokolanta zebrania.</li>
+              <li>Przedstawienie celu zebrania — powołanie stowarzyszenia.</li>
+              <li>Dyskusja i uchwalenie treści statutu.</li>
+              <li>Podjęcie uchwały nr 1 o założeniu stowarzyszenia.</li>
+              <li>Podjęcie uchwały nr 2 o przyjęciu statutu.</li>
+              <li>Podjęcie uchwały nr 3 o wyborze Komitetu Założycielskiego / Zarządu.</li>
+              <li>Podjęcie uchwały nr 4 o wyborze Komisji Rewizyjnej.</li>
+              <li>Wolne wnioski i zamknięcie zebrania.</li>
+            </ol>
+
+            <h4>Przebieg zebrania</h4>
+            <p>
+              Zebranie otworzył(a) <strong data-bind="prezes">[PROWADZĄCY]</strong>, który(a) zaproponował(a)
+              na Przewodniczącego zebrania swoją osobę, a na Protokolanta — jednego z obecnych założycieli.
+              Propozycję przyjęto jednogłośnie.
+            </p>
+            <p>
+              Przewodniczący przedstawił cel zebrania, tj. powołanie stowarzyszenia pod nazwą
+              <strong data-bind="nazwa">[NAZWA STOWARZYSZENIA]</strong> z siedzibą w
+              <strong data-bind="siedziba">[SIEDZIBA]</strong>. Po dyskusji nad treścią statutu, w tym nad
+              celami stowarzyszenia i sposobami ich realizacji, zebrani przystąpili do głosowania nad
+              uchwałami wymienionymi w porządku zebrania (treść uchwał — zakładka „Uchwały”).
+            </p>
+            <p>
+              Wszystkie uchwały podjęto jednogłośnie, w głosowaniu jawnym, przy obecności wszystkich
+              założycieli wymienionych na liście stanowiącej załącznik nr 1.
+            </p>
+            <p>Na tym zebranie zakończono.</p>
+
+            <h4>Załączniki do protokołu</h4>
+            <ol>
+              <li>Lista założycieli,</li>
+              <li>Statut stowarzyszenia,</li>
+              <li>Uchwały nr 1–4 z zebrania założycielskiego.</li>
+            </ol>
+
+            <div class="st-sign-row">
+              <div>
+                <p>…………………………………………</p>
+                <p class="st-sign-label">Przewodniczący zebrania</p>
+              </div>
+              <div>
+                <p>…………………………………………</p>
+                <p class="st-sign-label">Protokolant</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- UCHWALY -->
+      <section class="st-panel" id="panel-uchwaly" data-panel="uchwaly">
+        <div class="st-card st-print-card">
+          <div class="st-card-head">
+            <h2>Uchwały z zebrania założycielskiego</h2>
+            <button class="button dark st-print-btn" type="button" data-print="uchwaly">Drukuj / Zapisz PDF</button>
+          </div>
+          <div class="st-printable" id="print-uchwaly">
+
+            <article class="st-resolution">
+              <h4>Uchwała nr 1/<span data-bind="rokZebrania">[ROK]</span> zebrania założycielskiego z dnia <span data-bind="dataZebrania">[DATA]</span> w sprawie założenia stowarzyszenia</h4>
+              <p>Na podstawie art. 9 ustawy z dnia 7 kwietnia 1989 r. Prawo o stowarzyszeniach, zebrani założyciele postanawiają, co następuje:</p>
+              <p><strong>§1.</strong> Powołuje się do życia stowarzyszenie pod nazwą <strong data-bind="nazwa">[NAZWA STOWARZYSZENIA]</strong> z siedzibą w <strong data-bind="siedziba">[SIEDZIBA]</strong>.</p>
+              <p><strong>§2.</strong> Uchwała wchodzi w życie z dniem podjęcia.</p>
+              <p class="st-vote">Głosowanie: za — jednogłośnie, przeciw — 0, wstrzymało się — 0.</p>
+            </article>
+
+            <article class="st-resolution">
+              <h4>Uchwała nr 2/<span data-bind="rokZebrania">[ROK]</span> zebrania założycielskiego z dnia <span data-bind="dataZebrania">[DATA]</span> w sprawie przyjęcia statutu</h4>
+              <p><strong>§1.</strong> Przyjmuje się statut stowarzyszenia <strong data-bind="nazwa">[NAZWA STOWARZYSZENIA]</strong> w brzmieniu stanowiącym załącznik do niniejszej uchwały (zakładka „Statut”).</p>
+              <p><strong>§2.</strong> Uchwała wchodzi w życie z dniem podjęcia.</p>
+              <p class="st-vote">Głosowanie: za — jednogłośnie, przeciw — 0, wstrzymało się — 0.</p>
+            </article>
+
+            <article class="st-resolution">
+              <h4>Uchwała nr 3/<span data-bind="rokZebrania">[ROK]</span> zebrania założycielskiego z dnia <span data-bind="dataZebrania">[DATA]</span> w sprawie wyboru Komitetu Założycielskiego (Zarządu)</h4>
+              <p><strong>§1.</strong> Wybiera się Komitet Założycielski, który po zarejestrowaniu stowarzyszenia pełni funkcję Zarządu, w składzie:</p>
+              <ul>
+                <li>Prezes: <strong data-bind="prezes">[PREZES]</strong></li>
+                <li>Wiceprezes: <strong data-bind="wiceprezes">[WICEPREZES]</strong></li>
+                <li>Skarbnik: <strong data-bind="skarbnik">[SKARBNIK]</strong></li>
+                <li data-optional="sekretarz">Sekretarz: <strong data-bind="sekretarz">[SEKRETARZ]</strong></li>
+              </ul>
+              <p><strong>§2.</strong> Kadencja Zarządu trwa <span data-bind="kadencja">[LICZBA]</span> lata/lat od dnia zarejestrowania stowarzyszenia w KRS.</p>
+              <p class="st-vote">Głosowanie: za — jednogłośnie, przeciw — 0, wstrzymało się — 0.</p>
+            </article>
+
+            <article class="st-resolution">
+              <h4>Uchwała nr 4/<span data-bind="rokZebrania">[ROK]</span> zebrania założycielskiego z dnia <span data-bind="dataZebrania">[DATA]</span> w sprawie wyboru Komisji Rewizyjnej</h4>
+              <p><strong>§1.</strong> Wybiera się Komisję Rewizyjną w składzie:</p>
+              <ul>
+                <li>Przewodniczący: <strong data-bind="przewodniczacyKR">[PRZEWODNICZĄCY]</strong></li>
+                <li>Członek: <strong data-bind="czlonekKR1">[CZŁONEK]</strong></li>
+                <li>Członek: <strong data-bind="czlonekKR2">[CZŁONEK]</strong></li>
+              </ul>
+              <p><strong>§2.</strong> Kadencja Komisji Rewizyjnej trwa <span data-bind="kadencja">[LICZBA]</span> lata/lat od dnia zarejestrowania stowarzyszenia w KRS.</p>
+              <p class="st-vote">Głosowanie: za — jednogłośnie, przeciw — 0, wstrzymało się — 0.</p>
+            </article>
+
+            <div class="st-sign-row">
+              <div>
+                <p>…………………………………………</p>
+                <p class="st-sign-label">Przewodniczący zebrania</p>
+              </div>
+              <div>
+                <p>…………………………………………</p>
+                <p class="st-sign-label">Protokolant</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATUT -->
+      <section class="st-panel" id="panel-statut" data-panel="statut">
+        <div class="st-card st-print-card">
+          <div class="st-card-head">
+            <h2>Statut stowarzyszenia</h2>
+            <button class="button dark st-print-btn" type="button" data-print="statut">Drukuj / Zapisz PDF</button>
+          </div>
+          <div class="st-printable" id="print-statut">
+            <h3 class="st-print-title">STATUT STOWARZYSZENIA<br><span data-bind="nazwaUpper">[NAZWA STOWARZYSZENIA]</span></h3>
+
+            <h4>Rozdział I. Postanowienia ogólne</h4>
+            <p><strong>§1.</strong> Stowarzyszenie nosi nazwę: „<span data-bind="nazwa">[NAZWA STOWARZYSZENIA]</span>”, zwane dalej Stowarzyszeniem.</p>
+            <p><strong>§2.</strong> Stowarzyszenie działa na podstawie ustawy z dnia 7 kwietnia 1989 r. Prawo o stowarzyszeniach (Dz.U. z 2020 r. poz. 2261) oraz niniejszego statutu i z tego tytułu posiada osobowość prawną.</p>
+            <p><strong>§3.</strong> Siedzibą Stowarzyszenia jest <span data-bind="siedziba">[SIEDZIBA]</span>, województwo <span data-bind="wojewodztwo">[WOJEWÓDZTWO]</span>, a terenem działania obszar Rzeczypospolitej Polskiej. Dla właściwej realizacji swoich celów Stowarzyszenie może prowadzić działalność poza granicami kraju.</p>
+            <p><strong>§4.</strong> Stowarzyszenie może używać pieczęci, odznak i znaku graficznego zgodnie z obowiązującymi przepisami.</p>
+            <p><strong>§5.</strong> Stowarzyszenie zostaje powołane na czas nieokreślony.</p>
+            <p><strong>§6.</strong> Stowarzyszenie może być członkiem krajowych i międzynarodowych organizacji o podobnym profilu działania, w tym Polskiego Związku Strzelectwa Sportowego (PZSS) oraz właściwego Okręgowego Związku Strzelectwa Sportowego (OZSS).</p>
+            <p><strong>§7.</strong> Działalność Stowarzyszenia opiera się na pracy społecznej jego członków. Do prowadzenia swoich spraw Stowarzyszenie może zatrudniać pracowników, w tym swoich członków, oraz powierzać określone zadania innym podmiotom.</p>
+
+            <h4>Rozdział II. Cele i sposoby ich realizacji</h4>
+            <p><strong>§8.</strong> Celem Stowarzyszenia jest:</p>
+            <ol id="statut-cele-list"></ol>
+            <p><strong>§9.</strong> Stowarzyszenie realizuje swoje cele poprzez:</p>
+            <ol>
+              <li>organizowanie szkoleń, kursów, zawodów i obozów sportowych,</li>
+              <li>prowadzenie działalności informacyjnej i promocyjnej,</li>
+              <li>współpracę z Polskim Związkiem Strzelectwa Sportowego, okręgowymi związkami sportowymi, klubami, szkołami oraz instytucjami publicznymi,</li>
+              <li>pozyskiwanie i gromadzenie sprzętu sportowego,</li>
+              <li>reprezentowanie interesów członków wobec władz i instytucji,</li>
+              <li>prowadzenie działalności wydawniczej i informacyjnej związanej z celami statutowymi.</li>
+            </ol>
+
+            <h4>Rozdział III. Członkowie — prawa i obowiązki</h4>
+            <p><strong>§10.</strong> Członkowie Stowarzyszenia dzielą się na: zwyczajnych, wspierających i honorowych.</p>
+            <p><strong>§11.</strong> Członkiem zwyczajnym może być osoba fizyczna posiadająca pełną zdolność do czynności prawnych i niepozbawiona praw publicznych, będąca obywatelem polskim lub cudzoziemcem, która złoży pisemną deklarację członkowską i zostanie przyjęta przez Zarząd.</p>
+            <p><strong>§12.</strong> Członkiem wspierającym może być osoba fizyczna lub prawna, która zadeklaruje pomoc finansową, rzeczową lub merytoryczną i zostanie przyjęta przez Zarząd na podstawie pisemnej deklaracji.</p>
+            <p><strong>§13.</strong> Członkiem honorowym może zostać osoba fizyczna szczególnie zasłużona dla realizacji celów Stowarzyszenia, na podstawie uchwały Walnego Zebrania Członków.</p>
+            <p><strong>§14.</strong> Członek zwyczajny ma prawo do:</p>
+            <ol>
+              <li>czynnego i biernego prawa wyborczego do władz Stowarzyszenia,</li>
+              <li>uczestniczenia w zebraniach, szkoleniach i zawodach organizowanych przez Stowarzyszenie,</li>
+              <li>zgłaszania wniosków i postulatów dotyczących działalności Stowarzyszenia,</li>
+              <li>korzystania z urządzeń, obiektów i pomocy Stowarzyszenia na zasadach określonych przez Zarząd.</li>
+            </ol>
+            <p><strong>§15.</strong> Członek zwyczajny ma obowiązek:</p>
+            <ol>
+              <li>przestrzegania statutu, regulaminów i uchwał władz Stowarzyszenia,</li>
+              <li>regularnego opłacania składek członkowskich,</li>
+              <li>czynnego uczestniczenia w realizacji celów statutowych,</li>
+              <li>dbania o dobre imię Stowarzyszenia.</li>
+            </ol>
+            <p><strong>§16.</strong> Członkostwo ustaje na skutek: dobrowolnej rezygnacji zgłoszonej na piśmie; wykluczenia uchwałą Zarządu z powodu łamania statutu, nieprzestrzegania uchwał władz lub działania na szkodę Stowarzyszenia; skreślenia z listy członków z powodu zalegania z opłatą składek przez okres dłuższy niż 6 miesięcy, po uprzednim pisemnym wezwaniu; śmierci członka lub utraty osobowości prawnej przez członka wspierającego będącego osobą prawną; rozwiązania Stowarzyszenia. Od uchwały Zarządu w sprawie wykluczenia lub skreślenia przysługuje odwołanie do Walnego Zebrania Członków w terminie 14 dni od doręczenia uchwały.</p>
+
+            <h4>Rozdział IV. Władze Stowarzyszenia</h4>
+            <p><strong>§17.</strong> Władzami Stowarzyszenia są: Walne Zebranie Członków, Zarząd, Komisja Rewizyjna.</p>
+            <p><strong>§18.</strong> Kadencja Zarządu i Komisji Rewizyjnej trwa <span data-bind="kadencja">[LICZBA]</span> lata/lat, a ich wybór odbywa się w głosowaniu jawnym, zwykłą większością głosów.</p>
+            <p><strong>§19.</strong> Walne Zebranie Członków jest najwyższą władzą Stowarzyszenia. Może być zwyczajne (sprawozdawcze, raz w roku) lub nadzwyczajne, zwoływane przez Zarząd z własnej inicjatywy, na wniosek Komisji Rewizyjnej lub na pisemny wniosek co najmniej 1/3 członków zwyczajnych.</p>
+            <p><strong>§20.</strong> Do kompetencji Walnego Zebrania Członków należy w szczególności: uchwalanie kierunków działania Stowarzyszenia; rozpatrywanie i zatwierdzanie sprawozdań Zarządu i Komisji Rewizyjnej; udzielanie absolutorium ustępującemu Zarządowi; wybór i odwoływanie członków Zarządu i Komisji Rewizyjnej; uchwalanie zmian statutu; podejmowanie uchwały o rozwiązaniu Stowarzyszenia i przeznaczeniu jego majątku; nadawanie i pozbawianie godności członka honorowego; ustalanie wysokości składek członkowskich; rozpatrywanie odwołań od uchwał Zarządu.</p>
+            <p><strong>§21.</strong> Zarząd kieruje bieżącą działalnością Stowarzyszenia i reprezentuje je na zewnątrz. Zarząd składa się z <span data-bind="liczbaZarzadu">[LICZBA]</span> osób, w tym Prezesa, Wiceprezesa, Skarbnika i Sekretarza, wybieranych przez Walne Zebranie Członków.</p>
+            <p><strong>§22.</strong> Do kompetencji Zarządu należy w szczególności: realizacja uchwał Walnego Zebrania Członków; kierowanie bieżącą działalnością Stowarzyszenia; przyjmowanie i wykluczanie członków; zarządzanie majątkiem i funduszami Stowarzyszenia; zwoływanie Walnego Zebrania Członków; reprezentowanie Stowarzyszenia na zewnątrz i działanie w jego imieniu.</p>
+            <p><strong>§23.</strong> Do składania oświadczeń woli w imieniu Stowarzyszenia, w tym w sprawach majątkowych, uprawnionych jest dwóch członków Zarządu działających łącznie, w tym Prezes lub Skarbnik.</p>
+            <p><strong>§24.</strong> Komisja Rewizyjna jest organem kontroli wewnętrznej, odrębnym od Zarządu i niepodlegającym mu w zakresie wykonywania kontroli wewnętrznej. Składa się z 3 członków wybieranych przez Walne Zebranie Członków spośród osób niebędących członkami Zarządu.</p>
+            <p><strong>§25.</strong> Do kompetencji Komisji Rewizyjnej należy: kontrola całokształtu działalności Stowarzyszenia, w szczególności gospodarki finansowej; występowanie do Zarządu z wnioskami wynikającymi z ustaleń kontroli; składanie Walnemu Zebraniu Członków sprawozdań ze swojej działalności oraz wniosku o udzielenie absolutorium Zarządowi. Członkowie Komisji Rewizyjnej nie mogą być członkami Zarządu ani pozostawać z nimi w stosunku pokrewieństwa, powinowactwa lub podległości z tytułu zatrudnienia, nie mogą być skazani prawomocnym wyrokiem za przestępstwo umyślne ścigane z oskarżenia publicznego lub przestępstwo skarbowe oraz mogą otrzymywać z tytułu pełnienia funkcji jedynie zwrot uzasadnionych kosztów lub wynagrodzenie nie wyższe niż przeciętne miesięczne wynagrodzenie w sektorze przedsiębiorstw.</p>
+
+            <h4>Rozdział V. Majątek i fundusze</h4>
+            <p><strong>§26.</strong> Majątek Stowarzyszenia powstaje ze składek członkowskich, darowizn, spadków, zapisów, dotacji, grantów, dochodów z majątku Stowarzyszenia oraz ofiarności publicznej.</p>
+            <p><strong>§27.</strong> Majątkiem i funduszami Stowarzyszenia zarządza Zarząd. Zabrania się udzielania pożyczek lub zabezpieczania zobowiązań majątkiem Stowarzyszenia w stosunku do jego członków, członków organów lub pracowników oraz osób bliskich tym osobom; przekazywania im majątku Stowarzyszenia na zasadach innych niż wobec osób trzecich; wykorzystywania majątku na ich rzecz na zasadach innych niż wobec osób trzecich (chyba że wynika to bezpośrednio ze statutowego celu Stowarzyszenia); zakupu towarów lub usług od podmiotów, w których uczestniczą te osoby, na zasadach innych niż wobec osób trzecich lub po cenach wyższych niż rynkowe.</p>
+
+            <h4>Rozdział VI. Zmiana statutu i rozwiązanie Stowarzyszenia</h4>
+            <p><strong>§28.</strong> Uchwałę w sprawie zmiany statutu podejmuje Walne Zebranie Członków większością 2/3 głosów przy obecności co najmniej połowy członków uprawnionych do głosowania.</p>
+            <p><strong>§29.</strong> Uchwałę o rozwiązaniu Stowarzyszenia podejmuje Walne Zebranie Członków większością 2/3 głosów przy obecności co najmniej połowy członków uprawnionych do głosowania. Uchwała określa sposób likwidacji oraz przeznaczenie majątku Stowarzyszenia na cele określone w statucie lub na cele społecznie użyteczne.</p>
+
+            <div class="st-sign-row">
+              <div>
+                <p>…………………………………………</p>
+                <p class="st-sign-label">Przewodniczący zebrania</p>
+              </div>
+              <div>
+                <p>…………………………………………</p>
+                <p class="st-sign-label">Protokolant</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WNIOSEK KRS -->
+      <section class="st-panel" id="panel-krs" data-panel="krs">
+        <div class="st-card">
+          <h2>Wniosek do KRS — checklista i instrukcja</h2>
+          <p class="st-note">
+            Rejestracja następuje w Portalu Rejestrów Sądowych:
+            <a href="https://prs.ms.gov.pl" target="_blank" rel="noopener">prs.ms.gov.pl</a>
+            (elektronicznie) lub papierowo w sądzie rejonowym właściwym dla siedziby stowarzyszenia
+            (Wydział Gospodarczy Krajowego Rejestru Sądowego).
+          </p>
+
+          <h3>Formularze</h3>
+          <table class="st-table">
+            <thead><tr><th>Formularz</th><th>Przeznaczenie</th></tr></thead>
+            <tbody>
+              <tr><td>KRS-W20</td><td>Wniosek główny o rejestrację stowarzyszenia, innej organizacji społecznej lub zawodowej, fundacji, ZOZ.</td></tr>
+              <tr><td>KRS-WK</td><td>Organy podmiotu wraz ze wskazaniem osób wchodzących w skład Zarządu i Komisji Rewizyjnej.</td></tr>
+              <tr><td>KRS-WF</td><td>Założyciele — wykaz osób fizycznych/prawnych zakładających stowarzyszenie (jeśli wymagany przez formularz elektroniczny).</td></tr>
+              <tr><td>KRS-ZN / dodatkowe</td><td>Dodatkowe informacje, jeśli dotyczy (np. zgłoszenie działalności pożytku publicznego — składane odrębnie, po rejestracji).</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Załączniki do wniosku</h3>
+          <ul class="st-checklist st-checklist-plain">
+            <li>Statut stowarzyszenia (podpisany) — zakładka „Statut”.</li>
+            <li>Protokół z zebrania założycielskiego — zakładka „Protokół zebrania”.</li>
+            <li>Lista założycieli z adresami, PESEL i podpisami — zakładka „Lista założycieli”.</li>
+            <li>Uchwała o powołaniu Komitetu Założycielskiego / Zarządu — zakładka „Uchwały”.</li>
+            <li>Uchwała o wyborze Komisji Rewizyjnej — zakładka „Uchwały”.</li>
+            <li>Dowód uiszczenia opłaty sądowej i za ogłoszenie w MSiG — jeśli dotyczy (zweryfikuj aktualne zwolnienia dla stowarzyszeń).</li>
+          </ul>
+
+          <h3>Po rejestracji</h3>
+          <ul class="st-checklist st-checklist-plain">
+            <li>Odbierz postanowienie sądu i numer KRS — stowarzyszenie uzyskuje osobowość prawną z chwilą wpisu.</li>
+            <li>REGON i NIP są zwykle nadawane automatycznie na podstawie danych z wniosku KRS (zasada jednego okienka).</li>
+            <li>Załóż rachunek bankowy na potrzeby stowarzyszenia.</li>
+            <li>Zgłoś stowarzyszenie do Polskiego Związku Strzelectwa Sportowego (PZSS) / właściwego Okręgowego Związku Strzelectwa Sportowego (OZSS), jeśli planujecie działalność klubu sportowego i udział w zawodach licencjonowanych.</li>
+          </ul>
+
+          <p class="st-disclaimer">
+            Powyższe zestawienie ma charakter pomocniczy. Dokładny zestaw formularzy i wysokość ewentualnych
+            opłat ustal bezpośrednio w Portalu Rejestrów Sądowych lub w biurze podawczym właściwego sądu —
+            przepisy i interfejs PRS bywają aktualizowane.
+          </p>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="st-panel" id="panel-faq" data-panel="faq">
+        <div class="st-card">
+          <h2>Najczęstsze pytania</h2>
+          <div class="faq-list">
+            <details>
+              <summary>Ile osób potrzeba do założenia stowarzyszenia?</summary>
+              <p class="faq-answer">Co najmniej 7 osób fizycznych (od nowelizacji z 2016 r.), posiadających pełną zdolność do czynności prawnych i niepozbawionych praw publicznych. Wcześniej wymóg wynosił 15 osób.</p>
+            </details>
+            <details>
+              <summary>Czy rejestracja stowarzyszenia jest płatna?</summary>
+              <p class="faq-answer">Wpis stowarzyszenia do rejestru stowarzyszeń KRS jest zwykle wolny od opłaty sądowej oraz opłaty za ogłoszenie w Monitorze Sądowym i Gospodarczym — zweryfikuj to jednak w aktualnym stanie prawnym przed złożeniem wniosku, ponieważ zasady mogą się zmieniać.</p>
+            </details>
+            <details>
+              <summary>Czym różni się Komitet Założycielski od Zarządu?</summary>
+              <p class="faq-answer">Komitet Założycielski działa tylko do czasu rejestracji (składa wniosek do KRS w imieniu przyszłego stowarzyszenia). Statut może od razu przewidywać, że osoby wybrane w uchwale nr 3 obejmują funkcję Zarządu z chwilą wpisu do KRS — tak jak przyjęto w tym wzorze.</p>
+            </details>
+            <details>
+              <summary>Jak długo trwa rejestracja?</summary>
+              <p class="faq-answer">Ustawowo sąd powinien rozpoznać wniosek w terminie 3 miesięcy, w praktyce zwykle krócej, o ile wniosek jest kompletny i poprawny formalnie. Braki formalne wydłużają postępowanie o czas potrzebny na ich uzupełnienie.</p>
+            </details>
+            <details>
+              <summary>Czy stowarzyszenie musi od razu zakładać działalność gospodarczą?</summary>
+              <p class="faq-answer">Nie. Stowarzyszenie może działać wyłącznie w oparciu o składki członkowskie i darowizny. Prowadzenie działalności gospodarczej jest możliwe, ale wymaga odrębnego wpisu do rejestru przedsiębiorców KRS i zapisu w statucie.</p>
+            </details>
+            <details>
+              <summary>Czy mogę zmienić dane (np. skład Zarządu) po rejestracji?</summary>
+              <p class="faq-answer">Tak — każda zmiana danych ujawnionych w KRS (adres, skład władz, statut) wymaga zgłoszenia zmiany do sądu rejestrowego w terminie 7 dni od jej zajścia (formularz KRS-Z20 wraz z odpowiednimi załącznikami).</p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="stowarzyszenie.js"></script>
+  </body>
+</html>

@@ -1,0 +1,380 @@
+.st-body {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(20, 33, 61, 0.96), rgba(13, 21, 40, 0.98)),
+    var(--paper);
+}
+
+.st-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 72px;
+  display: grid;
+  gap: 24px;
+}
+
+.st-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.st-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.st-hidden-input {
+  display: none;
+}
+
+.st-intro {
+  width: 100%;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+.st-intro h1 {
+  margin: 8px 0;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+}
+
+.st-lead {
+  color: var(--ink);
+}
+
+.st-disclaimer {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgba(196, 92, 38, 0.08);
+  border-left: 4px solid var(--accent);
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.st-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 12px;
+}
+
+.st-tab {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  padding: 9px 16px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  border-radius: 999px;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.st-tab:hover {
+  border-color: var(--brand);
+}
+
+.st-tab.active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.st-panel {
+  display: none;
+}
+
+.st-panel.active {
+  display: block;
+}
+
+.st-card {
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+.st-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.st-steps {
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.st-note {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.st-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.st-status-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 16px;
+  text-align: center;
+  display: grid;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+.st-status-num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--brand);
+}
+
+.st-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.st-checklist li {
+  border: 1px solid var(--line);
+  padding: 10px 14px;
+  background: var(--paper);
+}
+
+.st-checklist label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.94rem;
+}
+
+.st-checklist input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--brand);
+}
+
+.st-checklist li:has(input:checked) {
+  background: rgba(43, 76, 126, 0.08);
+  border-color: var(--brand);
+}
+
+.st-checklist li:has(input:checked) label {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.st-checklist-plain li {
+  background: transparent;
+}
+
+.st-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.st-progress-bar {
+  flex: 1;
+  height: 10px;
+  background: var(--steel);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.st-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+#st-progress-text {
+  font-size: 0.86rem;
+  color: var(--muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.st-form {
+  display: grid;
+  gap: 18px;
+}
+
+.st-form h3 {
+  margin: 8px 0 0;
+}
+
+.st-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.st-form label,
+.st-full {
+  display: grid;
+  gap: 6px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.st-form input,
+.st-form select,
+.st-form textarea {
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 400;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.st-full {
+  width: 100%;
+}
+
+.st-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 0.9rem;
+}
+
+.st-table th,
+.st-table td {
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.st-table th {
+  background: var(--paper);
+}
+
+.st-table input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 2px;
+}
+
+.st-table input:focus {
+  outline: 1px solid var(--brand);
+}
+
+.st-remove-row {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.st-print-card .st-card-head h2 {
+  margin: 0;
+}
+
+.st-printable h3.st-print-title {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.st-printable h4 {
+  margin-top: 26px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 4px;
+}
+
+.st-printable p,
+.st-printable li {
+  font-size: 0.95rem;
+}
+
+.st-resolution {
+  margin-bottom: 26px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed var(--line);
+}
+
+.st-resolution:last-of-type {
+  border-bottom: none;
+}
+
+.st-vote {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.st-sign-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  margin-top: 56px;
+  text-align: center;
+}
+
+.st-sign-row p {
+  margin: 0;
+}
+
+.st-sign-label {
+  margin-top: 6px !important;
+  font-size: 0.8rem !important;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .st-sign-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .st-printable.print-active,
+  .st-printable.print-active * {
+    visibility: visible;
+  }
+  .st-printable.print-active {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
